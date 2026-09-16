@@ -1,0 +1,1675 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { insforgeAdmin } from './services/insforge';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_DIR = path.join(__dirname, 'data');
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+// Interface definitions
+export interface DbSchema {
+  orders: any[];
+  kdsTickets: any[];
+  menuItems: any[];
+  floorTables: any[];
+  reservations: any[];
+  inventory: any[];
+  wasteLogs: any[];
+  customers: any[];
+  staff: any[];
+  settings: any;
+  peripherals: any[];
+  analytics: any;
+}
+
+const SEED_DATA: DbSchema = {
+  orders: [
+    {
+      id: '#ORD-10482',
+      terminal: 'POS Terminal 1',
+      table: 'Table T-12',
+      tableType: 'Dine-In · 4 Pax',
+      customer: 'Ananya Verma',
+      phone: '+91 98201 44821',
+      itemsSummary: 'Butter Chicken, Paneer Tikka, 2 Naan, 2 Coke',
+      itemsCount: 5,
+      staff: 'Sunil R.',
+      total: 1840,
+      subtotal: 1540,
+      taxes: 120,
+      serviceCharge: 180,
+      paymentStatus: 'paid',
+      paymentMethod: 'UPI',
+      kitchenStatus: 'prep',
+      kitchenTime: 'Prep (14m)',
+      time: '8:42 PM',
+      createdAt: new Date().toISOString(),
+      lineItems: [
+        { id: 'li-1', name: 'Paneer Tikka', qty: 2, price: 580, station: 'Tandoor', status: 'Ready to Serve', notes: 'Extra mint dip' },
+        { id: 'li-2', name: 'Butter Chicken', qty: 1, price: 380, station: 'Curry', status: 'Simmering in Karahi', notes: 'Medium gravy' },
+        { id: 'li-3', name: 'Garlic Naan', qty: 2, price: 160, station: 'Tandoor', status: 'Firing on wall', notes: 'Well done' },
+        { id: 'li-4', name: 'Coke (Zero Sugar 300ml)', qty: 2, price: 120, station: 'Bar', status: 'Dispensed', notes: 'Ice & lemon' },
+      ],
+    },
+    {
+      id: '#ORD-10481',
+      terminal: 'POS Terminal 2',
+      table: 'Table T-04',
+      tableType: 'Dine-In · 2 Pax',
+      customer: 'Vikram Malhotra',
+      phone: '+91 98334 11204',
+      itemsSummary: 'Tandoori Chicken, Dal Makhani, Roti',
+      itemsCount: 3,
+      staff: 'Aniket S.',
+      total: 1260,
+      subtotal: 1100,
+      taxes: 80,
+      serviceCharge: 80,
+      paymentStatus: 'unpaid',
+      paymentMethod: 'Unpaid',
+      kitchenStatus: 'prep',
+      kitchenTime: 'Prep (18m)',
+      time: '8:38 PM',
+      createdAt: new Date().toISOString(),
+      lineItems: [
+        { id: 'li-5', name: 'Tandoori Chicken', qty: 1, price: 420, station: 'Tandoor', status: 'In Skewer Oven', notes: 'Extra spicy' },
+        { id: 'li-6', name: 'Dal Makhani SpiceRoute', qty: 1, price: 280, station: 'Curry', status: 'Plated', notes: 'Extra butter' },
+        { id: 'li-7', name: 'Tandoori Roti (Butter)', qty: 4, price: 160, station: 'Tandoor', status: 'Firing', notes: 'Hot' },
+      ],
+    },
+    {
+      id: '#ORD-10480',
+      terminal: 'Fast Counter',
+      table: 'Takeaway #22',
+      tableType: 'Counter Pickup',
+      customer: 'Priya Singh',
+      phone: '+91 97110 39201',
+      itemsSummary: 'Veg Biryani, Raita',
+      itemsCount: 2,
+      staff: 'Meera K.',
+      total: 680,
+      subtotal: 600,
+      taxes: 40,
+      serviceCharge: 40,
+      paymentStatus: 'paid',
+      paymentMethod: 'Card',
+      kitchenStatus: 'ready',
+      kitchenTime: 'Ready (6m)',
+      time: '8:35 PM',
+      createdAt: new Date().toISOString(),
+      lineItems: [
+        { id: 'li-8', name: 'Chicken Dum Biryani', qty: 1, price: 340, station: 'Pantry', status: 'Packed in Box' },
+        { id: 'li-9', name: 'Burani Raita & Salan', qty: 1, price: 100, station: 'Pantry', status: 'Sealed with cutlery' },
+      ],
+    },
+    {
+      id: '#ORD-10479',
+      terminal: 'POS Terminal 1',
+      table: 'Table T-08',
+      tableType: 'Dine-In · 5 Pax',
+      customer: 'Rahul Kapoor',
+      phone: '+91 98450 77123',
+      itemsSummary: 'Paneer Butter Masala, 4 Garlic Naan, Kulfi',
+      itemsCount: 6,
+      staff: 'Sunil R.',
+      total: 2450,
+      subtotal: 2150,
+      taxes: 150,
+      serviceCharge: 150,
+      paymentStatus: 'paid',
+      paymentMethod: 'Cash',
+      kitchenStatus: 'completed',
+      kitchenTime: 'Completed',
+      time: '8:29 PM',
+      createdAt: new Date().toISOString(),
+      lineItems: [
+        { id: 'li-10', name: 'Paneer Butter Masala', qty: 2, price: 640, station: 'Curry' },
+        { id: 'li-11', name: 'Garlic Naan', qty: 4, price: 320, station: 'Tandoor' },
+      ],
+    },
+    {
+      id: '#ORD-10478',
+      terminal: 'POS Terminal 3',
+      table: 'Table T-16',
+      tableType: 'Dine-In · 2 Pax',
+      customer: 'Rohan Mehta',
+      phone: '+91 99002 88419',
+      itemsSummary: 'Chicken Dum Biryani, Mirchi Salan, Gulab Jamun',
+      itemsCount: 4,
+      staff: 'Rajesh P.',
+      total: 1590,
+      subtotal: 1390,
+      taxes: 100,
+      serviceCharge: 100,
+      paymentStatus: 'unpaid',
+      paymentMethod: 'Unpaid',
+      kitchenStatus: 'new',
+      kitchenTime: 'New (2m)',
+      time: '8:21 PM',
+      createdAt: new Date().toISOString(),
+      lineItems: [
+        { id: 'li-12', name: 'Chicken Dum Biryani', qty: 2, price: 680, station: 'Pantry' },
+        { id: 'li-13', name: 'Gulab Jamun (2 pcs)', qty: 2, price: 220, station: 'Dessert' },
+      ],
+    },
+    {
+      id: '#ORD-10477',
+      terminal: 'Aggregator Bridge',
+      table: 'Delivery #Z-904',
+      tableType: 'Swiggy Aggregator',
+      customer: 'Amit Joshi',
+      phone: '+91 98190 22100',
+      itemsSummary: 'Butter Chicken, 2 Rumali Roti',
+      itemsCount: 3,
+      staff: 'Dispatch',
+      total: 890,
+      subtotal: 790,
+      taxes: 50,
+      serviceCharge: 50,
+      paymentStatus: 'paid',
+      paymentMethod: 'Online',
+      kitchenStatus: 'completed',
+      kitchenTime: 'Completed',
+      time: '8:15 PM',
+      createdAt: new Date().toISOString(),
+      lineItems: [
+        { id: 'li-14', name: 'Butter Chicken', qty: 1, price: 380, station: 'Curry' },
+        { id: 'li-15', name: 'Garlic Naan', qty: 2, price: 160, station: 'Tandoor' },
+      ],
+    },
+  ],
+
+  kdsTickets: [
+    {
+      id: '#KOT-848',
+      orderId: '#ORD-10482',
+      table: 'Table T-12',
+      orderType: 'Dine-In',
+      pax: 4,
+      server: 'Sunil R.',
+      elapsedMinutes: 14,
+      status: 'cooking',
+      createdAt: new Date().toISOString(),
+      items: [
+        { id: 'k1', name: 'Paneer Tikka (Tandoor)', qty: 2, station: 'Tandoor', isDone: true, modifiers: 'Extra spicy, Mint dip' },
+        { id: 'k2', name: 'Butter Chicken (Boneless)', qty: 1, station: 'Curry', isDone: false, modifiers: 'Medium rich gravy' },
+        { id: 'k3', name: 'Garlic Naan (Crispy)', qty: 2, station: 'Tandoor', isDone: false, modifiers: 'Crispy butter brushed' },
+        { id: 'k4', name: 'Coke (Zero Sugar 300ml)', qty: 2, station: 'Bar', isDone: true, modifiers: 'Chilled with ice' },
+      ],
+    },
+    {
+      id: '#KOT-847',
+      orderId: '#ORD-10481',
+      table: 'Table T-04',
+      orderType: 'Dine-In',
+      pax: 2,
+      server: 'Aniket S.',
+      elapsedMinutes: 19,
+      isUrgent: true,
+      status: 'cooking',
+      createdAt: new Date().toISOString(),
+      items: [
+        { id: 'k5', name: 'Tandoori Chicken (Full)', qty: 1, station: 'Tandoor', isDone: false, modifiers: 'Extra degi mirch', specialNote: 'ALLERGY: No peanuts' },
+        { id: 'k6', name: 'Dal Makhani SpiceRoute', qty: 1, station: 'Curry', isDone: true, modifiers: 'White butter dollop' },
+        { id: 'k7', name: 'Tandoori Roti (Butter)', qty: 4, station: 'Tandoor', isDone: false },
+      ],
+    },
+    {
+      id: '#KOT-846',
+      orderId: '#ORD-10480',
+      table: 'Takeaway #22',
+      orderType: 'Takeaway',
+      pax: 1,
+      server: 'Meera K.',
+      elapsedMinutes: 6,
+      status: 'ready',
+      createdAt: new Date().toISOString(),
+      items: [
+        { id: 'k8', name: 'Chicken Dum Biryani', qty: 1, station: 'Pantry', isDone: true, modifiers: 'Pack with double salan' },
+        { id: 'k9', name: 'Burani Garlic Raita', qty: 1, station: 'Pantry', isDone: true },
+      ],
+    },
+    {
+      id: '#KOT-845',
+      orderId: '#ORD-10478',
+      table: 'Table T-16',
+      orderType: 'Dine-In',
+      pax: 2,
+      server: 'Rajesh P.',
+      elapsedMinutes: 3,
+      status: 'new',
+      createdAt: new Date().toISOString(),
+      items: [
+        { id: 'k10', name: 'Chicken Dum Biryani', qty: 1, station: 'Pantry', isDone: false, modifiers: 'Boneless piece' },
+        { id: 'k11', name: 'Mirchi Ka Salan', qty: 1, station: 'Curry', isDone: false },
+        { id: 'k12', name: 'Gulab Jamun (2 pcs)', qty: 1, station: 'Pantry', isDone: false },
+      ],
+    },
+  ],
+
+  menuItems: [
+    {
+      id: 'm1',
+      sku: 'SKU-102',
+      name: 'Paneer Tikka',
+      category: 'starters',
+      price: 290,
+      cost: 72,
+      foodCostPct: 24.8,
+      marginPct: 75.2,
+      matrixTier: 'Star',
+      isVeg: true,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Charcoal-grilled cottage cheese cubes with peppers and mint dip.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuCp_6CFR3E-8f37S3fRDufLwRpCRWr4UmocpRyuHFSetsbzBmXbMkNSBtpShT6_Pft40jHQkyG2WrmcTizjo3WsSl_8Ng48_1mI1U_AplNCGFH1TfIccLd_xFA97TESR97G_CGhbuVeIaM22wXEw1Fi5pYJPRYZFYbz7CY_LeJrT7N06th1UTYmwhkuSXHlwcNED8ZQP3N7yy-MnLV_7Lnk-adRqs0-Q_E21-yTwQONnIY1dwVblzw6',
+      altText: 'Paneer Tikka',
+    },
+    {
+      id: 'm2',
+      sku: 'SKU-101',
+      name: 'Butter Chicken',
+      category: 'main-course',
+      price: 380,
+      cost: 108,
+      foodCostPct: 28.4,
+      marginPct: 71.6,
+      matrixTier: 'Star',
+      isVeg: false,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Tandoori chicken in rich velvety makhani tomato butter gravy.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuDH8LH1fdiIdDAAuM87hOyrSr5o0N_k21tQrJ62lukG9qcewaJ3scqOfcOI8BTTj0kp5I7WxsdMEhkIDsgIddnzgGIkknVVFk4OPoTBnXY1zeyz7kFzDVa_s5BQFHdWy-zQchP8Jki9oFwlcj1REaKmgoXsiKRs4tHCJXUV93jNIH3eTbsjuyD33aqAqPsKcoEtlT-4EGRlxKbXUVTXIGci17x0zWNBxPLSV2-W6Lc90T-fxaV7E-Vq',
+      altText: 'Butter Chicken',
+    },
+    {
+      id: 'm3',
+      sku: 'SKU-105',
+      name: 'Paneer Butter Masala',
+      category: 'main-course',
+      price: 320,
+      cost: 88,
+      foodCostPct: 27.5,
+      marginPct: 72.5,
+      matrixTier: 'Star',
+      isVeg: true,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Velvety butter gravy with roasted whole spices, fresh cream, and tender soft paneer cubes.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuCt6tS1yZeVJXYs7xnTN1ccvHa2HW2saDI3CsZiEgyQpS9cf75gOQWe5gm_HVxvY5TfSP3mUaHKQ8UnRKrpZ9Dn8Fj0mZvYFKUwDhYqb81xz4RPZsnyXTofmCcDaPPmvH9yyKK0DwKET7UtFW7mdiCHDNaPenqqjyDVtmrNpWWhwtBoreECBuC21r4YOYhmEiNPc_4HE76B3ZKmgXlKMjbZKR5S4nshmDa2oQ4SO9jom5MsfNTDtFfF',
+      altText: 'Paneer Butter Masala',
+    },
+    {
+      id: 'm4',
+      sku: 'SKU-106',
+      name: 'Tandoori Chicken',
+      category: 'starters',
+      price: 420,
+      cost: 130,
+      foodCostPct: 30.9,
+      marginPct: 69.1,
+      matrixTier: 'Star',
+      isVeg: false,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Whole spring chicken marinated with Kashmiri deggi mirch and roasted over charcoal.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuCufIW8nyrb93az0RcAMyVwzXqp6w-12rHazdtVueoPFXyz8rp8jtpKSkl6_Y7XOO2LqLrXxOK7EFIwcyNLiqcnbNCNeCw9YqR_wiUfxZt7JKF0PZapMkJelnsOJCMUE8_5Mqr_534FzXzFbyJJD8VdJuevYKcWKpqbEB7rfBCsbKa-mQhVCcgdOK7vTaI7K9DMaxIx5a_1Hdmvm_k6JdUaPc4lRe1zWAO5mEyWK4gsNrXLakk0GXxI',
+      altText: 'Tandoori Chicken',
+    },
+    {
+      id: 'm5',
+      sku: 'SKU-107',
+      name: 'Margherita Pizza',
+      category: 'pizza',
+      price: 310,
+      cost: 70,
+      foodCostPct: 22.5,
+      marginPct: 77.5,
+      matrixTier: 'Star',
+      isVeg: true,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: '11-inch thin crust topped with San Marzano tomatoes, bocconcini cheese, and fresh basil.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuAjvcVl0Dd0pb9eeX_hjPlmBqMLYPwwAHc8HtROmwfCNs7n_un5k2lA1ursr96DkhFGiAh8nT7grEk0acpZK5MByfvzNK5U-cYaNxl6aEmdlz4uuHaGrhSE7kZlKlKzmGFhV-KmQugsIRdjxH0clgEzsYx64b8zD_vnb9m6-6B1I2ItJfXVgnq4unxRydNIKkKvN0AZV5eC5hbE2cpnwXPvZExy1rMyr8N7kpG0fSdABO7AI8ySQBjw',
+      altText: 'Margherita Pizza',
+    },
+    {
+      id: 'm6',
+      sku: 'SKU-108',
+      name: 'Gulab Jamun (2 pcs)',
+      category: 'desserts',
+      price: 110,
+      cost: 22,
+      foodCostPct: 20.0,
+      marginPct: 80.0,
+      matrixTier: 'Plowhorse',
+      isVeg: true,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Warm fried milk dumplings soaked in green cardamom & saffron infused sugar syrup.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuCfS7MBQ6KXSlb_StqI-OQHKbrGZMaMnmGVAd_mGTltJEDQfNYGMgs4iNkbAzug13ZfQSncWAqDm2T_B7bMw9NiHomU3tpRMxttgnvPPnGAE5CiWrYRgXJm1wIT-728DD0m4Y-v7WDGgEAFIKfak7FxiOIGvAZc8bhPJBOAOLCJUzh9jlqW4qfZOSiqR-VBCOaBRBxjQ8ca4X_Dwy65cQOCtGf7eb2UaceqWryfPxBUZwIFuxK_aF33',
+      altText: 'Gulab Jamun',
+    },
+    {
+      id: 'm7',
+      sku: 'SKU-109',
+      name: 'Masala Chai',
+      category: 'beverages',
+      price: 60,
+      cost: 12,
+      foodCostPct: 20.0,
+      marginPct: 80.0,
+      matrixTier: 'Plowhorse',
+      isVeg: true,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Slow-brewed Assam CTC black tea with crushed ginger, cloves, cinnamon, and whole milk.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuCPRzaZGbWKdYmTmXGIsIB2JzYXr4dtw9FVzIj2FHAYpFyb8fi_yvJsaY71lLvnPGYd_1_3PV8gEnAYzNBQKuWc-8Qw1Ey1UvuzZxpX6mZcyHwALj547f50_uFh8AZ4a0wL8BPknMRyJboOPHc3zX7Sfy1OZU0hHKYRvT_pTK8VA03yguKV4Jh2id0IE2j1ohAccEG9IRgCbpvQybTlN-8-p9Y2mQvyD6Re26YPBGeQOOvJ1fTPYeHq',
+      altText: 'Masala Chai',
+    },
+    {
+      id: 'm8',
+      sku: 'SKU-103',
+      name: 'Garlic Naan',
+      category: 'breads',
+      price: 80,
+      cost: 14,
+      foodCostPct: 17.5,
+      marginPct: 82.5,
+      matrixTier: 'Plowhorse',
+      isVeg: true,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Freshly baked tandoori bread brushed with butter and garlic.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuA9PrUCnLDZ8dc0ytNrGsbbI2GnDy44k38_XZUDxdNWj6hYxTUAbxylXQkaJ6q8c_ubW-v_m23TgSScf5uw19nZSsapsF1CuJCjvsePNavpa4tGCnXJJOnSQa-2JTpOd_jCbEAQxshoB4XKQQlMAjMYFGTdWtf7P6NXlc3abJIFwpAVFFjuTHtnV5K38xqHwsZrl8YtbE7nwBpISqsdl48c3bPD-VWW2Zwi0Fl2RZ0AtTaajBFh6EsK',
+      altText: 'Garlic Naan',
+    },
+    {
+      id: 'm9',
+      sku: 'SKU-104',
+      name: 'Chicken Dum Biryani',
+      category: 'rice',
+      price: 340,
+      cost: 112,
+      foodCostPct: 32.9,
+      marginPct: 67.1,
+      matrixTier: 'Star',
+      isVeg: false,
+      inStock: true,
+      dineInActive: true,
+      onlineActive: true,
+      description: 'Fragrant basmati rice dum cooked with spiced chicken and caramelised onions.',
+      imageUrl:
+        'https://lh3.googleusercontent.com/aida-public/AB6AXuBENWDfx1-d0UWSah0Kgdyaer1PRWXCJeC4hQf9ZyVg2qPQoOixLFLTRdidHssPfL_tRyv6Qs5RAoV8JwV2UtPrDImdSZ-5WiTJKd1y1nuVM-saxxWYA1asa5zFqkALDG0ptHc9g-pwJXl5SkFc6A_Qszb8Tr6Y0qrg7odVsGF6f1LejRHiyTGqdtICtMH8lWeHky0LwakwaMT4-xJhiLDBh2LgTEtNOZbMwemeeAYzjJdEpJSBa6RK',
+      altText: 'Chicken Dum Biryani',
+    },
+  ],
+
+  floorTables: [
+    { id: 'T01', name: 'T01', capacity: 4, section: 'main', status: 'occupied', guestsCount: 4, server: 'Sunil R.', orderInfo: 'Occupied (30m)', amount: 1540, timeSeated: '30m' },
+    { id: 'T02', name: 'T02', capacity: 2, section: 'main', status: 'occupied', guestsCount: 2, server: 'Aniket S.', orderInfo: 'Occupied (15m)', amount: 840, timeSeated: '15m' },
+    { id: 'T03', name: 'T03', capacity: 2, section: 'main', status: 'available', orderInfo: 'Available' },
+    { id: 'T04', name: 'T04', capacity: 4, section: 'main', status: 'occupied', guestsCount: 2, server: 'Aniket S.', orderInfo: 'Occupied (ORD-10481)', amount: 1260, timeSeated: '18m' },
+    { id: 'T05', name: 'T05', capacity: 6, section: 'main', status: 'reserved', orderInfo: 'Reserved (20:45 PM)', customerName: 'Dr. Alok Verma' },
+    { id: 'T06', name: 'T06', capacity: 4, section: 'main', status: 'occupied', guestsCount: 4, server: 'Rajesh P.', orderInfo: 'Occupied (50m)', amount: 2890, timeSeated: '50m' },
+    { id: 'T07', name: 'T07', capacity: 4, section: 'main', status: 'available', orderInfo: 'Available' },
+    { id: 'T08', name: 'T08', capacity: 6, section: 'main', status: 'occupied', guestsCount: 5, server: 'Sunil R.', orderInfo: 'Occupied (Rahul K.)', amount: 2450, timeSeated: '44m' },
+    { id: 'T09', name: 'T09', capacity: 2, section: 'main', status: 'cleaning', orderInfo: 'Cleaning' },
+    { id: 'T10', name: 'T10', capacity: 4, section: 'main', status: 'occupied', guestsCount: 3, server: 'Meera K.', orderInfo: 'Occupied', amount: 1980, timeSeated: '26m' },
+    { id: 'T11', name: 'T11', capacity: 2, section: 'main', status: 'occupied', guestsCount: 2, server: 'Aniket S.', orderInfo: 'Occupied', amount: 920, timeSeated: '15m' },
+    {
+      id: 'T12',
+      name: 'T12',
+      capacity: 4,
+      section: 'main',
+      status: 'occupied',
+      guestsCount: 4,
+      server: 'Sunil R.',
+      customerName: 'Ananya Verma',
+      orderInfo: 'Occupied • #ORD-10482',
+      timeSeated: '42m',
+      amount: 1840,
+      activeTarget: true,
+    },
+    { id: 'T13', name: 'T13', capacity: 4, section: 'patio', status: 'available', orderInfo: 'Available' },
+    { id: 'T14', name: 'T14', capacity: 8, section: 'patio', status: 'occupied', guestsCount: 6, server: 'Rajesh P.', orderInfo: 'Occupied', amount: 4120, timeSeated: '35m' },
+    { id: 'T15', name: 'T15', capacity: 2, section: 'patio', status: 'reserved', orderInfo: 'Reserved', customerName: 'Rajiv Mehra' },
+    { id: 'T16', name: 'T16', capacity: 4, section: 'patio', status: 'occupied', guestsCount: 2, server: 'Rajesh P.', orderInfo: 'Occupied (Rohan M.)', amount: 1590, timeSeated: '21m' },
+    { id: 'T17', name: 'T17', capacity: 2, section: 'patio', status: 'occupied', guestsCount: 2, server: 'Sunil R.', orderInfo: 'Occupied', amount: 1100, timeSeated: '12m' },
+    { id: 'T18', name: 'T18', capacity: 4, section: 'patio', status: 'cleaning', orderInfo: 'Cleaning' },
+    { id: 'T19', name: 'T19', capacity: 2, section: 'vip', status: 'available', orderInfo: 'Available' },
+    { id: 'T20', name: 'T20', capacity: 4, section: 'vip', status: 'occupied', guestsCount: 4, server: 'Sunil R.', orderInfo: 'Occupied', amount: 3200, timeSeated: '40m' },
+    { id: 'T21', name: 'T21', capacity: 6, section: 'vip', status: 'occupied', guestsCount: 6, server: 'Aniket S.', orderInfo: 'Occupied', amount: 5600, timeSeated: '55m' },
+    { id: 'T22', name: 'T22', capacity: 2, section: 'vip', status: 'reserved', orderInfo: 'Reserved', customerName: 'Karan Singhania' },
+    { id: 'T23', name: 'T23', capacity: 4, section: 'bar', status: 'available', orderInfo: 'Available' },
+    { id: 'T24', name: 'T24', capacity: 8, section: 'bar', status: 'occupied', guestsCount: 8, server: 'Rajesh P.', orderInfo: 'Occupied', amount: 6800, timeSeated: '48m' },
+  ],
+
+  reservations: [
+    {
+      id: 'RES-401',
+      guestName: 'Dr. Alok Verma',
+      phone: '+91 98201 44821',
+      timeSlot: '20:45 PM',
+      pax: 6,
+      table: 'Table T-05 (Terrace)',
+      status: 'confirmed',
+      statusLabel: 'Confirmed',
+      isVip: true,
+      vipTier: 'VIP Platinum',
+      occasion: 'Anniversary Dinner',
+      notes: 'Prefers quiet corner table, strict gluten-free for 1 pax',
+      depositAmount: 2000,
+      date: '2026-09-16',
+    },
+    {
+      id: 'RES-402',
+      guestName: 'Sunita Rao',
+      phone: '+91 98450 11992',
+      timeSlot: '20:30 PM',
+      pax: 4,
+      table: 'Table T-12 (Main)',
+      status: 'seated',
+      statusLabel: 'Seated (42m)',
+      isVip: true,
+      vipTier: 'VIP Gold',
+      occasion: 'Family Dinner',
+      notes: 'High chair required for toddler',
+      depositAmount: 1000,
+      date: '2026-09-16',
+    },
+    {
+      id: 'RES-403',
+      guestName: 'Rajiv Mehra',
+      phone: '+91 97110 88234',
+      timeSlot: '21:00 PM',
+      pax: 2,
+      table: 'Table T-15 (VIP Alcove)',
+      status: 'confirmed',
+      statusLabel: 'Confirmed',
+      occasion: 'Business Meeting',
+      notes: 'Window side preferred',
+      depositAmount: 1500,
+      date: '2026-09-16',
+    },
+    {
+      id: 'RES-404',
+      guestName: 'Karan Singhania',
+      phone: '+91 99881 22301',
+      timeSlot: '21:15 PM',
+      pax: 8,
+      table: 'Table T-21 (Private)',
+      status: 'waitlist',
+      statusLabel: 'Waitlist #1',
+      isVip: true,
+      vipTier: 'VIP Gold',
+      occasion: 'Birthday Party',
+      notes: 'Pre-ordered custom cake delivery at 21:30',
+      date: '2026-09-16',
+    },
+  ],
+
+  inventory: [
+    {
+      id: 'ING-014',
+      name: 'Fresh Paneer (Malai Block)',
+      category: 'Dairy',
+      currentStock: 4.5,
+      unit: 'kg',
+      parLevel: 25,
+      reorderPoint: 8,
+      unitCost: 320,
+      valuation: 1440,
+      status: 'low',
+      supplier: 'Amul Dairy Dist. Bangalore',
+    },
+    {
+      id: 'ING-008',
+      name: 'Spring Chicken (Skinless Cut)',
+      category: 'Meat',
+      currentStock: 18.2,
+      unit: 'kg',
+      parLevel: 40,
+      reorderPoint: 15,
+      unitCost: 220,
+      valuation: 4004,
+      status: 'healthy',
+      supplier: 'Suguna Fresh Meats',
+    },
+    {
+      id: 'ING-032',
+      name: 'Basmati Rice (Daawat Royal)',
+      category: 'Staples',
+      currentStock: 95.0,
+      unit: 'kg',
+      parLevel: 150,
+      reorderPoint: 40,
+      unitCost: 110,
+      valuation: 10450,
+      status: 'healthy',
+      supplier: 'Metro Cash & Carry',
+    },
+    {
+      id: 'ING-055',
+      name: 'Amul Salted Butter (500g)',
+      category: 'Dairy',
+      currentStock: 2.0,
+      unit: 'blocks',
+      parLevel: 20,
+      reorderPoint: 5,
+      unitCost: 275,
+      valuation: 550,
+      status: 'critical',
+      supplier: 'Amul Direct Depot',
+    },
+    {
+      id: 'ING-091',
+      name: 'Kashmiri Deggi Mirch Powder',
+      category: 'Spices',
+      currentStock: 12.5,
+      unit: 'kg',
+      parLevel: 15,
+      reorderPoint: 4,
+      unitCost: 550,
+      valuation: 6875,
+      status: 'healthy',
+      supplier: 'MDH Wholesale Hub',
+    },
+  ],
+
+  wasteLogs: [
+    { id: 'W-01', item: 'Boiled Basmati Rice', qty: '1.2 kg', reason: 'Overcooked texture', cost: 132, loggedAt: new Date().toISOString() },
+    { id: 'W-02', item: 'Chopped Onions', qty: '0.8 kg', reason: 'End of shift prep overflow', cost: 48, loggedAt: new Date().toISOString() },
+  ],
+
+  customers: [
+    {
+      id: 'CUST-801',
+      name: 'Dr. Alok Verma',
+      phone: '+91 98201 44821',
+      tier: 'Platinum',
+      visits: 28,
+      totalSpend: 54200,
+      points: 5420,
+      preferredTable: 'Table T-05 (Terrace)',
+      dietaryTags: ['Gluten-Free', 'High Spiced'],
+      lastVisit: 'Today (Dinner)',
+    },
+    {
+      id: 'CUST-802',
+      name: 'Ananya Verma',
+      phone: '+91 98201 44821',
+      tier: 'Gold',
+      visits: 19,
+      totalSpend: 36400,
+      points: 3640,
+      preferredTable: 'Table T-12 (Main)',
+      dietaryTags: ['Less Oil', 'Butter Chicken Fan'],
+      lastVisit: 'Today (Dinner)',
+    },
+    {
+      id: 'CUST-803',
+      name: 'Vikram Malhotra',
+      phone: '+91 98334 11204',
+      tier: 'Gold',
+      visits: 14,
+      totalSpend: 28900,
+      points: 2890,
+      preferredTable: 'Table T-04',
+      dietaryTags: ['Non-Veg', 'Craft Beer'],
+      lastVisit: 'Today (Dinner)',
+    },
+    {
+      id: 'CUST-804',
+      name: 'Priya Singh',
+      phone: '+91 97110 39201',
+      tier: 'Silver',
+      visits: 8,
+      totalSpend: 14800,
+      points: 1480,
+      preferredTable: 'Takeaway Counter',
+      dietaryTags: ['Vegetarian', 'Biryani Lover'],
+      lastVisit: 'Today (Pickup)',
+    },
+    {
+      id: 'CUST-805',
+      name: 'Rahul Kapoor',
+      phone: '+91 98450 77123',
+      tier: 'Platinum',
+      visits: 34,
+      totalSpend: 68400,
+      points: 6840,
+      preferredTable: 'Table T-08',
+      dietaryTags: ['Family Dining', 'Celebration Host'],
+      lastVisit: 'Today (Dinner)',
+    },
+  ],
+
+  staff: [
+    {
+      id: 'EMP-001',
+      name: 'Aniket Sharma',
+      role: 'General Manager',
+      department: 'Management',
+      clockInTime: '17:30 IST',
+      status: 'active',
+      station: 'Operations Dispatch Hub',
+      pinAuthLevel: 'Master (L4)',
+      tipsEarned: 0,
+    },
+    {
+      id: 'EMP-004',
+      name: 'Chef Harish Rawat',
+      role: 'Executive Head Chef',
+      department: 'Kitchen',
+      clockInTime: '17:00 IST',
+      status: 'active',
+      station: 'Curry & Master Station',
+      pinAuthLevel: 'Supervisor (L3)',
+      tipsEarned: 640,
+    },
+    {
+      id: 'EMP-012',
+      name: 'Sunil Rathod',
+      role: 'Lead Floor Captain',
+      department: 'Service',
+      clockInTime: '17:45 IST',
+      status: 'active',
+      station: 'Main Dining Hall (T01-T12)',
+      pinAuthLevel: 'Supervisor (L3)',
+      tipsEarned: 820,
+    },
+    {
+      id: 'EMP-018',
+      name: 'Meera Kumari',
+      role: 'Cashier & POS Lead',
+      department: 'Cashier',
+      clockInTime: '18:00 IST',
+      status: 'active',
+      station: 'Billing Counter POS 01',
+      pinAuthLevel: 'Floor (L2)',
+      tipsEarned: 520,
+    },
+    {
+      id: 'EMP-022',
+      name: 'Rajesh Paswan',
+      role: 'Senior Server',
+      department: 'Service',
+      clockInTime: '18:10 IST',
+      status: 'active',
+      station: 'Terrace & Lounge (T13-T24)',
+      pinAuthLevel: 'Floor (L2)',
+      tipsEarned: 740,
+    },
+  ],
+
+  settings: {
+    storeName: 'SpiceRoute Gourmet Hospitality LLP',
+    brandName: 'SpiceRoute Kitchen #01 (MG Road)',
+    gstin: '29AAAAA0000A1Z5',
+    fssai: '11223344000192',
+    address: '#42 MG Road, Brigade Junction, Bengaluru 560001',
+    cgstRate: 2.5,
+    sgstRate: 2.5,
+    serviceChargeRate: 5.0,
+    vatRate: 18.0,
+    autoKdsSync: true,
+    chimeSound: true,
+  },
+
+  peripherals: [
+    {
+      id: 'DEV-01',
+      name: 'Billing Master Receipt Printer',
+      deviceType: 'Thermal ESC/POS 80mm',
+      model: 'Epson TM-T88VI',
+      ipAddress: '192.168.1.120:9100',
+      status: 'online',
+      lastPing: 4,
+    },
+    {
+      id: 'DEV-02',
+      name: 'Tandoor & Starters KOT Printer',
+      deviceType: 'Thermal Auto-Cutter',
+      model: 'TVS RP-3200 Star',
+      ipAddress: '192.168.1.121:9100',
+      status: 'low_paper',
+      lastPing: 8,
+    },
+    {
+      id: 'DEV-03',
+      name: 'Curry Station Kitchen Printer',
+      deviceType: 'Dot-Matrix Impact Ribbon',
+      model: 'Epson TM-U220B (Red/Black)',
+      ipAddress: '192.168.1.122:9100',
+      status: 'online',
+      lastPing: 6,
+    },
+    {
+      id: 'DEV-04',
+      name: 'PineLabs Plutus EDC Terminal',
+      deviceType: 'Android Cloud POS Terminal',
+      model: 'PineLabs V200T',
+      ipAddress: 'Cloud API Webhook (PL-882194)',
+      status: 'online',
+      lastPing: 12,
+    },
+  ],
+
+  analytics: {
+    todayRevenue: 48620,
+    yesterdayRevenue: 41050,
+    totalOrders: 127,
+    aov: 383,
+    occupancyPct: 78,
+    activeTables: 19,
+    totalTables: 24,
+    pendingOrdersCount: 8,
+    mtdRevenue: 486200,
+    foodCostPct: 28.2,
+    netMarginPct: 30.0,
+    avgTurnaround: '16.4m',
+  },
+};
+
+class Database {
+  private data: DbSchema;
+
+  constructor() {
+    this.data = this.loadData();
+    this.recalculateAnalytics();
+  }
+
+  private loadData(): DbSchema {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      if (fs.existsSync(DB_FILE)) {
+        const fileContent = fs.readFileSync(DB_FILE, 'utf-8');
+        return JSON.parse(fileContent);
+      }
+    } catch (err) {
+      console.error('Error reading db.json, falling back to seed data:', err);
+    }
+    this.saveData(SEED_DATA);
+    return JSON.parse(JSON.stringify(SEED_DATA));
+  }
+
+  public saveData(customData?: DbSchema) {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.writeFileSync(DB_FILE, JSON.stringify(customData || this.data, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Error saving db.json:', err);
+    }
+  }
+
+  // Dynamic Telemetry & Analytics calculation
+  public recalculateAnalytics() {
+    const orders = this.data.orders || [];
+    const tables = this.data.floorTables || [];
+
+    // Base figures plus real order sum
+    const baseRevenue = 40000;
+    const liveOrdersRevenue = orders.reduce((acc, o) => acc + (Number(o.total) || 0), 0);
+    const todayRevenue = baseRevenue + liveOrdersRevenue;
+    const totalOrders = 120 + orders.length;
+    const aov = totalOrders > 0 ? Math.round(todayRevenue / totalOrders) : 0;
+
+    const totalTables = tables.length || 24;
+    const occupiedTables = tables.filter((t) => t.status === 'occupied').length;
+    const occupancyPct = totalTables > 0 ? Math.round((occupiedTables / totalTables) * 100) : 0;
+
+    const pendingOrdersCount = orders.filter((o) => o.kitchenStatus !== 'completed').length + 2;
+
+    this.data.analytics = {
+      ...this.data.analytics,
+      todayRevenue,
+      yesterdayRevenue: 41050,
+      totalOrders,
+      aov,
+      occupancyPct,
+      activeTables: occupiedTables,
+      totalTables,
+      pendingOrdersCount,
+      mtdRevenue: todayRevenue * 10,
+      foodCostPct: 28.2,
+      netMarginPct: 30.0,
+      avgTurnaround: '16.4m',
+    };
+
+    return this.data.analytics;
+  }
+
+  // Dynamic Hourly Analytics
+  public getHourlyAnalytics() {
+    const orders = this.data.orders || [];
+    const base = [
+      { hour: '12 PM', revenue: 2400, orders: 8 },
+      { hour: '2 PM', revenue: 4200, orders: 14 },
+      { hour: '4 PM', revenue: 1800, orders: 6 },
+      { hour: '6 PM', revenue: 5600, orders: 18 },
+      { hour: '7 PM', revenue: 7800, orders: 22 },
+      { hour: '8:30 PM', revenue: 9400, orders: 24 },
+      { hour: '10 PM', revenue: 6200, orders: 16 },
+      { hour: '11 PM', revenue: 3100, orders: 9 },
+    ];
+
+    // Add live orders dynamically to the closest peak hour (8:30 PM & 10 PM)
+    const recentRevenue = orders.slice(0, 5).reduce((acc, o) => acc + (Number(o.total) || 0), 0);
+    const recentCount = orders.slice(0, 5).length;
+
+    base[5].revenue += recentRevenue;
+    base[5].orders += recentCount;
+
+    // Find peak hour
+    let maxRev = 0;
+    let peakIndex = 5;
+    base.forEach((b, idx) => {
+      if (b.revenue > maxRev) {
+        maxRev = b.revenue;
+        peakIndex = idx;
+      }
+    });
+
+    return base.map((b, idx) => ({
+      ...b,
+      isPeak: idx === peakIndex,
+    }));
+  }
+
+  // Dynamic Channel Analytics
+  public getChannelAnalytics() {
+    const orders = this.data.orders || [];
+    let dineInRev = 0;
+    let takeawayRev = 0;
+    let deliveryRev = 0;
+
+    orders.forEach((o) => {
+      const type = (o.tableType || o.table || '').toLowerCase();
+      const total = Number(o.total) || 0;
+      if (type.includes('takeaway') || type.includes('counter')) {
+        takeawayRev += total;
+      } else if (type.includes('swiggy') || type.includes('zomato') || type.includes('delivery')) {
+        deliveryRev += total;
+      } else {
+        dineInRev += total;
+      }
+    });
+
+    const baseDine = 311168 + dineInRev;
+    const baseTake = 106964 + takeawayRev;
+    const baseDel = 68068 + deliveryRev;
+    const total = baseDine + baseTake + baseDel;
+
+    return {
+      total,
+      dineIn: { amount: baseDine, pct: Math.round((baseDine / total) * 100) },
+      takeaway: { amount: baseTake, pct: Math.round((baseTake / total) * 100) },
+      delivery: { amount: baseDel, pct: Math.round((baseDel / total) * 100) },
+    };
+  }
+
+  // Dynamic Popular Dishes
+  public getPopularDishes() {
+    const menu = this.data.menuItems || [];
+    const orders = this.data.orders || [];
+
+    const countMap: Record<string, { count: number; revenue: number }> = {};
+    orders.forEach((o) => {
+      if (Array.isArray(o.lineItems)) {
+        o.lineItems.forEach((li: any) => {
+          const name = li.name?.replace(/\s*\([^)]*\)/g, '').trim() || 'Dish';
+          if (!countMap[name]) countMap[name] = { count: 0, revenue: 0 };
+          const qty = Number(li.qty) || 1;
+          const price = Number(li.price) || 200;
+          countMap[name].count += qty;
+          countMap[name].revenue += qty * price;
+        });
+      }
+    });
+
+    return menu.slice(0, 5).map((m) => {
+      const extra = countMap[m.name] || { count: 0, revenue: 0 };
+      const baseOrders = m.id === 'm2' ? 142 : m.id === 'm1' ? 118 : m.id === 'm9' ? 84 : m.id === 'm8' ? 195 : 97;
+      const totalCount = baseOrders + extra.count;
+      const totalRevenue = totalCount * m.price;
+      return {
+        id: m.id,
+        name: m.name,
+        isVeg: m.isVeg,
+        ordersCount: totalCount,
+        revenue: totalRevenue,
+        growth: '+18%',
+        isPositiveGrowth: true,
+        imageUrl: m.imageUrl,
+        altText: m.name,
+      };
+    });
+  }
+
+  // Dynamic Pipeline Segments
+  public getPipelineSegments() {
+    const orders = this.data.orders || [];
+    let newCount = 0;
+    let prepCount = 0;
+    let readyCount = 0;
+    let compCount = 100;
+    let cancelCount = 0;
+
+    orders.forEach((o) => {
+      const status = (o.kitchenStatus || '').toLowerCase();
+      if (status === 'new') newCount += 1;
+      else if (status === 'prep' || status === 'cooking' || status === 'preparing') prepCount += 1;
+      else if (status === 'ready') readyCount += 1;
+      else if (status === 'completed' || o.paymentStatus === 'paid') compCount += 1;
+      else if (status === 'cancelled') cancelCount += 1;
+      else newCount += 1;
+    });
+
+    const total = newCount + prepCount + readyCount + compCount + cancelCount || 1;
+
+    return [
+      {
+        id: 'new',
+        label: 'New Queue',
+        count: newCount,
+        color: 'bg-primary-container',
+        dotColor: 'bg-primary-container',
+        width: `${Math.max(5, Math.round((newCount / total) * 100))}%`,
+        textClass: 'text-on-surface',
+      },
+      {
+        id: 'preparing',
+        label: 'Preparing',
+        count: prepCount,
+        color: 'bg-tertiary-container',
+        dotColor: 'bg-tertiary',
+        width: `${Math.max(5, Math.round((prepCount / total) * 100))}%`,
+        textClass: 'text-tertiary',
+      },
+      {
+        id: 'ready',
+        label: 'Ready',
+        count: readyCount,
+        color: 'bg-secondary',
+        dotColor: 'bg-secondary',
+        width: `${Math.max(4, Math.round((readyCount / total) * 100))}%`,
+        textClass: 'text-secondary',
+      },
+      {
+        id: 'completed',
+        label: 'Completed',
+        count: compCount,
+        color: 'bg-surface-bright',
+        dotColor: 'bg-surface-variant',
+        width: `${Math.max(40, Math.round((compCount / total) * 100))}%`,
+        textClass: 'text-on-surface',
+      },
+      {
+        id: 'cancelled',
+        label: 'Cancelled',
+        count: cancelCount,
+        color: 'bg-error',
+        dotColor: 'bg-error',
+        width: cancelCount > 0 ? `${Math.round((cancelCount / total) * 100)}%` : '0%',
+        textClass: 'text-on-surface-variant',
+      },
+    ];
+  }
+
+  // Getters
+  public getDb(): DbSchema {
+    return this.data;
+  }
+
+  // Orders
+  public getOrders() {
+    return this.data.orders;
+  }
+
+  public getOrderById(id: string) {
+    return this.data.orders.find((o) => o.id === id);
+  }
+
+  public addOrder(order: any) {
+    const id = `#ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+    const lineItems = order.lineItems || [];
+    const subtotal = order.subtotal || lineItems.reduce((acc: number, li: any) => acc + (li.price * (li.qty || 1)), 0);
+    const taxes = order.taxes || Math.round(subtotal * 0.05);
+    const serviceCharge = order.serviceCharge || Math.round(subtotal * 0.05);
+    const total = order.total || (subtotal + taxes + serviceCharge);
+
+    const newOrder = {
+      id,
+      createdAt: new Date().toISOString(),
+      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      kitchenStatus: 'new',
+      kitchenTime: 'New (1m)',
+      itemsCount: lineItems.length || order.itemsCount || 1,
+      itemsSummary: lineItems.map((li: any) => li.name).join(', ') || order.itemsSummary || 'Special Order',
+      subtotal,
+      taxes,
+      serviceCharge,
+      total,
+      ...order,
+    };
+    this.data.orders.unshift(newOrder);
+
+    // Also auto-generate KDS ticket
+    const kotId = `#KOT-${Math.floor(800 + Math.random() * 200)}`;
+    const newTicket = {
+      id: kotId,
+      orderId: id,
+      table: order.table || 'Table T-01',
+      orderType: order.tableType?.includes('Dine') ? 'Dine-In' : 'Takeaway',
+      pax: order.pax || 2,
+      server: order.staff || 'Aniket S.',
+      elapsedMinutes: 1,
+      status: 'new',
+      createdAt: new Date().toISOString(),
+      items: lineItems.map((li: any, idx: number) => ({
+        id: `k-${Date.now()}-${idx}`,
+        name: li.name,
+        qty: li.qty || 1,
+        station: li.station || 'Curry',
+        isDone: false,
+        modifiers: li.modifiers,
+      })),
+    };
+    this.data.kdsTickets.unshift(newTicket);
+
+    // Update table status if table order
+    const tableId = (order.table || '').replace('Table ', '').trim();
+    if (tableId) {
+      const targetTable = this.data.floorTables.find((t) => t.id === tableId || t.name === tableId);
+      if (targetTable) {
+        targetTable.status = 'occupied';
+        targetTable.amount = total;
+        targetTable.timeSeated = 'Just Seated';
+        targetTable.orderInfo = `Occupied • ${id}`;
+        // Async cloud update for table
+        insforgeAdmin.database.from('floor_tables').update({
+          status: 'occupied',
+          amount: total,
+          order_info: `Occupied • ${id}`,
+        }).eq('id', targetTable.id).then().catch(() => {});
+      }
+    }
+
+    // Deduct stock if ingredients matched
+    lineItems.forEach((li: any) => {
+      const name = (li.name || '').toLowerCase();
+      if (name.includes('paneer')) {
+        this.updateStock('ING-014', Math.max(0, (this.data.inventory.find((i) => i.id === 'ING-014')?.currentStock || 4.5) - 0.25));
+      }
+      if (name.includes('chicken')) {
+        this.updateStock('ING-008', Math.max(0, (this.data.inventory.find((i) => i.id === 'ING-008')?.currentStock || 18.2) - 0.35));
+      }
+      if (name.includes('biryani') || name.includes('rice')) {
+        this.updateStock('ING-032', Math.max(0, (this.data.inventory.find((i) => i.id === 'ING-032')?.currentStock || 95.0) - 0.30));
+      }
+    });
+
+    this.recalculateAnalytics();
+    this.saveData();
+
+    // Async sync to InsForge PostgreSQL
+    insforgeAdmin.database.from('orders').insert([{
+      id: newOrder.id,
+      terminal: newOrder.terminal,
+      table_name: newOrder.table,
+      table_type: newOrder.tableType,
+      customer: newOrder.customer,
+      phone: newOrder.phone,
+      items_summary: newOrder.itemsSummary,
+      items_count: newOrder.itemsCount,
+      staff: newOrder.staff,
+      total: newOrder.total,
+      subtotal: newOrder.subtotal,
+      taxes: newOrder.taxes,
+      service_charge: newOrder.serviceCharge,
+      payment_status: newOrder.paymentStatus,
+      payment_method: newOrder.paymentMethod,
+      kitchen_status: newOrder.kitchenStatus,
+      kitchen_time: newOrder.kitchenTime,
+      time: newOrder.time,
+      line_items: newOrder.lineItems,
+      created_at: newOrder.createdAt,
+    }]).then().catch((err) => console.warn('InsForge async insert order error:', err.message));
+
+    insforgeAdmin.database.from('kds_tickets').insert([{
+      id: newTicket.id,
+      order_id: newTicket.orderId,
+      table_name: newTicket.table,
+      order_type: newTicket.orderType,
+      pax: newTicket.pax,
+      server: newTicket.server,
+      elapsed_minutes: newTicket.elapsedMinutes,
+      is_urgent: newTicket.isUrgent || false,
+      status: newTicket.status,
+      items: newTicket.items,
+      created_at: newTicket.createdAt,
+    }]).then().catch((err) => console.warn('InsForge async insert kds error:', err.message));
+
+    return { order: newOrder, kdsTicket: newTicket };
+  }
+
+  public updateOrderStatus(id: string, updates: Partial<any>) {
+    const order = this.data.orders.find((o) => o.id === id);
+    if (order) {
+      Object.assign(order, updates);
+      this.recalculateAnalytics();
+      this.saveData();
+
+      // Async update in InsForge
+      insforgeAdmin.database.from('orders').update({
+        payment_status: order.paymentStatus,
+        payment_method: order.paymentMethod,
+        kitchen_status: order.kitchenStatus,
+        kitchen_time: order.kitchenTime,
+      }).eq('id', id).then().catch(() => {});
+    }
+    return order;
+  }
+
+  // KDS Tickets
+  public getKdsTickets() {
+    return this.data.kdsTickets;
+  }
+
+  public updateKdsItemDone(ticketId: string, itemId: string) {
+    const ticket = this.data.kdsTickets.find((t) => t.id === ticketId);
+    if (ticket) {
+      const item = ticket.items.find((i: any) => i.id === itemId);
+      if (item) {
+        item.isDone = !item.isDone;
+      }
+      const allDone = ticket.items.every((i: any) => i.isDone);
+      ticket.status = allDone ? 'ready' : 'cooking';
+      this.recalculateAnalytics();
+      this.saveData();
+
+      // Async update in InsForge
+      insforgeAdmin.database.from('kds_tickets').update({
+        status: ticket.status,
+        items: ticket.items,
+      }).eq('id', ticketId).then().catch(() => {});
+    }
+    return ticket;
+  }
+
+  public bumpKdsTicket(ticketId: string) {
+    const index = this.data.kdsTickets.findIndex((t) => t.id === ticketId);
+    if (index !== -1) {
+      const ticket = this.data.kdsTickets[index];
+      ticket.status = 'ready';
+      // Also update parent order if exists
+      const order = this.data.orders.find((o) => o.id === ticket.orderId);
+      if (order) {
+        order.kitchenStatus = 'ready';
+        order.kitchenTime = 'Ready to Expedite';
+        insforgeAdmin.database.from('orders').update({
+          kitchen_status: 'ready',
+          kitchen_time: 'Ready to Expedite',
+        }).eq('id', order.id).then().catch(() => {});
+      }
+      this.data.kdsTickets.splice(index, 1);
+      this.recalculateAnalytics();
+      this.saveData();
+
+      insforgeAdmin.database.from('kds_tickets').update({
+        status: 'ready',
+      }).eq('id', ticketId).then().catch(() => {});
+
+      return ticket;
+    }
+    return null;
+  }
+
+  // Floor Tables
+  public getTables() {
+    return this.data.floorTables;
+  }
+
+  public getTableById(id: string) {
+    const cleanId = id.replace('Table ', '').trim();
+    return this.data.floorTables.find((t) => t.id === cleanId || t.name === cleanId);
+  }
+
+  public addTable(table: any) {
+    const count = this.data.floorTables.length + 1;
+    const id = table.id || `T${count < 10 ? '0' + count : count}`;
+    const newTable = {
+      id,
+      name: id,
+      capacity: Number(table.capacity) || 4,
+      section: table.section || 'main',
+      status: 'available',
+      orderInfo: 'Available',
+      readyTime: 'Just Added',
+      ...table,
+    };
+    this.data.floorTables.push(newTable);
+    this.recalculateAnalytics();
+    this.saveData();
+
+    insforgeAdmin.database.from('floor_tables').insert([{
+      id: newTable.id,
+      name: newTable.name,
+      capacity: newTable.capacity,
+      section: newTable.section,
+      status: newTable.status,
+      order_info: newTable.orderInfo,
+    }]).then().catch(() => {});
+
+    return newTable;
+  }
+
+  public transferTable(sourceId: string, targetId: string) {
+    const src = this.getTableById(sourceId);
+    const tgt = this.getTableById(targetId);
+    if (!src || !tgt) return null;
+
+    tgt.status = src.status;
+    tgt.guestsCount = src.guestsCount;
+    tgt.server = src.server;
+    tgt.customerName = src.customerName;
+    tgt.amount = src.amount;
+    tgt.timeSeated = src.timeSeated;
+    tgt.timeActive = src.timeActive;
+    tgt.orderInfo = src.orderInfo;
+    tgt.items = src.items;
+
+    // Reset source
+    src.status = 'cleaning';
+    src.guestsCount = undefined;
+    src.server = undefined;
+    src.customerName = undefined;
+    src.amount = undefined;
+    src.timeSeated = undefined;
+    src.timeActive = undefined;
+    src.orderInfo = 'Cleaning / Turnover';
+    src.items = undefined;
+
+    // Update any live orders pointing to source
+    this.data.orders.forEach((o) => {
+      if (o.table && o.table.includes(src.id)) {
+        o.table = `Table ${tgt.id}`;
+      }
+    });
+
+    this.recalculateAnalytics();
+    this.saveData();
+
+    insforgeAdmin.database.from('floor_tables').update({
+      status: tgt.status,
+      guests_count: tgt.guestsCount,
+      server: tgt.server,
+      customer_name: tgt.customerName,
+      amount: tgt.amount,
+      order_info: tgt.orderInfo,
+    }).eq('id', tgt.id).then().catch(() => {});
+
+    insforgeAdmin.database.from('floor_tables').update({
+      status: 'cleaning',
+      order_info: 'Cleaning / Turnover',
+    }).eq('id', src.id).then().catch(() => {});
+
+    return { source: src, target: tgt };
+  }
+
+  public mergeTables(tableIds: string[]) {
+    if (!tableIds || tableIds.length < 2) return null;
+    const primary = this.getTableById(tableIds[0]);
+    if (!primary) return null;
+
+    let totalCapacity = primary.capacity;
+    let totalAmount = primary.amount || 0;
+    let totalGuests = primary.guestsCount || 0;
+
+    for (let i = 1; i < tableIds.length; i++) {
+      const other = this.getTableById(tableIds[i]);
+      if (other) {
+        totalCapacity += other.capacity;
+        totalAmount += other.amount || 0;
+        totalGuests += other.guestsCount || 0;
+        other.status = 'occupied';
+        other.orderInfo = `Merged with ${primary.name}`;
+      }
+    }
+
+    primary.capacity = totalCapacity;
+    primary.amount = totalAmount > 0 ? totalAmount : undefined;
+    primary.guestsCount = totalGuests > 0 ? totalGuests : undefined;
+    primary.status = 'occupied';
+    primary.orderInfo = `Merged Table (${tableIds.join('+')})`;
+
+    this.recalculateAnalytics();
+    this.saveData();
+    return primary;
+  }
+
+  public updateTable(id: string, updates: Partial<any>) {
+    const table = this.data.floorTables.find((t) => t.id === id || t.name === id);
+    if (table) {
+      Object.assign(table, updates);
+      this.recalculateAnalytics();
+      this.saveData();
+
+      insforgeAdmin.database.from('floor_tables').update({
+        status: table.status,
+        guests_count: table.guestsCount,
+        server: table.server,
+        customer_name: table.customerName,
+        amount: table.amount,
+        order_info: table.orderInfo,
+      }).eq('id', table.id).then().catch(() => {});
+    }
+    return table;
+  }
+
+  // Menu
+  public getMenu() {
+    return this.data.menuItems;
+  }
+
+  public toggleMenuItemStock(id: string) {
+    const item = this.data.menuItems.find((m) => m.id === id || m.sku === id);
+    if (item) {
+      item.inStock = !item.inStock;
+      this.saveData();
+
+      insforgeAdmin.database.from('menu_items').update({
+        in_stock: item.inStock,
+      }).eq('id', item.id).then().catch(() => {});
+    }
+    return item;
+  }
+
+  public addMenuItem(dish: any) {
+    const id = `m-${Date.now()}`;
+    const newDish = { id, inStock: true, dineInActive: true, onlineActive: true, ...dish };
+    this.data.menuItems.push(newDish);
+    this.saveData();
+
+    insforgeAdmin.database.from('menu_items').insert([{
+      id: newDish.id,
+      sku: newDish.sku || `SKU-${Date.now()}`,
+      name: newDish.name,
+      category: newDish.category || 'starters',
+      price: newDish.price,
+      cost: newDish.cost || Math.round(newDish.price * 0.3),
+      food_cost_pct: newDish.foodCostPct || 30,
+      margin_pct: newDish.marginPct || 70,
+      matrix_tier: newDish.matrixTier || 'Star',
+      is_veg: newDish.isVeg ?? true,
+      in_stock: newDish.inStock ?? true,
+      dine_in_active: newDish.dineInActive ?? true,
+      online_active: newDish.onlineActive ?? true,
+      description: newDish.description || '',
+      image_url: newDish.imageUrl || '',
+      alt_text: newDish.name,
+    }]).then().catch(() => {});
+
+    return newDish;
+  }
+
+  // Reservations
+  public getReservations() {
+    return this.data.reservations;
+  }
+
+  public addReservation(res: any) {
+    const id = `RES-${Math.floor(400 + Math.random() * 600)}`;
+    const newRes = { id, status: 'confirmed', statusLabel: 'Confirmed', ...res };
+    this.data.reservations.unshift(newRes);
+    this.saveData();
+
+    insforgeAdmin.database.from('reservations').insert([{
+      id: newRes.id,
+      guest_name: newRes.guestName,
+      phone: newRes.phone,
+      time_slot: newRes.timeSlot,
+      pax: newRes.pax,
+      table_name: newRes.table,
+      status: newRes.status,
+      status_label: newRes.statusLabel,
+      is_vip: newRes.isVip || false,
+      vip_tier: newRes.vipTier,
+      occasion: newRes.occasion,
+      notes: newRes.notes,
+      deposit_amount: newRes.depositAmount || 0,
+      date: newRes.date || '2026-09-16',
+    }]).then().catch(() => {});
+
+    return newRes;
+  }
+
+  public updateReservationStatus(id: string, status: string, statusLabel: string) {
+    const res = this.data.reservations.find((r) => r.id === id);
+    if (res) {
+      res.status = status;
+      res.statusLabel = statusLabel;
+      this.saveData();
+
+      insforgeAdmin.database.from('reservations').update({
+        status,
+        status_label: statusLabel,
+      }).eq('id', id).then().catch(() => {});
+    }
+    return res;
+  }
+
+  // Inventory
+  public getInventory() {
+    return this.data.inventory;
+  }
+
+  public updateStock(id: string, currentStock: number) {
+    const item = this.data.inventory.find((i) => i.id === id);
+    if (item) {
+      item.currentStock = Math.round(currentStock * 10) / 10;
+      item.valuation = Math.round(item.currentStock * item.unitCost);
+      item.status = item.currentStock <= item.reorderPoint ? (item.currentStock <= 2 ? 'critical' : 'low') : 'healthy';
+      this.saveData();
+
+      insforgeAdmin.database.from('inventory').update({
+        current_stock: item.currentStock,
+        valuation: item.valuation,
+        status: item.status,
+      }).eq('id', id).then().catch(() => {});
+    }
+    return item;
+  }
+
+  public receiveStock(id: string, qty: number) {
+    const item = this.data.inventory.find((i) => i.id === id);
+    if (item) {
+      item.currentStock += qty;
+      item.valuation = Math.round(item.currentStock * item.unitCost);
+      item.status = item.currentStock <= item.reorderPoint ? (item.currentStock <= 2 ? 'critical' : 'low') : 'healthy';
+      this.saveData();
+
+      insforgeAdmin.database.from('inventory').update({
+        current_stock: item.currentStock,
+        valuation: item.valuation,
+        status: item.status,
+      }).eq('id', id).then().catch(() => {});
+    }
+    return item;
+  }
+
+  public logWastage(item: string, qty: string, reason: string, cost: number) {
+    const waste = {
+      id: `W-${Date.now()}`,
+      item,
+      qty,
+      reason,
+      cost,
+      loggedAt: new Date().toISOString(),
+    };
+    this.data.wasteLogs.unshift(waste);
+    this.saveData();
+
+    insforgeAdmin.database.from('waste_logs').insert([{
+      id: waste.id,
+      item: waste.item,
+      qty: waste.qty,
+      reason: waste.reason,
+      cost: waste.cost,
+      logged_at: waste.loggedAt,
+    }]).then().catch(() => {});
+
+    return waste;
+  }
+
+  // Customers
+  public getCustomers() {
+    return this.data.customers;
+  }
+
+  public addCustomer(cust: any) {
+    const id = `CUST-${Math.floor(800 + Math.random() * 200)}`;
+    const newCust = { id, visits: 1, totalSpend: 0, points: 0, tier: 'Standard', ...cust };
+    this.data.customers.unshift(newCust);
+    this.saveData();
+
+    insforgeAdmin.database.from('customers').insert([{
+      id: newCust.id,
+      name: newCust.name,
+      phone: newCust.phone,
+      tier: newCust.tier,
+      visits: newCust.visits,
+      total_spend: newCust.totalSpend,
+      points: newCust.points,
+      preferred_table: newCust.preferredTable,
+      dietary_tags: newCust.dietaryTags,
+      last_visit: newCust.lastVisit,
+    }]).then().catch(() => {});
+
+    return newCust;
+  }
+
+  // Staff
+  public getStaff() {
+    return this.data.staff;
+  }
+
+  public addStaff(staff: any) {
+    const count = this.data.staff.length + 1;
+    const id = `EMP-0${count < 10 ? '0' + count : count}`;
+    const newStaff = {
+      id,
+      status: 'active',
+      clockInTime: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+      tipsEarned: 0,
+      pinAuthLevel: 'Floor (L2)',
+      ...staff,
+    };
+    this.data.staff.push(newStaff);
+    this.saveData();
+
+    insforgeAdmin.database.from('staff').insert([{
+      id: newStaff.id,
+      name: newStaff.name,
+      role: newStaff.role,
+      department: newStaff.department,
+      clock_in_time: newStaff.clockInTime,
+      status: newStaff.status,
+      station: newStaff.station,
+      pin_auth_level: newStaff.pinAuthLevel,
+      tips_earned: newStaff.tipsEarned,
+      pin: newStaff.pin,
+    }]).then().catch(() => {});
+
+    return newStaff;
+  }
+
+  public updateStaffPin(id: string, pin: string) {
+    const staff = this.data.staff.find((s) => s.id === id);
+    if (staff) {
+      staff.pin = pin;
+      this.saveData();
+
+      insforgeAdmin.database.from('staff').update({
+        pin,
+      }).eq('id', id).then().catch(() => {});
+    }
+    return staff;
+  }
+
+  public clockInStaff(id: string) {
+    const staff = this.data.staff.find((s) => s.id === id);
+    if (staff) {
+      staff.status = 'active';
+      staff.clockInTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+      this.saveData();
+
+      insforgeAdmin.database.from('staff').update({
+        status: 'active',
+        clock_in_time: staff.clockInTime,
+      }).eq('id', id).then().catch(() => {});
+    }
+    return staff;
+  }
+
+  // Settings
+  public getSettings() {
+    return {
+      settings: this.data.settings,
+      peripherals: this.data.peripherals,
+    };
+  }
+
+  public updateSettings(updates: any) {
+    Object.assign(this.data.settings, updates);
+    this.saveData();
+
+    insforgeAdmin.database.from('settings').update({
+      store_name: this.data.settings.storeName,
+      brand_name: this.data.settings.brandName,
+      gstin: this.data.settings.gstin,
+      fssai: this.data.settings.fssai,
+      address: this.data.settings.address,
+    }).eq('id', 'default').then().catch(() => {});
+
+    return this.data.settings;
+  }
+
+  // Analytics
+  public getAnalytics() {
+    return this.recalculateAnalytics();
+  }
+
+  // Reset to seed
+  public resetToSeed() {
+    this.data = JSON.parse(JSON.stringify(SEED_DATA));
+    this.recalculateAnalytics();
+    this.saveData();
+    return this.data;
+  }
+}
+
+export const db = new Database();

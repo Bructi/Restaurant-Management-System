@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="rf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="#1A1D21" stroke="#2D3239" stroke-width="1.5"/>
+  <!-- Cloche / Flame hybrid modern dynamic icon -->
+  <path d="M14 28 C14 20 20 15 24 12 C28 15 34 20 34 28 Z" fill="url(#rf-grad)" filter="url(#glow)"/>
+  <circle cx="24" cy="11" r="2.5" fill="#FED7AA"/>
+  <rect x="11" y="30" width="26" height="3" rx="1.5" fill="#FED7AA"/>
+  <!-- Flow lines beneath -->
+  <path d="M16 36 L32 36" stroke="#F97316" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,57 @@
+# Dependencies & Build Artefacts
+node_modules
+dist
+dist-ssr
+*.local
+.vite
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+
+# Tooling & Generated Agent Files
+stitch-export
+stitch-export/
+AGENTS.md
+opencode.json
+
+# InsForge & AI Agent Configuration
+.insforge
+.insforge/
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
+
+# Logs & Diagnostics
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# Editor & OS Metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -1,0 +1,591 @@
+import React, { useState, useEffect } from 'react';
+import { api } from '../../services/api';
+import { subscribeRealtime } from '../../hooks/useRealtimeSync';
+import { useToast } from '../../contexts/ToastContext';
+import { downloadCsv, downloadJson } from '../../utils/exportUtils';
+
+interface StockItem {
+  id: string;
+  name: string;
+  category: string;
+  currentStock: number;
+  unit: string;
+  parLevel: number;
+  reorderPoint: number;
+  unitCost: number;
+  valuation: number;
+  status: 'healthy' | 'low' | 'critical';
+  supplier: string;
+}
+
+const MOCK_STOCK: StockItem[] = [
+  {
+    id: 'ING-014',
+    name: 'Fresh Paneer (Malai Block)',
+    category: 'Dairy',
+    currentStock: 4.5,
+    unit: 'kg',
+    parLevel: 25,
+    reorderPoint: 8,
+    unitCost: 320,
+    valuation: 1440,
+    status: 'low',
+    supplier: 'Amul Dairy Dist. Bangalore',
+  },
+  {
+    id: 'ING-008',
+    name: 'Spring Chicken (Skinless Cut)',
+    category: 'Meat',
+    currentStock: 18.2,
+    unit: 'kg',
+    parLevel: 40,
+    reorderPoint: 15,
+    unitCost: 220,
+    valuation: 4004,
+    status: 'healthy',
+    supplier: 'Suguna Fresh Meats',
+  },
+  {
+    id: 'ING-032',
+    name: 'Basmati Rice (Daawat Royal)',
+    category: 'Staples',
+    currentStock: 95.0,
+    unit: 'kg',
+    parLevel: 150,
+    reorderPoint: 40,
+    unitCost: 110,
+    valuation: 10450,
+    status: 'healthy',
+    supplier: 'Metro Cash & Carry',
+  },
+  {
+    id: 'ING-055',
+    name: 'Amul Salted Butter (500g)',
+    category: 'Dairy',
+    currentStock: 2.0,
+    unit: 'blocks',
+    parLevel: 20,
+    reorderPoint: 5,
+    unitCost: 275,
+    valuation: 550,
+    status: 'critical',
+    supplier: 'Amul Direct Depot',
+  },
+  {
+    id: 'ING-091',
+    name: 'Kashmiri Deggi Mirch Powder',
+    category: 'Spices',
+    currentStock: 12.5,
+    unit: 'kg',
+    parLevel: 15,
+    reorderPoint: 4,
+    unitCost: 550,
+    valuation: 6875,
+    status: 'healthy',
+    supplier: 'MDH Wholesale Hub',
+  },
+];
+
+export const InventoryManagementView: React.FC = () => {
+  const toast = useToast();
+  const [stockList, setStockList] = useState<StockItem[]>(MOCK_STOCK);
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isReceiveOpen, setIsReceiveOpen] = useState(false);
+  const [isWasteOpen, setIsWasteOpen] = useState(false);
+  const [selectedStockId, setSelectedStockId] = useState('ING-014');
+  const [receivedQty, setReceivedQty] = useState(10);
+  const [wasteItem, setWasteItem] = useState('Fresh Paneer');
+  const [wasteQty, setWasteQty] = useState('1.5 kg');
+  const [wasteReason, setWasteReason] = useState('Expiry / Shelf life exceeded');
+  const [wasteCost, setWasteCost] = useState(480);
+
+  const fetchInventory = () => {
+    api.getInventory().then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        setStockList(res.data);
+      }
+    }).catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchInventory();
+
+    const unsub = subscribeRealtime((event) => {
+      if (event.type === 'STOCK_UPDATED') {
+        fetchInventory();
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  const filteredStock = stockList.filter((item) => {
+    if (categoryFilter !== 'all' && item.category.toLowerCase() !== categoryFilter) return false;
+    if (searchQuery && !item.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
+
+  return (
+    <div className="flex flex-col w-full pb-16 space-y-space-md">
+      {/* Top Banner & Context Header */}
+      <div className="flex flex-col gap-space-md pt-2">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+          <div>
+            <div className="flex items-center gap-space-sm mb-1">
+              <span className="px-space-sm py-0.5 rounded-full bg-primary-container/15 text-primary font-label-sm text-label-sm uppercase tracking-wider font-semibold">
+                Live Kitchen Ledger
+              </span>
+              <span className="text-on-surface-variant font-mono-metric text-body-sm">
+                Last Synced: 19:42:08
+              </span>
+            </div>
+            <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight font-bold">
+              Inventory, Recipes &amp; Stock Control
+            </h1>
+            <p className="font-body-md text-body-md text-on-surface-variant max-w-4xl">
+              Live raw material stock levels, low-threshold alerts, automated purchase orders, batch tracking, and real-time kitchen waste logging.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-space-sm shrink-0">
+            <button
+              onClick={() => {
+                const headers = [
+                  'Ingredient ID',
+                  'Item Name',
+                  'Category',
+                  'Current Stock',
+                  'Unit',
+                  'Par Level',
+                  'Reorder Point',
+                  'Unit Cost (INR)',
+                  'Total Valuation (INR)',
+                  'Stock Status',
+                  'Supplier / Vendor',
+                ];
+                const rows = stockList.map((s) => [
+                  s.id,
+                  s.name,
+                  s.category,
+                  s.currentStock,
+                  s.unit,
+                  s.parLevel,
+                  s.reorderPoint,
+                  s.unitCost,
+                  s.valuation,
+                  s.status.toUpperCase(),
+                  s.supplier,
+                ]);
+                downloadCsv('restoflow-inventory-audit.csv', headers, rows);
+                toast.success(`Exported ${stockList.length} inventory items to CSV!`, 'Audit Exported');
+              }}
+              className="px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg flex items-center gap-space-xs transition-all shadow-sm border border-surface-container-high/40"
+            >
+              <span className="material-symbols-outlined text-[18px]">download</span>
+              <span>Export Audit</span>
+            </button>
+            <button
+              onClick={() => setIsWasteOpen(true)}
+              className="px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-error font-label-lg text-label-lg flex items-center gap-space-xs transition-all shadow-sm border border-surface-container-high/40 font-semibold"
+            >
+              <span className="material-symbols-outlined text-[18px]">delete_sweep</span>
+              <span>Record Wastage</span>
+            </button>
+            <button
+              onClick={() => {
+                const lowItems = stockList.filter((s) => s.status !== 'healthy');
+                const itemsToOrder = lowItems.length > 0 ? lowItems : stockList.slice(0, 3);
+                const poNumber = `PO-${Math.floor(10000 + Math.random() * 90000)}`;
+                const poPayload = {
+                  poNumber,
+                  generatedDate: new Date().toISOString(),
+                  restaurant: 'SpiceRoute Kitchen #01 (MG Road)',
+                  gstin: '29AAAAA0000A1Z5',
+                  items: itemsToOrder.map((it) => ({
+                    itemId: it.id,
+                    name: it.name,
+                    category: it.category,
+                    currentStock: it.currentStock,
+                    unit: it.unit,
+                    parLevel: it.parLevel,
+                    suggestedOrderQty: Math.max(5, Math.ceil(it.parLevel - it.currentStock)),
+                    unitCost: it.unitCost,
+                    estimatedCost: Math.max(5, Math.ceil(it.parLevel - it.currentStock)) * it.unitCost,
+                    supplier: it.supplier,
+                  })),
+                  totalEstimatedValuation: itemsToOrder.reduce(
+                    (acc, it) => acc + Math.max(5, Math.ceil(it.parLevel - it.currentStock)) * it.unitCost,
+                    0
+                  ),
+                };
+
+                downloadJson(`purchase-order-${poNumber}.json`, poPayload);
+                toast.success(`Purchase Order ${poNumber} for ${itemsToOrder.length} items generated and saved as JSON!`, 'PO Generated');
+              }}
+              className="px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-tertiary font-label-lg text-label-lg flex items-center gap-space-xs transition-all shadow-sm border border-surface-container-high/40 font-semibold"
+            >
+              <span className="material-symbols-outlined text-[18px]">description</span>
+              <span>Generate PO</span>
+            </button>
+            <button
+              onClick={() => setIsReceiveOpen(true)}
+              className="px-space-md py-2.5 rounded-lg bg-primary-container text-on-primary-container font-label-lg text-label-lg flex items-center gap-space-xs shadow-md hover:brightness-110 font-bold"
+            >
+              <span className="material-symbols-outlined text-[20px]">add_box</span>
+              <span>Receive Goods / Stock-In</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Live Operational KPI Deck */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-sm pt-space-xs">
+          <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col justify-between shadow-sm border border-surface-container-high/30">
+            <div className="flex items-center justify-between text-on-surface-variant mb-space-xs">
+              <span className="font-label-md text-label-md uppercase tracking-wider font-semibold">
+                Total Inventory Value
+              </span>
+              <span className="material-symbols-outlined text-[18px] text-tertiary">
+                account_balance_wallet
+              </span>
+            </div>
+            <div className="flex items-baseline gap-space-xs">
+              <span className="font-headline-xl text-on-surface font-black">₹2,48,750</span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
+              <span>142 Active SKUs • 4 Zones</span>
+            </div>
+          </div>
+
+          <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col justify-between shadow-sm border border-surface-container-high/30">
+            <div className="flex items-center justify-between text-on-surface-variant mb-space-xs">
+              <span className="font-label-md text-label-md uppercase tracking-wider text-error font-semibold">
+                Low Stock Alerts
+              </span>
+              <span className="material-symbols-outlined text-[18px] text-error animate-pulse">
+                warning
+              </span>
+            </div>
+            <div className="flex items-baseline gap-space-xs">
+              <span className="font-headline-xl text-error font-black">5 Items</span>
+            </div>
+            <span className="text-xs text-error font-medium">Below par limit • Tap to auto-PO</span>
+          </div>
+
+          <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col justify-between shadow-sm border border-surface-container-high/30">
+            <div className="flex items-center justify-between text-on-surface-variant mb-space-xs">
+              <span className="font-label-md text-label-md uppercase tracking-wider font-semibold">
+                Daily Waste Loss
+              </span>
+              <span className="material-symbols-outlined text-[18px] text-error">delete</span>
+            </div>
+            <div className="flex items-baseline gap-space-xs">
+              <span className="font-headline-xl text-on-surface font-black">₹1,840</span>
+            </div>
+            <span className="text-xs text-secondary font-medium">0.74% of revenue (Target &lt; 1.2%)</span>
+          </div>
+
+          <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col justify-between shadow-sm border border-surface-container-high/30">
+            <div className="flex items-center justify-between text-on-surface-variant mb-space-xs">
+              <span className="font-label-md text-label-md uppercase tracking-wider font-semibold">
+                Pending POs
+              </span>
+              <span className="material-symbols-outlined text-[18px] text-primary">local_shipping</span>
+            </div>
+            <div className="flex items-baseline gap-space-xs">
+              <span className="font-headline-xl text-primary font-black">3 Orders</span>
+            </div>
+            <span className="text-xs text-on-surface-variant">Expected delivery today</span>
+          </div>
+
+          <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col justify-between shadow-sm border border-surface-container-high/30">
+            <div className="flex items-center justify-between text-on-surface-variant mb-space-xs">
+              <span className="font-label-md text-label-md uppercase tracking-wider font-semibold">
+                Stock Health
+              </span>
+              <span className="material-symbols-outlined text-[18px] text-secondary">verified</span>
+            </div>
+            <div className="flex items-baseline gap-space-xs">
+              <span className="font-headline-xl text-secondary font-black">96.4%</span>
+            </div>
+            <span className="text-xs text-secondary font-medium">Healthy inventory parity</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Search & Stock Table */}
+      <div className="bg-surface-container-low rounded-2xl p-space-md shadow-sm flex flex-col gap-4 border border-surface-container-high/30">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1 max-w-md">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">
+              search
+            </span>
+            <input
+              type="text"
+              placeholder="Search ingredient by name, SKU, or supplier..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant rounded-lg font-body-sm text-body-sm outline-none focus:ring-1 focus:ring-primary-container border border-surface-container-high/40"
+            />
+          </div>
+
+          <div className="flex items-center gap-1 overflow-x-auto p-1 bg-surface-container-lowest rounded-lg border border-surface-container-high/40">
+            {['all', 'dairy', 'meat', 'staples', 'spices'].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-3 py-1 rounded-md text-xs font-bold uppercase transition-all ${
+                  categoryFilter === cat
+                    ? 'bg-primary-container text-on-primary-container'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-body-sm">
+            <thead className="bg-surface-container-lowest text-on-surface-variant uppercase text-xs tracking-wider border-b border-surface-container-high/40 font-semibold">
+              <tr>
+                <th className="py-3 px-4">SKU / Item</th>
+                <th className="py-3 px-3">Category</th>
+                <th className="py-3 px-3">Current Stock</th>
+                <th className="py-3 px-3">Par Level</th>
+                <th className="py-3 px-3">Unit Cost</th>
+                <th className="py-3 px-3">Total Value</th>
+                <th className="py-3 px-3">Status</th>
+                <th className="py-3 px-3">Preferred Supplier</th>
+                <th className="py-3 px-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-surface-container-high/20">
+              {filteredStock.map((item) => (
+                <tr key={item.id} className="hover:bg-surface-container transition-colors">
+                  <td className="py-3.5 px-4 font-bold text-on-surface">
+                    <div className="flex flex-col">
+                      <span>{item.name}</span>
+                      <span className="text-xs text-on-surface-variant font-mono-metric font-normal">
+                        {item.id}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-3.5 px-3 text-on-surface-variant">{item.category}</td>
+                  <td className="py-3.5 px-3 font-mono-metric font-bold text-on-surface text-base">
+                    {item.currentStock} {item.unit}
+                  </td>
+                  <td className="py-3.5 px-3 font-mono-metric text-on-surface-variant">
+                    {item.parLevel} {item.unit}
+                  </td>
+                  <td className="py-3.5 px-3 font-mono-metric">₹{item.unitCost}/{item.unit}</td>
+                  <td className="py-3.5 px-3 font-mono-metric font-bold text-primary">
+                    ₹{item.valuation.toLocaleString('en-IN')}
+                  </td>
+                  <td className="py-3.5 px-3">
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                        item.status === 'healthy'
+                          ? 'bg-secondary/15 text-secondary'
+                          : item.status === 'low'
+                          ? 'bg-primary-container/20 text-primary'
+                          : 'bg-error-container/30 text-error animate-pulse'
+                      }`}
+                    >
+                      {item.status === 'healthy'
+                        ? 'Optimal'
+                        : item.status === 'low'
+                        ? 'Low Stock'
+                        : 'Critical'}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-3 text-xs text-on-surface-variant">{item.supplier}</td>
+                  <td className="py-3.5 px-4 text-right">
+                    <button
+                      onClick={async () => {
+                        try {
+                          await api.receiveStock(item.id, 10);
+                          toast.success(`Reorder PO generated & 10 units received for ${item.name}!`, 'Stock In');
+                          fetchInventory();
+                        } catch (err: any) {
+                          toast.error(err.message || 'Error processing PO', 'Failed');
+                        }
+                      }}
+                      className="px-3 py-1 rounded bg-primary-container text-on-primary-container text-xs font-bold hover:brightness-110 shadow-sm"
+                    >
+                      Reorder PO
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Receive Stock Modal */}
+      {isReceiveOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-surface-container rounded-2xl p-space-lg shadow-2xl border border-surface-container-high flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-3">
+              <h3 className="font-headline-md font-bold text-on-surface">Goods Receiving Note (GRN)</h3>
+              <button
+                onClick={() => setIsReceiveOpen(false)}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+            <div className="flex flex-col gap-3 font-body-sm">
+              <div>
+                <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                  Select Item / SKU
+                </label>
+                <select
+                  value={selectedStockId}
+                  onChange={(e) => setSelectedStockId(e.target.value)}
+                  className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none"
+                >
+                  {stockList.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} (Current: {s.currentStock} {s.unit})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                  Received Quantity
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={receivedQty}
+                  onChange={(e) => setReceivedQty(Number(e.target.value))}
+                  className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none font-mono-metric"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2 border-t border-surface-container-high/40">
+              <button
+                onClick={() => setIsReceiveOpen(false)}
+                className="px-4 py-2 rounded-lg bg-surface-container text-on-surface text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await api.receiveStock(selectedStockId, receivedQty);
+                    setIsReceiveOpen(false);
+                    fetchInventory();
+                    toast.success(`Stock-in for ${receivedQty} units recorded successfully!`, 'GRN Received');
+                  } catch (err: any) {
+                    toast.error(err.message || 'Error receiving stock', 'Failed');
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-primary-container text-on-primary-container text-sm font-bold shadow-md hover:brightness-110"
+              >
+                Confirm Stock-In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Record Wastage Modal */}
+      {isWasteOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-surface-container rounded-2xl p-space-lg shadow-2xl border border-surface-container-high flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-3">
+              <h3 className="font-headline-md font-bold text-on-surface">Record Kitchen Wastage</h3>
+              <button
+                onClick={() => setIsWasteOpen(false)}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+            <div className="flex flex-col gap-3 font-body-sm">
+              <div>
+                <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                  Ingredient Item
+                </label>
+                <input
+                  type="text"
+                  value={wasteItem}
+                  onChange={(e) => setWasteItem(e.target.value)}
+                  className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                    Wasted Quantity
+                  </label>
+                  <input
+                    type="text"
+                    value={wasteQty}
+                    onChange={(e) => setWasteQty(e.target.value)}
+                    className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                    Loss Cost (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={wasteCost}
+                    onChange={(e) => setWasteCost(Number(e.target.value))}
+                    className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none font-mono-metric"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                  Reason for Waste
+                </label>
+                <input
+                  type="text"
+                  value={wasteReason}
+                  onChange={(e) => setWasteReason(e.target.value)}
+                  className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2 border-t border-surface-container-high/40">
+              <button
+                onClick={() => setIsWasteOpen(false)}
+                className="px-4 py-2 rounded-lg bg-surface-container text-on-surface text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await api.logWastage({
+                      item: wasteItem,
+                      qty: wasteQty,
+                      reason: wasteReason,
+                      cost: wasteCost,
+                    });
+                    setIsWasteOpen(false);
+                    toast.warning(`Wastage of ${wasteQty} ${wasteItem} (₹${wasteCost}) logged to ledger.`, 'Waste Recorded');
+                  } catch (err: any) {
+                    toast.error(err.message || 'Error logging wastage', 'Failed');
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-error text-on-error text-sm font-bold shadow-md hover:brightness-110"
+              >
+                Log Wastage
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
