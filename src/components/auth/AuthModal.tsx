@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth, DEMO_STAFF_USERS } from '../../contexts/AuthContext';
+import { useAuth, DEMO_ADMIN_USERS, DEMO_STAFF_USERS, DEMO_CUSTOMER_USERS } from '../../contexts/AuthContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -8,14 +8,14 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultMode = 'signin' }) => {
-  const { user, signInWithPassword, signUp, signInWithOAuth, sendOtp, verifyOtp, switchStaffUser, signOut } = useAuth();
+  const { user, signInWithPassword, signUp, signInWithOAuth, sendOtp, verifyOtp, switchUser, signOut } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup' | 'otp'>(defaultMode);
 
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [role, setRole] = useState<'General Manager' | 'Lead Floor Captain' | 'Executive Head Chef' | 'Cashier & POS Lead'>('General Manager');
+  const [role, setRole] = useState<'admin' | 'staff' | 'customer'>('admin');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
@@ -385,29 +385,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultMo
             </form>
           )}
 
-          {/* Quick Demo Staff Presets */}
+          {/* Quick Demo User Presets for all 3 Roles */}
           <div className="pt-3 border-t border-surface-container-high/40 flex flex-col gap-2">
             <span className="text-[11px] uppercase font-bold text-on-surface-variant tracking-wider">
               Quick Role Switch (Demo Fast-Login)
             </span>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO_STAFF_USERS.map((staff) => (
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                ...DEMO_ADMIN_USERS,
+                DEMO_STAFF_USERS[0],
+                DEMO_CUSTOMER_USERS[0],
+              ].map((u) => (
                 <button
-                  key={staff.id}
+                  key={u.id}
                   type="button"
                   onClick={() => {
-                    switchStaffUser(staff);
-                    setSuccessMessage(`Switched to ${staff.name} (${staff.role})`);
+                    switchUser(u);
+                    setSuccessMessage(`Switched to ${u.name} (${u.role})`);
                     setTimeout(() => onClose(), 400);
                   }}
                   className={`p-2 rounded-lg text-left border flex flex-col gap-0.5 transition-all ${
-                    user?.id === staff.id
+                    user?.id === u.id
                       ? 'bg-primary-container/20 border-primary text-on-surface font-bold'
                       : 'bg-surface-container-lowest hover:bg-surface-container-high border-surface-container-high/40 text-on-surface'
                   }`}
                 >
-                  <span className="font-bold text-xs truncate">{staff.name}</span>
-                  <span className="text-[10px] text-on-surface-variant truncate">{staff.role}</span>
+                  <span className="font-bold text-[11px] truncate">{u.name}</span>
+                  <span className="text-[9px] text-primary font-bold truncate uppercase">{u.userType}</span>
                 </button>
               ))}
             </div>

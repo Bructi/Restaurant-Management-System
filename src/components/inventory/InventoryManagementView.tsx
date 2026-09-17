@@ -99,6 +99,28 @@ export const InventoryManagementView: React.FC = () => {
   const [wasteQty, setWasteQty] = useState('1.5 kg');
   const [wasteReason, setWasteReason] = useState('Expiry / Shelf life exceeded');
   const [wasteCost, setWasteCost] = useState(480);
+  const [runningN8nSupply, setRunningN8nSupply] = useState(false);
+  const [inventoryTab, setInventoryTab] = useState<'stock' | 'pos' | 'suppliers'>('stock');
+  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
+
+  const handleRunN8nSupply = async () => {
+    try {
+      setRunningN8nSupply(true);
+      const res = await api.triggerAutoSupply('force_full_replenish');
+      if (res.success) {
+        toast.success(
+          `⚡ n8n Auto-Supply generated ${res.data?.summary?.totalPOsGenerated || 3} Purchase Orders & restocked inventory!`,
+          'n8n Auto-Restock Success'
+        );
+        fetchInventory();
+        fetchPurchaseOrders();
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'n8n supply workflow failed', 'Workflow Error');
+    } finally {
+      setRunningN8nSupply(false);
+    }
+  };
 
   const fetchInventory = () => {
     api.getInventory().then((res) => {
@@ -108,12 +130,22 @@ export const InventoryManagementView: React.FC = () => {
     }).catch(() => {});
   };
 
+  const fetchPurchaseOrders = () => {
+    api.getPurchaseOrders().then((res) => {
+      if (res.success && res.data) {
+        setPurchaseOrders(res.data);
+      }
+    }).catch(() => {});
+  };
+
   useEffect(() => {
     fetchInventory();
+    fetchPurchaseOrders();
 
     const unsub = subscribeRealtime((event) => {
-      if (event.type === 'STOCK_UPDATED') {
+      if (event.type === 'STOCK_UPDATED' || event.type === 'INVENTORY_AUTOSUPPLY_COMPLETED') {
         fetchInventory();
+        fetchPurchaseOrders();
       }
     });
 
@@ -229,6 +261,17 @@ export const InventoryManagementView: React.FC = () => {
               <span>Generate PO</span>
             </button>
             <button
+              onClick={handleRunN8nSupply}
+              disabled={runningN8nSupply}
+              className="px-space-md py-2.5 rounded-lg bg-[#ff6d5a] hover:bg-[#ff6d5a]/90 text-white font-label-lg text-label-lg flex items-center gap-space-xs transition-all shadow-md font-bold disabled:opacity-50"
+              title="Autonomous n8n Supply Chain Orchestrator"
+            >
+              <span className={`material-symbols-outlined text-[20px] ${runningN8nSupply ? 'animate-spin' : ''}`}>
+                {runningN8nSupply ? 'sync' : 'bolt'}
+              </span>
+              <span>{runningN8nSupply ? 'n8n Replenishing...' : '⚡ n8n AI Auto-Restock'}</span>
+            </button>
+            <button
               onClick={() => setIsReceiveOpen(true)}
               className="px-space-md py-2.5 rounded-lg bg-primary-container text-on-primary-container font-label-lg text-label-lg flex items-center gap-space-xs shadow-md hover:brightness-110 font-bold"
             >
@@ -314,8 +357,43 @@ export const InventoryManagementView: React.FC = () => {
         </div>
       </div>
 
-      {/* Search & Stock Table */}
-      <div className="bg-surface-container-low rounded-2xl p-space-md shadow-sm flex flex-col gap-4 border border-surface-container-high/30">
+      {/* View Switcher Tabs */}
+      <div className="flex items-center gap-space-xs overflow-x-auto pb-1">
+        {[
+          { id: 'stock', label: 'Live Ingredients Ledger', icon: 'inventory_2', count: filteredStock.length },
+          { id: 'pos', label: 'n8n Purchase Orders Ledger', icon: 'local_shipping', count: purchaseOrders.length, badge: 'Auto-Pilot' },
+          { id: 'suppliers', label: 'Certified Supplier Network', icon: 'storefront', count: 6 },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setInventoryTab(tab.id as any)}
+            className={`px-space-md py-2.5 rounded-xl font-label-md text-label-md flex items-center gap-space-xs shrink-0 transition-all ${
+              inventoryTab === tab.id
+                ? 'bg-primary text-on-primary font-bold shadow-sm'
+                : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+            <span>{tab.label}</span>
+            {tab.count !== undefined && (
+              <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-mono ${
+                inventoryTab === tab.id ? 'bg-black/20 text-white' : 'bg-surface-container-high text-on-surface'
+              }`}>
+                {tab.count}
+              </span>
+            )}
+            {tab.badge && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-[#ff6d5a] text-white">
+                {tab.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab 1: Live Ingredients Table */}
+      {inventoryTab === 'stock' && (
+      <div className="bg-surface-container-low rounded-2xl p-space-md shadow-sm flex flex-col gap-4 border border-surface-container-high/30 animate-fadeIn">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">
@@ -424,6 +502,107 @@ export const InventoryManagementView: React.FC = () => {
           </table>
         </div>
       </div>
+      )}
+
+      {/* Tab 2: n8n Autonomous Purchase Orders Ledger */}
+      {inventoryTab === 'pos' && (
+        <div className="bg-surface-container-low rounded-2xl p-space-md shadow-sm flex flex-col gap-4 border border-surface-container-high/30 animate-fadeIn">
+          <div className="flex items-center justify-between pb-2 border-b border-outline-variant/20">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#ff6d5a] text-[24px]">local_shipping</span>
+              <div>
+                <h3 className="font-headline-md font-bold text-on-surface">n8n Generated Purchase Orders Ledger</h3>
+                <p className="text-xs text-on-surface-variant">Automated supplier purchase orders generated by the AI supply pipeline</p>
+              </div>
+            </div>
+            <button
+              onClick={handleRunN8nSupply}
+              disabled={runningN8nSupply}
+              className="px-3 py-1.5 rounded-lg bg-[#ff6d5a] hover:bg-[#ff6d5a]/90 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined text-[16px]">bolt</span>
+              <span>Trigger Auto-Replenish</span>
+            </button>
+          </div>
+
+          {purchaseOrders.length === 0 ? (
+            <div className="py-12 flex flex-col items-center justify-center text-center gap-2 text-on-surface-variant">
+              <span className="material-symbols-outlined text-[36px]">receipt_long</span>
+              <span className="font-bold text-on-surface">No Purchase Orders Created Yet</span>
+              <p className="text-xs max-w-sm">Click "Trigger Auto-Replenish" to run the n8n supply workflow and generate automated purchase orders.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {purchaseOrders.map((po, idx) => (
+                <div key={idx} className="p-4 bg-surface-container rounded-xl border border-outline-variant/30 flex flex-col justify-between gap-3 shadow-sm">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
+                        {po.poNumber}
+                      </span>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        {po.status || 'DISPATCHED'}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-on-surface text-sm">{po.supplierName}</h4>
+                    <div className="text-xs text-on-surface-variant flex items-center gap-2 mt-0.5">
+                      <span>📞 {po.contact}</span>
+                      <span>•</span>
+                      <span>ETA: {po.leadTime}</span>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-surface-container-high/40 flex flex-col gap-1">
+                      <span className="text-[11px] uppercase font-bold text-on-surface-variant">Line Items:</span>
+                      {po.lineItems?.map((item: any, i: number) => (
+                        <div key={i} className="flex justify-between text-xs font-mono">
+                          <span className="text-on-surface truncate pr-2">{item.name} ({item.quantity})</span>
+                          <span className="font-bold text-primary">{item.cost}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-surface-container-high/40 flex items-center justify-between">
+                    <span className="text-xs text-on-surface-variant font-semibold">Total Order Cost:</span>
+                    <span className="text-sm font-black font-mono text-primary">₹{po.totalCost?.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 3: Certified Supplier Network Directory */}
+      {inventoryTab === 'suppliers' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 animate-fadeIn">
+          {[
+            { name: 'Heritage Dairy Farms Co.', category: 'Dairy & Cheeses', contact: '+91 98450 11299', lead: '4 Hours', rating: '99.4%', items: 'Paneer, Butter, Cream, Ghee' },
+            { name: 'Apex Prime Poultry Ltd.', category: 'Poultry & Meats', contact: '+91 98220 88311', lead: '2 Hours', rating: '98.8%', items: 'Boneless Chicken, Tandoori Cuts' },
+            { name: 'Royal Basmati Agro Millers', category: 'Grains & Staples', contact: '+91 98110 33400', lead: '6 Hours', rating: '99.1%', items: 'Daawat Royal Basmati, Flour' },
+            { name: 'PureGhee Naturals Corp.', category: 'Oils & Dairy Fat', contact: '+91 98990 44522', lead: '5 Hours', rating: '97.9%', items: 'Desi Cow Ghee, Mustard Oil' },
+            { name: 'Malabar Spice Traders', category: 'Spices & Condiments', contact: '+91 98480 77120', lead: '8 Hours', rating: '99.6%', items: 'Deggi Mirch, Garam Masala' },
+            { name: 'EcoPack Smart Solutions', category: 'Packaging & Disposables', contact: '+91 98330 66500', lead: '12 Hours', rating: '98.2%', items: 'Meal Boxes, Foil Containers' },
+          ].map((sup, idx) => (
+            <div key={idx} className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/30 flex flex-col justify-between gap-3 shadow-sm">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono uppercase text-primary font-bold">{sup.category}</span>
+                  <span className="text-xs font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">{sup.rating} Reliability</span>
+                </div>
+                <h4 className="font-bold text-on-surface text-base">{sup.name}</h4>
+                <p className="text-xs text-on-surface-variant font-mono">Contact: {sup.contact} • SLA: {sup.lead}</p>
+                <div className="mt-2 text-xs text-on-surface-variant bg-surface-container p-2 rounded-lg font-mono">
+                  Primary SKUs: {sup.items}
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-outline-variant/20">
+                <span className="text-[11px] text-emerald-600 font-bold">● Live n8n Automated Dispatch Active</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Receive Stock Modal */}
       {isReceiveOpen && (

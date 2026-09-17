@@ -100,17 +100,32 @@ export const KitchenDisplayView: React.FC = () => {
   useEffect(() => {
     fetchTickets();
 
+    // 1. Live elapsed timer tick
+    const timerInterval = setInterval(() => {
+      setTickets((prev) =>
+        prev.map((t) => ({
+          ...t,
+          elapsedMinutes: t.elapsedMinutes + 1,
+        }))
+      );
+    }, 30000);
+
+    // 2. Realtime WebSocket listener
     const unsub = subscribeRealtime((event) => {
       if (
         event.type === 'ORDER_CREATED' ||
         event.type === 'KDS_TICKET_BUMPED' ||
-        event.type === 'KDS_ITEM_BUMPED'
+        event.type === 'KDS_ITEM_BUMPED' ||
+        event.type === 'KDS_ROUTING_PROCESSED'
       ) {
         fetchTickets();
       }
     });
 
-    return () => unsub();
+    return () => {
+      clearInterval(timerInterval);
+      unsub();
+    };
   }, []);
 
   const toggleItemDone = (ticketId: string, itemId: string) => {
@@ -139,6 +154,16 @@ export const KitchenDisplayView: React.FC = () => {
     setTickets((prev) => prev.filter((t) => t.id !== ticketId));
     api.bumpKdsTicket(ticketId).catch(() => {});
   };
+
+  const filteredTickets = tickets
+    .map((ticket) => {
+      if (selectedStation === 'all') return ticket;
+      const matchingItems = ticket.items.filter((it) =>
+        it.station.toLowerCase().includes(selectedStation.toLowerCase())
+      );
+      return matchingItems.length > 0 ? { ...ticket, items: matchingItems } : null;
+    })
+    .filter(Boolean) as KdTicket[];
 
   return (
     <div className="flex flex-col w-full pb-16 space-y-space-md">
@@ -283,7 +308,7 @@ export const KitchenDisplayView: React.FC = () => {
 
       {/* Live KDS Multi-Lane Kanban Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
-        {tickets.map((ticket) => {
+        {filteredTickets.map((ticket) => {
           const isOverdue = ticket.elapsedMinutes >= 18;
           return (
             <div

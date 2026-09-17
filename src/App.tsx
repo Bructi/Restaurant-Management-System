@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { useRealtimeSync } from './hooks/useRealtimeSync';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { LandingPage } from './components/landing/LandingPage';
+import { CustomerPortalView } from './components/customer/CustomerPortalView';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { PosTerminalView } from './components/pos/PosTerminalView';
 import { OrderManagementView } from './components/orders/OrderManagementView';
@@ -16,6 +17,7 @@ import { InventoryManagementView } from './components/inventory/InventoryManagem
 import { CustomerCrmView } from './components/customers/CustomerCrmView';
 import { StaffManagementView } from './components/staff/StaffManagementView';
 import { ReportsAnalyticsView } from './components/analytics/ReportsAnalyticsView';
+import { N8nAutomationHubView } from './components/n8n/N8nAutomationHubView';
 import { SettingsView } from './components/settings/SettingsView';
 import { CheckoutTerminalView } from './components/checkout/CheckoutTerminalView';
 import { QuickOrderModal } from './components/modals/QuickOrderModal';
@@ -25,12 +27,27 @@ import { OrderTicketModal } from './components/modals/OrderTicketModal';
 import { FloorManagerModal } from './components/modals/FloorManagerModal';
 import { AuthModal } from './components/auth/AuthModal';
 import { StaffPinModal } from './components/auth/StaffPinModal';
-import { NAV_ITEMS } from './data/dashboardData';
+import { getNavItemsForRole } from './data/dashboardData';
 import { NavPath, LiveOrder, FloorTable, PopularDish } from './types';
 
 function AppContent() {
+  const { userType } = useAuth();
   const [currentPath, setCurrentPath] = useState<NavPath>('landing');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Dynamic Nav Items tailored for current user role
+  const roleNavItems = getNavItemsForRole(userType);
+
+  // Handle path adjustment on user switch
+  useEffect(() => {
+    if (currentPath !== 'landing') {
+      if (userType === 'customer' && currentPath !== 'customer-portal' && currentPath !== 'reservations' && currentPath !== 'orders' && currentPath !== 'customers') {
+        setCurrentPath('customer-portal');
+      } else if (userType === 'staff' && (currentPath === 'dashboard' || currentPath === 'settings' || currentPath === 'inventory' || currentPath === 'reports-analytics' || currentPath === 'n8n-automations')) {
+        setCurrentPath('pos-new-order');
+      }
+    }
+  }, [userType, currentPath]);
 
   // Real-time backend WebSocket sync
   const { isConnected, latencyMs } = useRealtimeSync((event) => {
@@ -93,15 +110,22 @@ function AppContent() {
       case 'landing':
         return (
           <LandingPage
-            onEnterApp={(path) => setCurrentPath(path || 'dashboard')}
+            onEnterApp={(path) => {
+              if (path) setCurrentPath(path);
+              else if (userType === 'customer') setCurrentPath('customer-portal');
+              else if (userType === 'staff') setCurrentPath('pos-new-order');
+              else setCurrentPath('dashboard');
+            }}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onOpenStaffPin={() => setIsStaffPinOpen(true)}
           />
         );
+      case 'customer-portal':
+        return <CustomerPortalView />;
       case 'dashboard':
         return (
           <DashboardView
-            onQuickOrder={() => setIsQuickOrderOpen(true)}
+            onQuickOrder={() => setCurrentPath('pos-new-order')}
             onDailySummary={() => setIsDailySummaryOpen(true)}
             onRefresh={handleRefresh}
             onSelectOrder={(order) => setSelectedOrder(order)}
@@ -129,6 +153,8 @@ function AppContent() {
         return <CustomerCrmView />;
       case 'staff':
         return <StaffManagementView />;
+      case 'n8n-automations':
+        return <N8nAutomationHubView />;
       case 'reports-analytics':
         return <ReportsAnalyticsView />;
       case 'settings':
@@ -175,7 +201,7 @@ function AppContent() {
     <div className="min-h-screen bg-surface-container-lowest text-on-surface font-body-md text-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
       {/* Persistent Left Sidebar Navigation */}
       <Sidebar
-        navItems={NAV_ITEMS}
+        navItems={roleNavItems}
         currentPath={currentPath}
         onNavigate={(path) => {
           setCurrentPath(path);

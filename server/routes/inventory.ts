@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { wsHub } from '../ws';
+import { n8nService } from '../services/n8n';
 
 export const inventoryRouter = Router();
 
@@ -8,6 +9,32 @@ export const inventoryRouter = Router();
 inventoryRouter.get('/', (_req: Request, res: Response) => {
   const inventory = db.getInventory();
   res.json({ success: true, count: inventory.length, data: inventory });
+});
+
+// GET all generated purchase orders from n8n & system
+inventoryRouter.get('/purchase-orders', (_req: Request, res: Response) => {
+  const pos = db.getPurchaseOrders();
+  res.json({ success: true, count: pos.length, data: pos });
+});
+
+// POST trigger autonomous n8n supply replenishment
+inventoryRouter.post('/auto-supply', async (req: Request, res: Response) => {
+  try {
+    const { mode } = req.body;
+    const output = await n8nService.triggerWorkflow('auto-supply', { mode: mode || 'auto_replenish' });
+    const updatedInventory = db.getInventory();
+    const purchaseOrders = db.getPurchaseOrders();
+
+    res.json({
+      success: true,
+      message: 'Autonomous n8n Supply Pipeline executed successfully',
+      data: output.data,
+      inventory: updatedInventory,
+      purchaseOrders,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // PATCH stock update

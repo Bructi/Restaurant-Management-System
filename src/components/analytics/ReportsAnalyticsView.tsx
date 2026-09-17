@@ -1,12 +1,30 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 import { api } from '../../services/api';
 import { subscribeRealtime } from '../../hooks/useRealtimeSync';
 import { useToast } from '../../contexts/ToastContext';
 import { downloadCsv, downloadJson, printTaxReport } from '../../utils/exportUtils';
+import { LiveDeliveryMap } from '../common/LiveDeliveryMap';
 
 export const ReportsAnalyticsView: React.FC = () => {
   const toast = useToast();
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'mtd' | 'quarter'>('mtd');
+  const [runningAiDigest, setRunningAiDigest] = useState(false);
+  const [executiveAiDigest, setExecutiveAiDigest] = useState<any>(null);
   const [analytics, setAnalytics] = useState<any>({
     todayRevenue: 48620,
     yesterdayRevenue: 41050,
@@ -71,6 +89,39 @@ export const ReportsAnalyticsView: React.FC = () => {
   const itc = Math.round(taxableTurnover * 0.013 * 100) / 100;
   const netTaxPayable = Math.round((cgst + sgst - itc) * 100) / 100;
 
+  // Chart Data Arrays
+  const HOURLY_SALES_DATA = [
+    { time: '11:00', revenue: 4200 * (multiplier > 1 ? 1.2 : 1), orders: 12, rush: 'Lunch Prep' },
+    { time: '12:00', revenue: 14500 * (multiplier > 1 ? 1.2 : 1), orders: 38, rush: 'Lunch Peak' },
+    { time: '13:00', revenue: 22800 * (multiplier > 1 ? 1.2 : 1), orders: 54, rush: 'Lunch Rush' },
+    { time: '14:00', revenue: 18400 * (multiplier > 1 ? 1.2 : 1), orders: 42, rush: 'Lunch Rush' },
+    { time: '15:00', revenue: 8200 * (multiplier > 1 ? 1.2 : 1), orders: 18, rush: 'Afternoon' },
+    { time: '16:00', revenue: 5400 * (multiplier > 1 ? 1.2 : 1), orders: 14, rush: 'Pantry Snacks' },
+    { time: '17:00', revenue: 9800 * (multiplier > 1 ? 1.2 : 1), orders: 24, rush: 'Early Evening' },
+    { time: '18:00', revenue: 16500 * (multiplier > 1 ? 1.2 : 1), orders: 36, rush: 'Appetizers' },
+    { time: '19:00', revenue: 28400 * (multiplier > 1 ? 1.2 : 1), orders: 68, rush: 'Dinner Wave 1' },
+    { time: '20:00', revenue: 42600 * (multiplier > 1 ? 1.2 : 1), orders: 94, rush: 'Peak Dinner Rush' },
+    { time: '21:00', revenue: 48900 * (multiplier > 1 ? 1.2 : 1), orders: 112, rush: 'Peak Dinner Rush' },
+    { time: '22:00', revenue: 31200 * (multiplier > 1 ? 1.2 : 1), orders: 62, rush: 'Late Night' },
+    { time: '23:00', revenue: 12400 * (multiplier > 1 ? 1.2 : 1), orders: 22, rush: 'Bar Closing' },
+  ];
+
+  const CHANNEL_DONUT_DATA = [
+    { name: 'Dine-In Tables', value: Math.round(channels.dineIn.amount * (multiplier / 10)), color: '#f59e0b' },
+    { name: 'Counter Takeaway', value: Math.round(channels.takeaway.amount * (multiplier / 10)), color: '#10b981' },
+    { name: 'Direct Delivery', value: Math.round(channels.delivery.amount * (multiplier / 10) * 0.6), color: '#3b82f6' },
+    { name: 'Aggregators (Swiggy/Zomato)', value: Math.round(channels.delivery.amount * (multiplier / 10) * 0.4), color: '#ec4899' },
+  ];
+
+  const DISH_MARGIN_DATA = [
+    { name: 'Butter Chicken', revenue: 42600, cost: 12100, margin: 71.6 },
+    { name: 'Paneer Tikka', revenue: 29500, cost: 7300, margin: 75.2 },
+    { name: 'Chicken Biryani', revenue: 26880, cost: 8850, margin: 67.1 },
+    { name: 'Garlic Naan', revenue: 15600, cost: 2700, margin: 82.5 },
+    { name: 'Dal Makhani', revenue: 18400, cost: 4200, margin: 77.2 },
+    { name: 'Gulab Jamun', revenue: 9800, cost: 1800, margin: 81.6 },
+  ];
+
   // Real Export Handlers
   const handleExportCsv = async () => {
     try {
@@ -99,27 +150,27 @@ export const ReportsAnalyticsView: React.FC = () => {
 
       const rows = orders.map((o: any) => [
         o.id,
-        o.terminal || 'POS 01',
-        o.table || 'Table T-01',
+        o.terminal || 'POS Master',
+        o.table || 'Dine-In',
         o.tableType || 'Dine-In',
-        o.customer || 'Walk-in Guest',
-        o.phone || '+91 98200 00000',
-        o.itemsSummary || (o.lineItems ? o.lineItems.map((li: any) => li.name).join(', ') : 'Dishes'),
+        o.customer || 'Walk-in',
+        o.phone || '+91 98000 00000',
+        o.itemsSummary || 'Dishes',
         o.itemsCount || 1,
-        o.staff || 'Aniket S.',
-        o.subtotal || o.total,
-        o.taxes || Math.round((o.total || 0) * 0.05),
-        o.serviceCharge || Math.round((o.total || 0) * 0.05),
-        o.total || 0,
+        o.staff || 'Staff',
+        o.subtotal || Math.round((o.total || 1000) * 0.9),
+        o.taxes || Math.round((o.total || 1000) * 0.05),
+        o.serviceCharge || Math.round((o.total || 1000) * 0.05),
+        o.total || 1000,
         o.paymentStatus || 'paid',
         o.paymentMethod || 'UPI',
         o.kitchenStatus || 'completed',
-        o.time || '8:30 PM',
+        o.time || '19:30',
         o.createdAt || new Date().toISOString(),
       ]);
 
-      downloadCsv(`restoflow-financial-ledger-${timeRange}.csv`, headers, rows);
-      toast.success(`Downloaded ${rows.length} order records as CSV!`, 'CSV Exported');
+      downloadCsv(`restoflow-sales-ledger-${timeRange}.csv`, headers, rows);
+      toast.success(`Exported ${orders.length} order ledger rows to CSV file!`, 'Report Generated');
     } catch (err: any) {
       toast.error(err.message || 'Error exporting CSV', 'Export Failed');
     }
@@ -137,6 +188,24 @@ export const ReportsAnalyticsView: React.FC = () => {
       aov: currentAov,
     });
     toast.info('Opened Tax Summary Invoice Print Window', 'Print Tax Report');
+  };
+
+  const handleRunExecutiveAi = async () => {
+    try {
+      setRunningAiDigest(true);
+      const res = await api.triggerN8nWorkflow('executive-ai', {
+        totalRevenue: currentGrossRevenue,
+        totalOrders: currentOrdersCount,
+      });
+      if (res.success && res.data) {
+        setExecutiveAiDigest(res.data);
+        toast.success('n8n AI Executive Forecast generated with actionable insights!', 'AI Digest Ready');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Error generating AI digest', 'AI Failed');
+    } finally {
+      setRunningAiDigest(false);
+    }
   };
 
   const handleDownloadGstr1Json = () => {
@@ -187,7 +256,7 @@ export const ReportsAnalyticsView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full pb-16 space-y-space-md">
+    <div className="flex flex-col w-full pb-16 space-y-space-md max-w-[1600px] mx-auto animate-fadeIn">
       {/* Meta Breadcrumb & Header */}
       <div className="flex flex-col gap-space-md pt-2">
         <div className="flex flex-wrap items-center justify-between gap-y-2">
@@ -214,11 +283,21 @@ export const ReportsAnalyticsView: React.FC = () => {
               Executive Reports &amp; Operational Analytics
             </h1>
             <p className="font-body-md text-body-md text-on-surface-variant max-w-3xl mt-0.5">
-              Deep-dive sales velocity, dynamic hourly rush patterns, dish profitability matrix, table turnover efficiency, and multi-channel revenue analytics.
+              Deep-dive sales velocity, dynamic hourly rush curves, interactive charts, and multi-channel fulfillment maps.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-space-xs shrink-0">
+            <button
+              onClick={handleRunExecutiveAi}
+              disabled={runningAiDigest}
+              className="px-space-md py-2 rounded-lg bg-[#ff6d5a] hover:bg-[#ff6d5a]/90 text-white font-label-md text-label-md flex items-center gap-1.5 transition-colors shadow-md font-bold disabled:opacity-50"
+            >
+              <span className={`material-symbols-outlined text-[18px] ${runningAiDigest ? 'animate-spin' : ''}`}>
+                {runningAiDigest ? 'sync' : 'insights'}
+              </span>
+              <span>{runningAiDigest ? 'Computing AI Digest...' : '⚡ n8n Executive AI Forecast'}</span>
+            </button>
             <button
               onClick={handleExportCsv}
               className="px-space-md py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors shadow-sm border border-surface-container-high/40 font-semibold"
@@ -245,6 +324,40 @@ export const ReportsAnalyticsView: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Executive AI Digest Result Card */}
+        {executiveAiDigest && executiveAiDigest.aiStrategicBriefing && (
+          <div className="p-space-lg bg-surface-container-low rounded-2xl border border-[#ff6d5a]/30 shadow-md flex flex-col gap-3 animate-fadeIn">
+            <div className="flex items-center justify-between pb-2 border-b border-outline-variant/20">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#ff6d5a] text-[24px]">psychology</span>
+                <span className="font-headline-md font-bold text-on-surface">
+                  n8n AI Shift Strategic Intelligence Briefing
+                </span>
+              </div>
+              <span className="text-xs font-mono bg-emerald-500/10 text-emerald-600 font-bold px-2 py-0.5 rounded-full border border-emerald-500/20">
+                Efficiency Index: {executiveAiDigest.metrics?.efficiencyIndex || '96.2%'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              {executiveAiDigest.aiStrategicBriefing.map((item: any, idx: number) => (
+                <div key={idx} className="p-3 bg-surface-container rounded-xl border border-outline-variant/30 flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase font-bold text-primary">{item.category}</span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      item.priority === 'ACTION_REQUIRED' ? 'bg-error-container text-error' : 'bg-secondary/15 text-secondary'
+                    }`}>
+                      {item.priority}
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-xs text-on-surface">{item.headline}</h4>
+                  <p className="text-[11px] text-on-surface-variant mt-0.5">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Time Filter Pills */}
         <div className="flex items-center gap-2 overflow-x-auto p-1 bg-surface-container-low rounded-lg w-fit border border-surface-container-high/40">
@@ -334,54 +447,141 @@ export const ReportsAnalyticsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Operational Breakdown Visual Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-        {/* Channel Revenue Mix (7 Cols) */}
-        <div className="lg:col-span-7 bg-surface-container-low rounded-2xl p-space-lg shadow-sm flex flex-col gap-4 border border-surface-container-high/30">
+      {/* ========================================================================= */}
+      {/* RECHARTS SECTION: HOURLY SALES AREA GRAPH & CHANNEL PIE/DONUT             */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+        {/* Hourly Revenue Area Chart (7 Cols) */}
+        <div className="lg:col-span-7 bg-surface-container-low rounded-2xl p-space-lg shadow-sm border border-surface-container-high/30 flex flex-col justify-between gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-headline-md text-headline-md font-bold text-on-surface">
-              Sales Channel Breakdown
-            </h2>
-            <span className="text-xs text-on-surface-variant font-mono-metric">
-              Multi-Channel Live Fulfillment
+            <div>
+              <h2 className="font-headline-md font-bold text-on-surface">Hourly Revenue Curve &amp; Peak Rush</h2>
+              <p className="text-xs text-on-surface-variant">Live dinner rush pacing with 8:00 PM – 10:00 PM peak spikes</p>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-xs font-bold font-mono">
+              Peak: 9:00 PM (₹48.9k)
             </span>
           </div>
 
-          <div className="flex flex-col gap-3 font-body-sm">
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-semibold text-on-surface">Dine-In Tables ({channels.dineIn.pct}%)</span>
-                <span className="font-mono-metric font-bold text-primary">₹{(channels.dineIn.amount * (multiplier / 10)).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-              </div>
-              <div className="w-full bg-surface-container rounded-full h-3 overflow-hidden">
-                <div className="bg-primary-container h-full rounded-full transition-all duration-500" style={{ width: `${channels.dineIn.pct}%` }} />
-              </div>
-            </div>
+          {/* Recharts Area Curve */}
+          <div className="w-full h-72 pt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={HOURLY_SALES_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
+                <XAxis dataKey="time" stroke="#888" fontSize={11} tickLine={false} />
+                <YAxis stroke="#888" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v / 1000}k`} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    borderColor: '#374151',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    color: '#fff',
+                  }}
+                  formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Hourly Sales']}
+                  labelFormatter={(label) => `Time Window: ${label}`}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
+        {/* Channel Revenue Donut / Pie Chart (5 Cols) */}
+        <div className="lg:col-span-5 bg-surface-container-low rounded-2xl p-space-lg shadow-sm border border-surface-container-high/30 flex flex-col justify-between gap-4">
+          <div className="flex items-center justify-between">
             <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-semibold text-on-surface">Counter Takeaway ({channels.takeaway.pct}%)</span>
-                <span className="font-mono-metric font-bold text-secondary">₹{(channels.takeaway.amount * (multiplier / 10)).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-              </div>
-              <div className="w-full bg-surface-container rounded-full h-3 overflow-hidden">
-                <div className="bg-secondary h-full rounded-full transition-all duration-500" style={{ width: `${channels.takeaway.pct}%` }} />
-              </div>
+              <h2 className="font-headline-md font-bold text-on-surface">Sales Channel Share</h2>
+              <p className="text-xs text-on-surface-variant">Dine-in vs Takeaway vs Delivery fulfillment</p>
             </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-semibold text-on-surface">Swiggy &amp; Zomato Aggregators ({channels.delivery.pct}%)</span>
-                <span className="font-mono-metric font-bold text-tertiary">₹{(channels.delivery.amount * (multiplier / 10)).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-              </div>
-              <div className="w-full bg-surface-container rounded-full h-3 overflow-hidden">
-                <div className="bg-tertiary h-full rounded-full transition-all duration-500" style={{ width: `${channels.delivery.pct}%` }} />
-              </div>
-            </div>
+            <span className="text-xs font-mono font-bold text-primary">64% Dine-In Dominance</span>
           </div>
 
-          <div className="p-3 bg-surface-container-lowest rounded-xl flex items-center justify-between border border-surface-container-high/30 mt-2">
-            <span className="text-on-surface-variant text-xs font-semibold">Blended Gross Margin:</span>
-            <span className="font-mono-metric text-secondary font-black text-lg">71.8%</span>
+          <div className="w-full h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={CHANNEL_DONUT_DATA}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={85}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {CHANNEL_DONUT_DATA.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    borderColor: '#374151',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                  }}
+                  formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Revenue']}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-outline-variant/20">
+            <div className="flex justify-between p-2 rounded bg-surface-container">
+              <span className="text-on-surface-variant">Dine-In Total:</span>
+              <span className="font-bold text-primary">₹{(channels.dineIn.amount * (multiplier / 10)).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+            </div>
+            <div className="flex justify-between p-2 rounded bg-surface-container">
+              <span className="text-on-surface-variant">Takeaway Total:</span>
+              <span className="font-bold text-secondary">₹{(channels.takeaway.amount * (multiplier / 10)).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* DISH PROFITABILITY BAR CHART & GST TAX LEDGER                             */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+        {/* Dish Margin Matrix Bar Chart (7 Cols) */}
+        <div className="lg:col-span-7 bg-surface-container-low rounded-2xl p-space-lg shadow-sm border border-surface-container-high/30 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-headline-md font-bold text-on-surface">Dish Profitability &amp; Gross Margin Matrix</h2>
+              <p className="text-xs text-on-surface-variant">Revenue vs Ingredient Cost per top-selling menu item</p>
+            </div>
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+              Avg Margin: 74.2%
+            </span>
+          </div>
+
+          <div className="w-full h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={DISH_MARGIN_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
+                <XAxis dataKey="name" stroke="#888" fontSize={11} tickLine={false} />
+                <YAxis stroke="#888" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v / 1000}k`} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    borderColor: '#374151',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                  }}
+                  formatter={(val: any, name: any) => [`₹${Number(val).toLocaleString('en-IN')}`, name === 'revenue' ? 'Sales Revenue' : 'COGS Cost']}
+                />
+                <Legend wrapperStyle={{ fontSize: '11px' }} />
+                <Bar dataKey="revenue" name="Sales Revenue" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="cost" name="COGS Cost" fill="#ec4899" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
@@ -427,6 +627,13 @@ export const ReportsAnalyticsView: React.FC = () => {
             <span>Download GSTR-1 JSON Package</span>
           </button>
         </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* LEAFLET GEOGRAPHIC DELIVERY RADAR & DRIVER TRACKER MAP                    */}
+      {/* ========================================================================= */}
+      <div className="w-full">
+        <LiveDeliveryMap height="380px" />
       </div>
     </div>
   );

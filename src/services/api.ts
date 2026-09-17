@@ -105,6 +105,12 @@ export const api = {
 
   // Inventory
   getInventory: () => fetchJson<{ success: boolean; data: any[] }>('/inventory'),
+  getPurchaseOrders: () => fetchJson<{ success: boolean; data: any[] }>('/inventory/purchase-orders'),
+  triggerAutoSupply: (mode = 'auto_replenish') =>
+    fetchJson<{ success: boolean; message: string; data: any; inventory: any[]; purchaseOrders: any[] }>('/inventory/auto-supply', {
+      method: 'POST',
+      body: JSON.stringify({ mode }),
+    }),
   updateStock: (id: string, currentStock: number) =>
     fetchJson<{ success: boolean; data: any }>(`/inventory/${id}/stock`, {
       method: 'PATCH',
@@ -229,5 +235,75 @@ export const api = {
     fetchJson<{ success: boolean; user?: any; requireEmailVerification?: boolean; error?: string }>('/insforge/auth/signup', {
       method: 'POST',
       body: JSON.stringify(userData),
+    }),
+
+  // n8n AI Workflow & Autonomous Operations
+  getN8nStatus: () =>
+    fetchJson<{
+      success: boolean;
+      connected: boolean;
+      n8nUrl: string;
+      version: string;
+      workflows: Array<{
+        key: string;
+        name: string;
+        description: string;
+        category: 'supply' | 'guest' | 'kds' | 'analytics' | 'menu';
+        icon: string;
+        webhookPath: string;
+        webhookUrl: string;
+        isProvisioned: boolean;
+        workflowId: string | null;
+        isActive: boolean;
+        updatedAt: string | null;
+      }>;
+      recentExecutions: any[];
+      error?: string;
+    }>('/n8n/status'),
+
+  provisionN8nWorkflows: () =>
+    fetchJson<{
+      success: boolean;
+      message: string;
+      workflows: Array<{ key: string; id: string; name: string; active: boolean; webhookUrl: string }>;
+    }>('/n8n/provision', {
+      method: 'POST',
+    }),
+
+  triggerN8nWorkflow: (key: string, payload?: any) =>
+    fetchJson<{
+      success: boolean;
+      workflowKey: string;
+      workflowName: string;
+      durationMs: number;
+      data: any;
+    }>(`/n8n/trigger/${key}`, {
+      method: 'POST',
+      body: JSON.stringify(payload || {}),
+    }),
+
+  getN8nExecutions: (limit = 10) =>
+    fetchJson<{ success: boolean; data: any[] }>(`/n8n/executions?limit=${limit}`),
+
+  toggleN8nWorkflow: (id: string, active: boolean) =>
+    fetchJson<{ success: boolean; data: any }>(`/n8n/workflows/${id}/toggle`, {
+      method: 'POST',
+      body: JSON.stringify({ active }),
+    }),
+
+  // Live Operations Simulator
+  getSimulationStatus: () => fetchJson<{ success: boolean; data: { running: boolean; activeOrders: number; activeTables: number } }>('/simulation/status'),
+  startSimulation: (intervalSeconds = 45) =>
+    fetchJson<{ success: boolean; message: string; interval: number }>('/simulation/start', {
+      method: 'POST',
+      body: JSON.stringify({ intervalSeconds }),
+    }),
+  stopSimulation: () =>
+    fetchJson<{ success: boolean; message: string }>('/simulation/stop', {
+      method: 'POST',
+    }),
+  pulseSimulation: () =>
+    fetchJson<{ success: boolean; message: string }>('/simulation/pulse', {
+      method: 'POST',
     }),
 };

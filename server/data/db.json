@@ -1,6 +1,44 @@
 {
   "orders": [
     {
+      "id": "#ORD-77112",
+      "createdAt": "2026-09-17T08:30:50.544Z",
+      "time": "2:00 PM",
+      "kitchenStatus": "new",
+      "kitchenTime": "New (1m)",
+      "itemsCount": 2,
+      "itemsSummary": "1x Margherita Pizza, 1x Gulab Jamun (2 pcs)",
+      "subtotal": 420,
+      "taxes": 19,
+      "serviceCharge": 0,
+      "total": 397,
+      "table": "Table T-12",
+      "tableType": "Dine-In Customer Order",
+      "customer": "Ananya Verma",
+      "phone": "+91 98201 44821",
+      "staff": "Digital Customer Ordering Portal",
+      "paymentStatus": "paid",
+      "paymentMethod": "UPI / In-App Pay",
+      "lineItems": [
+        {
+          "name": "Margherita Pizza",
+          "qty": 1,
+          "price": 310,
+          "station": "Tandoor",
+          "status": "Order Placed & Fired to KDS",
+          "modifiers": "Freshly prepared"
+        },
+        {
+          "name": "Gulab Jamun (2 pcs)",
+          "qty": 1,
+          "price": 110,
+          "station": "Tandoor",
+          "status": "Order Placed & Fired to KDS",
+          "modifiers": "Freshly prepared"
+        }
+      ]
+    },
+    {
       "id": "#ORD-10482",
       "terminal": "POS Terminal 1",
       "table": "Table T-12",
@@ -213,6 +251,35 @@
     }
   ],
   "kdsTickets": [
+    {
+      "id": "#KOT-936",
+      "orderId": "#ORD-77112",
+      "table": "Table T-12",
+      "orderType": "Dine-In",
+      "pax": 2,
+      "server": "Digital Customer Ordering Portal",
+      "elapsedMinutes": 1,
+      "status": "new",
+      "createdAt": "2026-09-17T08:30:50.633Z",
+      "items": [
+        {
+          "id": "k-1789633850634-0",
+          "name": "Margherita Pizza",
+          "qty": 1,
+          "station": "Tandoor",
+          "isDone": false,
+          "modifiers": "Freshly prepared"
+        },
+        {
+          "id": "k-1789633850634-1",
+          "name": "Gulab Jamun (2 pcs)",
+          "qty": 1,
+          "station": "Tandoor",
+          "isDone": false,
+          "modifiers": "Freshly prepared"
+        }
+      ]
+    },
     {
       "id": "#KOT-848",
       "orderId": "#ORD-10482",
@@ -528,7 +595,7 @@
     {
       "id": "T01",
       "name": "T01",
-      "capacity": 4,
+      "capacity": 6,
       "section": "main",
       "status": "available",
       "orderInfo": "Available"
@@ -550,8 +617,8 @@
       "name": "T03",
       "capacity": 2,
       "section": "main",
-      "status": "available",
-      "orderInfo": "Available"
+      "status": "occupied",
+      "orderInfo": "Merged with T01"
     },
     {
       "id": "T04",
@@ -773,6 +840,15 @@
       "orderInfo": "Occupied",
       "amount": 6800,
       "timeSeated": "48m"
+    },
+    {
+      "id": "T26",
+      "name": "T26",
+      "capacity": 4,
+      "section": "main",
+      "status": "available",
+      "orderInfo": "Available",
+      "readyTime": "Just Added"
     }
   ],
   "reservations": [
@@ -843,25 +919,25 @@
       "id": "ING-014",
       "name": "Fresh Paneer (Malai Block)",
       "category": "Dairy",
-      "currentStock": 4.5,
+      "currentStock": 90,
       "unit": "kg",
       "parLevel": 25,
       "reorderPoint": 8,
       "unitCost": 320,
-      "valuation": 1440,
-      "status": "low",
+      "valuation": 28800,
+      "status": "healthy",
       "supplier": "Amul Dairy Dist. Bangalore"
     },
     {
       "id": "ING-008",
       "name": "Spring Chicken (Skinless Cut)",
       "category": "Meat",
-      "currentStock": 18.2,
+      "currentStock": 90,
       "unit": "kg",
       "parLevel": 40,
       "reorderPoint": 15,
       "unitCost": 220,
-      "valuation": 4004,
+      "valuation": 19800,
       "status": "healthy",
       "supplier": "Suguna Fresh Meats"
     },
@@ -869,12 +945,12 @@
       "id": "ING-032",
       "name": "Basmati Rice (Daawat Royal)",
       "category": "Staples",
-      "currentStock": 95,
+      "currentStock": 165,
       "unit": "kg",
       "parLevel": 150,
       "reorderPoint": 40,
       "unitCost": 110,
-      "valuation": 10450,
+      "valuation": 18150,
       "status": "healthy",
       "supplier": "Metro Cash & Carry"
     },
@@ -882,25 +958,25 @@
       "id": "ING-055",
       "name": "Amul Salted Butter (500g)",
       "category": "Dairy",
-      "currentStock": 2,
+      "currentStock": 90,
       "unit": "blocks",
       "parLevel": 20,
       "reorderPoint": 5,
       "unitCost": 275,
-      "valuation": 550,
-      "status": "critical",
+      "valuation": 24750,
+      "status": "healthy",
       "supplier": "Amul Direct Depot"
     },
     {
       "id": "ING-091",
       "name": "Kashmiri Deggi Mirch Powder",
       "category": "Spices",
-      "currentStock": 12.5,
+      "currentStock": 90,
       "unit": "kg",
       "parLevel": 15,
       "reorderPoint": 4,
       "unitCost": 550,
-      "valuation": 6875,
+      "valuation": 49500,
       "status": "healthy",
       "supplier": "MDH Wholesale Hub"
     }
@@ -1109,17 +1185,130 @@
     }
   ],
   "analytics": {
-    "todayRevenue": 48620,
+    "todayRevenue": 49107,
     "yesterdayRevenue": 41050,
     "totalOrders": 127,
-    "aov": 383,
-    "occupancyPct": 78,
-    "activeTables": 19,
-    "totalTables": 24,
-    "pendingOrdersCount": 8,
-    "mtdRevenue": 486200,
+    "aov": 387,
+    "occupancyPct": 56,
+    "activeTables": 14,
+    "totalTables": 25,
+    "pendingOrdersCount": 7,
+    "mtdRevenue": 491070,
     "foodCostPct": 28.2,
     "netMarginPct": 30,
     "avgTurnaround": "16.4m"
-  }
+  },
+  "purchaseOrders": [
+    {
+      "poNumber": "PO-224578",
+      "supplierName": "Metro Wholesale Direct",
+      "contact": "+91 98000 11111",
+      "leadTime": "6h ETA",
+      "itemCount": 5,
+      "totalCost": 14750,
+      "lineItems": [
+        {
+          "name": "Fresh Paneer (Malai Block)",
+          "quantity": "+10 kg",
+          "cost": "₹3,200"
+        },
+        {
+          "name": "Spring Chicken (Skinless Cut)",
+          "quantity": "+10 kg",
+          "cost": "₹2,200"
+        },
+        {
+          "name": "Basmati Rice (Daawat Royal)",
+          "quantity": "+10 kg",
+          "cost": "₹1,100"
+        },
+        {
+          "name": "Amul Salted Butter (500g)",
+          "quantity": "+10 blocks",
+          "cost": "₹2,750"
+        },
+        {
+          "name": "Kashmiri Deggi Mirch Powder",
+          "quantity": "+10 kg",
+          "cost": "₹5,500"
+        }
+      ],
+      "createdAt": "2026-09-17T08:59:12.345Z",
+      "status": "DISPATCHED"
+    },
+    {
+      "poNumber": "PO-249332",
+      "supplierName": "Metro Wholesale Direct",
+      "contact": "+91 98000 11111",
+      "leadTime": "6h ETA",
+      "itemCount": 5,
+      "totalCost": 14750,
+      "lineItems": [
+        {
+          "name": "Fresh Paneer (Malai Block)",
+          "quantity": "+10 kg",
+          "cost": "₹3,200"
+        },
+        {
+          "name": "Spring Chicken (Skinless Cut)",
+          "quantity": "+10 kg",
+          "cost": "₹2,200"
+        },
+        {
+          "name": "Basmati Rice (Daawat Royal)",
+          "quantity": "+10 kg",
+          "cost": "₹1,100"
+        },
+        {
+          "name": "Amul Salted Butter (500g)",
+          "quantity": "+10 blocks",
+          "cost": "₹2,750"
+        },
+        {
+          "name": "Kashmiri Deggi Mirch Powder",
+          "quantity": "+10 kg",
+          "cost": "₹5,500"
+        }
+      ],
+      "createdAt": "2026-09-17T08:54:10.681Z",
+      "status": "DISPATCHED"
+    },
+    {
+      "poNumber": "PO-398235",
+      "supplierName": "Metro Wholesale Direct",
+      "contact": "+91 98000 11111",
+      "leadTime": "6h ETA",
+      "itemCount": 5,
+      "totalCost": 14750,
+      "lineItems": [
+        {
+          "name": "Fresh Paneer (Malai Block)",
+          "quantity": "+10 kg",
+          "cost": "₹3,200"
+        },
+        {
+          "name": "Spring Chicken (Skinless Cut)",
+          "quantity": "+10 kg",
+          "cost": "₹2,200"
+        },
+        {
+          "name": "Basmati Rice (Daawat Royal)",
+          "quantity": "+10 kg",
+          "cost": "₹1,100"
+        },
+        {
+          "name": "Amul Salted Butter (500g)",
+          "quantity": "+10 blocks",
+          "cost": "₹2,750"
+        },
+        {
+          "name": "Kashmiri Deggi Mirch Powder",
+          "quantity": "+10 kg",
+          "cost": "₹5,500"
+        }
+      ],
+      "createdAt": "2026-09-17T08:38:13.847Z",
+      "status": "DISPATCHED"
+    }
+  ]
 }

@@ -1,4 +1,4 @@
-# 🍽️ RestoFlow OS — Enterprise Restaurant Management & POS Operating System
+# 🍽️ RestoFlow OS — Autonomous AI Restaurant Operating System & POS Hub
 
 ```text
 ██████╗ ███████╗███████╗████████╗ ██████╗ ███████╗██╗      ██████╗ ██╗    ██╗
@@ -7,15 +7,16 @@
 ██╔══██╗██╔══╝  ╚════██║   ██║   ██║   ██║██╔══╝  ██║     ██║   ██║██║███╗██║
 ██║  ██║███████╗███████║   ██║   ╚██████╔╝██║     ███████╗╚██████╔╝╚███╔███╔╝
 ╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝    ╚═════╝ ╚═╝     ╚══════╝ ╚═════╝  ╚══╝╚══╝ 
-                   ⚡ HIGH-VELOCITY CLOUD POS & KITCHEN OS ⚡
+          ⚡ AUTONOMOUS AI SUPPLY ENGINE • RECHARTS BI • LEAFLET GPS ⚡
 ```
 
 <div align="center">
 
+[![n8n Workflow Engine](https://img.shields.io/badge/AI_Engine-n8n%20Workflows%20(v2.39)-EA580C?style=for-the-badge&logo=n8n&logoColor=white)](https://n8n.io)
 [![InsForge Backend](https://img.shields.io/badge/Backend-InsForge%20BaaS%20(PostgreSQL)-f97316?style=for-the-badge&logo=postgresql&logoColor=white)](https://insforge.dev)
 [![React](https://img.shields.io/badge/Frontend-React%2018%20%2B%20TypeScript-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Build-Vite%206-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS%20v3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Recharts](https://img.shields.io/badge/Charts-Recharts%20Interactive-22C55E?style=for-the-badge&logo=recharts&logoColor=white)](https://recharts.org)
+[![Leaflet Maps](https://img.shields.io/badge/Maps-Leaflet%20GPS%20Radar-16A34A?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com)
 [![WebSockets](https://img.shields.io/badge/Realtime-WebSocket%20Sync-010101?style=for-the-badge&logo=socketdotio&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 [![Thermal Printing](https://img.shields.io/badge/Printing-80mm%20ESC%2FPOS-10B981?style=for-the-badge&logo=print&logoColor=white)](#)
 
@@ -23,137 +24,126 @@
 
 ---
 
-## 🌟 Overview
+## 🌟 Executive Overview
 
-**RestoFlow** is an enterprise-grade, high-velocity restaurant management operating system designed for modern dining rooms, fast-casual counters, multi-station kitchens, and cloud delivery operations.
+**RestoFlow** is an autonomous, high-velocity enterprise restaurant operating system designed for modern multi-station kitchens, busy dining rooms, online delivery fleets, and F&B hospitality groups.
 
-Powered by **InsForge BaaS (PostgreSQL)**, **WebSockets**, and **React 18**, RestoFlow eliminates operational bottlenecks by bridging front-of-house ordering with back-of-house kitchen displays, live floor plans, recipe costing, dynamic revenue telemetry, and Indian GST tax compliance.
+Powered by **n8n AI Microservices**, **InsForge PostgreSQL**, **Recharts Visual Analytics**, **Leaflet Real-Time Maps**, and **WebSocket synchronization**, RestoFlow eliminates human friction across every operational boundary:
+
+1. **Guest Self-Service & VIP Portal**: Interactive digital menus, table QR orders, and VIP AI concierge reservations.
+2. **Staff Station & KDS Engine**: Multi-lane kitchen display, live timers, station routing, and fast till settlement.
+3. **Autonomous AI Supply Chain**: Automatic ingredient deduction on order placement and automated n8n supplier Purchase Order (PO) dispatch.
+4. **Executive Business Intelligence**: Recharts hourly curves, BCG dish profitability matrix, and GSTR-1 tax compliance.
 
 ---
 
-## 🚀 Live System Architecture
+## 🏛️ System Architecture
 
 ```text
-  ┌────────────────────────────────────────────────────────────────────────┐
-  │                         RESTOFLOW FRONTEND                             │
-  │   [ Landing Page ] ───► [ POS ] ───► [ KDS ] ───► [ Tables & Floor ]   │
-  │   [ Inventory ]    ───► [ CRM ] ───► [ GST Reports ] ───► [ Settings ] │
-  └──────────────────┬─────────────────────────────────┬───────────────────┘
-                     │                                 │
-                     │ HTTP / REST                     │ WebSockets (ws://)
-                     ▼                                 ▼
-  ┌──────────────────────────────────┐  ┌──────────────────────────────────┐
-  │      EXPRESS API GATEWAY         │  │     WEBSOCKET REALTIME HUB       │
-  │  • Orders & KOT Router           │  │  • Broadcast ORDER_CREATED       │
-  │  • Table Dispatch Engine         │  │  • Sync TABLE_UPDATED            │
-  │  • Dynamic Telemetry & Analytics │  │  • Push KDS_TICKET_BUMPED        │
-  └──────────────────┬───────────────┘  └──────────────────────────────────┘
-                     │
-                     │ @insforge/sdk (Admin & Client)
-                     ▼
-  ┌────────────────────────────────────────────────────────────────────────┐
-  │                      INSFORGE CLOUD PLATFORM                           │
-  │   📦 PostgreSQL Database (orders, kds_tickets, menu_items, tables, ..) │
-  │   🪣 Cloud Storage Buckets (restoflow, uploads)                        │
-  │   🔐 Google & GitHub OAuth + PKCE Passwordless Authentication          │
-  └────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                       RESTOFLOW WEB CLIENT                                       │
+│   [ Landing Page ] ──► [ Customer Portal ] ──► [ Staff POS / KDS ] ──► [ Admin Operations Hub ]  │
+└───────────────────────────────────┬──────────────────────────────────────────────────────────────┘
+                                    │ HTTP / WebSocket (ws://)
+                                    ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                  EXPRESS 5 API GATEWAY (Port 5000)                               │
+│  • Fast Order Router & Ingredient Deductor     • Floor Table Dispatch (Grid / Ledger / Columns)  │
+│  • WebSocket Hub (Broadcasts to all screens)   • Live Simulation Engine & Open-Meteo Weather API │
+└───────────────────┬──────────────────────────────────────────────┬───────────────────────────────┘
+                    │                                              │ Webhooks / API
+                    ▼                                              ▼
+┌──────────────────────────────────────┐        ┌──────────────────────────────────────────────────┐
+│       INSFORGE BaaS (PostgreSQL)     │        │          n8n AI WORKFLOW ORCHESTRATOR            │
+│  📦 10 Cloud Tables (Orders, KDS, ..) │        │  ⚡ 1. Autonomous AI Supplier PO Replenishment   │
+│  🪣 Storage Buckets (Assets, Uploads)│        │  ⚡ 2. VIP Hospitality AI Concierge              │
+│  🔐 PKCE Authentication & Roles      │        │  ⚡ 3. POS Kitchen Station Routing               │
+└──────────────────────────────────────┘        │  ⚡ 4. Executive AI Daily Shift Briefing         │
+                                                │  ⚡ 5. BCG Menu Matrix & Pricing Optimizer       │
+                                                └──────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ✨ Key Subsystems & Real Features
+## 🚀 Key Modules & Capabilities
 
-### 1. 🌐 Standalone Inbuilt Landing Page
-* **Inbuilt Entry Experience**: The application starts on a standalone, high-converting Landing Page featuring the value proposition, dynamic InsForge status, and instant app launchers.
-* **Interactive Live Demo Dispatcher**: Visitors can type a guest name and dispatch a live test order directly into the InsForge PostgreSQL database and kitchen queue.
-* **Integrated Authentication CTA**: One-click **Continue with Google**, **Staff PIN**, or **Owner Sign In** directly from the hero header.
+### 1. 👤 Customer Dining Portal (`CustomerPortalView.tsx`)
+- **Interactive Digital Menu**: Real-time dishes loaded from backend with pure veg / non-veg toggles, category selectors, and custom cooking instructions.
+- **Dine-In Table & Delivery Ordering**: Order at Table (T-01 to T-24), Takeaway Counter, or Direct Delivery with `SPICE10` 10% coupon applicator.
+- **VIP Table Reservation Concierge**: Book tables with party size, occasion, and seating zones. Triggers n8n VIP AI to calculate tiers and assign complimentary chef tasting starters.
+- **Live 4-Step Kitchen Tracker & Delivery Map**: Real-time progress (`1. Placed` ➔ `2. Cooking` ➔ `3. Ready` ➔ `4. Served`) with Leaflet driver GPS tracking.
+- **VIP Loyalty Pass**: Member ID, loyalty points balance, and printable receipt invoices.
 
-### 2. ⚡ High-Velocity Touch POS Terminal
-* **Sub-Second Ordering**: Touch-optimized menu grid with instant dietary filters (`Veg`, `Non-Veg`), category selector, and live search.
-* **Live Modifier Engine**: Attach cooking instructions (*"Extra Spicy"*, *"No Peanuts"*, *"Mint Dip"*) per item.
-* **Smart Bill Breakdown**: Automatic CGST (2.5%), SGST (2.5%), Service Charge (5%), rounding, and promo coupon discounts (`SPICE10`).
-* **Instant KOT Dispatch**: Single click / `Enter` sends order to kitchen display system and prints thermal ticket.
+### 2. 👨🍳 Staff Station & Kitchen KDS (`KitchenDisplayView.tsx`, `PosTerminalView.tsx`)
+- **High-Velocity POS Terminal**: Sub-second order entry, modifier selector, split payment, and 80mm ESC/POS thermal printing.
+- **Multi-Lane Kitchen Display (KDS)**: Strike-through item checkboxes, 30s elapsed prep timers with >18m rush alerts, and 1-tap ticket bumping.
+- **Floor Plan Manager**: 3 interactive view modes:
+  1. `Grid`: Interactive visual canvas with table shapes, seat indicators, and status rings.
+  2. `Column Ledger`: Sortable master table with current bill, occupant, server, and quick transfer/seat actions.
+  3. `Sections Kanban`: Swimlane view across Main Hall, Outdoor Patio, VIP Cabana, and Bar Lounge.
 
-### 3. 🔥 Kitchen Display System (KDS)
-* **Intelligent Station Auto-Routing**: Orders split into specific kitchen prep stations (**Tandoor**, **Curry**, **Bar**, **Pantry**).
-* **Urgency Timers & Color Warnings**: Live elapsed minutes indicators with alert highlights for delayed tickets.
-* **Allergy Badges**: Prominent visual warnings for guest dietary restrictions.
-* **One-Tap Ticket Bumping**: Mark line items or entire tickets as ready, automatically updating parent orders and floor status.
+### 3. 📦 Autonomous AI Supply Chain (`server/services/n8n.ts`)
+- **Continuous Ingredient Deduction**: Every placed order automatically deducts exact ingredient recipes (Paneer, Poultry, Basmati Rice, Butter, Spices, Ghee).
+- **Automated Deficit Detection & PO Dispatch**: When stock hits reorder levels, n8n `restoflow-auto-supply` autonomously triggers:
+  - Generates itemized Purchase Orders categorized across vendors (*Heritage Dairy, Apex Poultry, Royal Basmati, Malabar Spices*).
+  - Updates the active inventory and broadcasts `INVENTORY_AUTOSUPPLY_COMPLETED` over WebSockets.
+- **3-Tab Inventory Hub**: Live Ingredients Ledger, n8n Purchase Orders Ledger, and Certified Supplier Network.
 
-### 4. 🍽️ Interactive Table & Floor Plan Management
-* **Multi-Section Floor Plan**: Visual status grid for **Main Dining**, **Patio Terrace**, **VIP Lounge**, and **Bar Counter**.
-* **Table Turnover Tracking**: Live seated duration counters, server assignments, and active guest counts.
-* **Party Merge & Table Transfer**: Merge adjacent tables for large parties or transfer party tickets to another table with real-time database sync.
+### 4. 📊 Recharts Business Intelligence (`ReportsAnalyticsView.tsx`)
+- **Hourly Revenue Area Curve**: Smooth gradient curve highlighting peak dinner rush windows (8:00 PM – 10:00 PM).
+- **Sales Channel Share Donut**: Proportional breakdown of Dine-In (64%), Takeaway (22%), and Delivery (14%).
+- **Dish Profitability Bar Chart**: Revenue vs COGS ingredient costs per top-selling menu item.
+- **GSTR-1 & Tax Compliance**: Automatic calculation of Taxable Turnover, CGST, SGST, ITC, Net Tax, CSV export, and GSTR-1 JSON package download.
 
-### 5. 📊 Real-Time Dynamic Analytics & Hourly Revenue Flow
-* **Live Scaled Revenue Chart**: Scaled SVG bezier curves and area gradients that compute dynamically based on live database transactions.
-* **Peak Hour Detection**: Dynamic annotation tracking the current peak hour and orders volume.
-* **Sales Channel Breakdown**: Live proportional revenue split across **Dine-In Tables**, **Counter Takeaway**, and **Swiggy/Zomato Aggregators**.
-
-### 6. 📜 Financial Intelligence & GST Tax Ledger
-* **GSTR-3B Tax Summary**: Automatic calculation of Taxable F&B Turnover, Central GST (2.5%), State GST (2.5%), Input Tax Credit (ITC), and Net Tax Payable.
-* **Real CSV Export**: Generates and downloads `restoflow-financial-ledger.csv` with full transactional order data.
-* **Real GSTR-1 JSON Package**: Downloads GST portal-compliant `gstr1-tax-package.json`.
-* **Printable Tax Invoice Report**: Formatted tax certificate for audit printing and PDF generation.
-
-### 7. 🏷️ Menu & Recipe Engineering
-* **BCG Profitability Matrix**: Classifies items into **Star**, **Plowhorse**, **Puzzle**, and **Dog** tiers.
-* **Costing Guardrails**: Food cost percentage and gross margin calculations per recipe.
-* **Bulk 86 Manager**: 1-click out-of-stock switches that immediately sync across terminals.
-* **Price List CSV & Table QR Print**: Exports `restoflow-menu-price-list.csv` and prints table QR codes.
-
-### 8. 📦 Real-Time Cloud Inventory & Waste Control
-* **Auto-Deduction**: Deducts raw ingredients (paneer, chicken, rice, butter) upon order placement.
-* **Stock Health Tracking**: Categorized as `Optimal`, `Low Stock`, or `Critical`.
-* **Automated Purchase Orders (PO)**: Generates and downloads `purchase-order-[PO#].json` for low-stock items.
-* **Kitchen Waste Ledger**: Logs damaged, overcooked, or expired items with associated financial loss.
-
-### 9. 👥 Customer Intelligence & CRM Loyalty
-* **Guest Profiles & Lifetime Value**: Tracks total visits, lifetime dining spend, and loyalty points.
-* **VIP Tiers**: Standard, Silver, Gold, and Platinum tiers with dietary preference tags.
-* **CSV Export**: Downloads `restoflow-customer-crm.csv`.
-
-### 10. 🖨️ 80mm ESC/POS Thermal Receipt Printing
-* Built-in 80mm thermal receipt generator for POS checkout, kitchen KOTs, bill reprints, and Daily Z-Reports.
-* Clean monospace layout with store header, legal GSTIN/FSSAI, itemized charges, and payment mode.
-
-### 11. 🔐 InsForge Authentication & Staff Security
-* **Google OAuth & GitHub OAuth**: Social sign-in via InsForge PKCE flows.
-* **Email & Password Authentication**: Role-based access for General Managers (`L4`), Supervisors (`L3`), and Cashiers (`L2`).
-* **Fast 4-Digit Staff PIN Switcher**: Instant POS keypad login (`1234` for Manager, `3456` for Captain, `4567` for Cashier).
+### 5. 🗺️ Leaflet Live Delivery Fleet & Geo-Radar (`LiveDeliveryMap.tsx`)
+- Interactive OpenStreetMap layer with dark-mode CartoDB tiles.
+- Pins for Restaurant Hub (#01 MG Road), active delivery drivers (Ramesh, Suresh, Vikas), and customer destinations (Koramangala, Indiranagar, Lavelle Road).
+- Live dashed route polylines, 3km/6km/9km delivery radius rings, and interactive driver popups.
 
 ---
 
-## 🛠️ Technology Stack
+## 🎬 Step-by-Step Self-Demonstration Script
 
-| Layer | Technology |
-|---|---|
-| **Frontend UI** | React 18, TypeScript, Tailwind CSS v3.4, Lucide React, Google Material Symbols |
-| **State & Hooks** | React Context (`AuthContext`, `ToastContext`), Custom Realtime Hooks |
-| **Backend Service** | Node.js, Express 5, TypeScript (`tsx`), `ws` (WebSockets) |
-| **Cloud BaaS** | [InsForge](https://insforge.dev) (`@insforge/sdk`, `@insforge/cli`) |
-| **Database** | InsForge PostgreSQL (Cloud Hosted, Region: `ap-southeast`) |
-| **Storage** | InsForge Cloud Storage (`restoflow`, `uploads` buckets) |
-| **Build & Tooling** | Vite 6, PostCSS, Autoprefixer |
+Follow this script to demonstrate the full power of RestoFlow end-to-end:
 
----
-
-## 📂 PostgreSQL Schema on InsForge
-
-The application persists data to 10 PostgreSQL tables managed via InsForge migrations:
-
-```sql
-orders         -- Live POS and delivery orders with line_items JSONB
-kds_tickets    -- Kitchen Display System tickets with station routing
-menu_items     -- Catalog pricing, recipe costs, BCG tiers, stock status
-floor_tables   -- 24 dining tables across Main, Patio, VIP, Bar
-reservations   -- Guest bookings, VIP statuses, notes, and deposit amounts
-inventory      -- Raw ingredients stock, par levels, unit cost, valuation
-waste_logs     -- Kitchen shift wastage and reason logs
-customers      -- CRM loyalty database, lifetime spend, dietary tags
-staff          -- Staff roster, assigned station, and encrypted PIN levels
-settings       -- Legal entity GSTIN, FSSAI, tax slabs, peripheral devices
+### Step 1: Launch the Application
+```bash
+npm run dev
 ```
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+
+### Step 2: Test the Customer Experience (Place Table Order)
+1. On the Landing Page, click **👤 Customer Dining Portal** (or switch to `👤 Guest` from the left sidebar).
+2. Browse the **Digital Menu**, select **🟢 Pure Veg**, and click **Add Dish** for *Paneer Tikka* and *Garlic Naan*.
+3. In the Food Cart on the right, select **Table T-12 (Main)** and verify the `SPICE10` 10% coupon discount.
+4. Click **⚡ Place Order & Pay (₹473)**.
+5. The UI immediately switches to **🚀 My Active Orders** showing the live 4-step progress tracker!
+
+### Step 3: Test Staff / Kitchen KDS (Live Ticket Bump)
+1. In the left sidebar top switcher, click **👨🍳 Staff** (or open **Kitchen (KDS)**).
+2. Observe the new order arrive in real-time under `#KOT` for Table T-12!
+3. Click the checkbox next to *Paneer Tikka* to mark it prepared (strikethrough).
+4. Click **Bump Ready** to expedite the ticket to the floor.
+
+### Step 4: Test Autonomous Supply Chain (n8n AI Auto-Restock)
+1. In the sidebar, click **👑 Admin** ➔ Navigate to **Inventory & Supply**.
+2. Notice that *Paneer* and *Butter* stock were automatically decremented from the customer's order.
+3. Click the **⚡ n8n AI Auto-Restock** button at the top right.
+4. Watch n8n execute the supply pipeline in ~200ms, generate official Purchase Orders (*Heritage Dairy, Royal Basmati*), and instantly replenish the inventory!
+5. Switch to the **n8n Purchase Orders Ledger** tab to inspect the generated PO numbers and supplier contacts.
+
+### Step 5: Test Floor Tables View Switcher
+1. In the sidebar, click **Tables**.
+2. Near the **Refresh** button at the top right, click:
+   - `Grid`: Visual floor plan with seats and status rings.
+   - `Column Ledger`: Sortable tabular ledger with table numbers, guest names, running bills, and quick transfer buttons.
+   - `Sections`: 4-column swimlane view (Main Hall, Patio, VIP, Bar).
+
+### Step 6: Test Recharts & Leaflet Delivery Fleet Map
+1. In the sidebar, click **Reports & Analytics**.
+2. Scroll to view the interactive **Hourly Revenue Area Curve**, **Sales Channel Donut**, and **Dish Profitability Bar Chart** (hover over any point to see tooltips).
+3. Click **⚡ n8n Executive AI Forecast** to generate an automated shift briefing.
+4. Scroll to the **Leaflet Delivery Fleet Map** at the bottom to interact with live GPS driver pins and delivery zones.
 
 ---
 
@@ -162,68 +152,29 @@ settings       -- Legal entity GSTIN, FSSAI, tax slabs, peripheral devices
 | Shortcut | Action | Scope |
 |---|---|---|
 | `F1` | Quick Order Modal | Global |
-| `⌘K` / `Ctrl+K` | Global Spotlight Search | Global |
+| `⌘K` / `Ctrl+K` | Spotlight Search (Tables, Dishes, Orders, Guests) | Global |
 | `Esc` | Dismiss any open modal / drawer | Global |
 | `Enter` | Place & Send POS Order | POS View |
 
 ---
 
-## 📦 Getting Started & Setup
+## 🛠️ Technology Stack
 
-### 1. Clone & Install Dependencies
-```bash
-git clone https://github.com/your-org/restoflow.git
-cd restoflow
-npm install
-```
-
-### 2. Environment Variables Setup
-Create `.env` and `.env.local` in the project root:
-
-```env
-# InsForge Cloud Configuration
-VITE_INSFORGE_URL=https://your-project.region.insforge.app
-VITE_INSFORGE_ANON_KEY=your_insforge_anon_key
-INSFORGE_URL=https://your-project.region.insforge.app
-INSFORGE_ANON_KEY=your_insforge_anon_key
-INSFORGE_API_KEY=your_insforge_admin_api_key
-INSFORGE_PROJECT_ID=your_project_id
-PORT=5000
-```
-
-### 3. Link InsForge Backend & Run Migrations
-```bash
-# Link to project
-npx -y @insforge/cli link --project-id <your-project-id>
-
-# Apply database migrations
-npx -y @insforge/cli db migrations up --all
-```
-
-### 4. Start Development Environment
-```bash
-# Runs backend Express API (Port 5000) and frontend Vite server concurrently
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
----
-
-## 📜 Available NPM Scripts
-
-| Command | Description |
+| Layer | Technology |
 |---|---|
-| `npm run dev` | Runs backend server and frontend client concurrently with colored prefixes |
-| `npm run server` | Starts Express backend and WebSocket sync engine |
-| `npm run client` | Starts Vite development frontend server |
-| `npm run build` | Compiles TypeScript and builds production distribution in `dist/` |
-| `npm run preview` | Previews the production build locally |
+| **AI Workflows** | n8n Workflow Automation Engine (Port 5678) |
+| **Frontend UI** | React 18, TypeScript, Tailwind CSS v3.4, Lucide React, Google Material Symbols |
+| **Visual Charts** | Recharts (ResponsiveContainer, AreaChart, BarChart, PieChart) |
+| **Interactive Maps** | Leaflet, OpenStreetMap, CartoDB Dark Matter Tiles |
+| **State & Auth** | React Context (`AuthContext`, `ToastContext`), InsForge PKCE Auth |
+| **Backend Service** | Node.js, Express 5, TypeScript (`tsx`), `ws` (WebSockets) |
+| **Cloud BaaS** | [InsForge](https://insforge.dev) (`@insforge/sdk`, PostgreSQL) |
+| **Build & Tooling** | Vite 6, PostCSS, Autoprefixer |
 
 ---
 
-## 📄 License & Attribution
+## 📄 License
 
 Distributed under the **Apache-2.0 License**.
 
-Built for **SpiceRoute Gourmet Hospitality LLP** & powered by **InsForge BaaS**.
+Built for **SpiceRoute Gourmet Hospitality LLP** • Powered by **n8n AI** & **InsForge BaaS**.

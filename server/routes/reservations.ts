@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { wsHub } from '../ws';
+import { n8nService } from '../services/n8n';
 
 export const reservationsRouter = Router();
 
@@ -11,10 +12,32 @@ reservationsRouter.get('/', (_req: Request, res: Response) => {
 });
 
 // POST new reservation
-reservationsRouter.post('/', (req: Request, res: Response) => {
+reservationsRouter.post('/', async (req: Request, res: Response) => {
   try {
     const newRes = db.addReservation(req.body);
     wsHub.broadcast('RESERVATION_ADDED', newRes);
+
+    // Autonomous n8n VIP Hospitality Analysis
+    n8nService.triggerWorkflow('vip-booking', {
+      guestName: newRes.guestName,
+      phone: newRes.phone,
+      partySize: newRes.pax,
+      date: newRes.date,
+      time: newRes.timeSlot,
+      specialRequests: newRes.notes || 'None',
+      lifetimeSpend: newRes.depositAmount ? newRes.depositAmount * 20 : 18500,
+    }).then((vipRes) => {
+      if (vipRes?.data?.guest) {
+        newRes.vipTier = vipRes.data.guest.tier;
+        newRes.isVip = vipRes.data.guest.tier.includes('VIP') || vipRes.data.guest.tier.includes('Platinum');
+        newRes.complimentaryPerk = vipRes.data.guest.complimentaryPerk;
+        newRes.confirmationCode = vipRes.data.guest.confirmationCode;
+        newRes.notificationMessage = vipRes.data.dispatchNotification?.renderedMessage;
+        db.saveData();
+        wsHub.broadcast('RESERVATION_UPDATED', newRes);
+      }
+    }).catch((err) => console.warn('[n8n] vip-booking trigger error:', err.message));
+
     res.status(201).json({ success: true, data: newRes });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });

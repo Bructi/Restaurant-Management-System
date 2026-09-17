@@ -1,5 +1,8 @@
+export type UserRoleType = 'customer' | 'staff' | 'admin';
+
 export type NavPath =
   | 'landing'
+  | 'customer-portal'
   | 'dashboard'
   | 'pos-new-order'
   | 'orders'
@@ -11,6 +14,7 @@ export type NavPath =
   | 'customers'
   | 'staff'
   | 'reports-analytics'
+  | 'n8n-automations'
   | 'settings'
   | 'checkout';
 

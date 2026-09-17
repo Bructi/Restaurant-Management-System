@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { wsHub } from '../ws';
+import { n8nService } from '../services/n8n';
 
 export const ordersRouter = Router();
 
@@ -19,14 +20,41 @@ ordersRouter.get('/:id', (req: Request, res: Response) => {
   res.json({ success: true, data: order });
 });
 
-// POST new order (Fast POS dispatch)
-ordersRouter.post('/', (req: Request, res: Response) => {
+// POST new order (Fast POS dispatch & n8n routing pipeline)
+ordersRouter.post('/', async (req: Request, res: Response) => {
   try {
     const { order, kdsTicket } = db.addOrder(req.body);
-    // Broadcast real-time event to all connected terminals
+
+    // 1. Deduct ingredient stock in inventory
+    const updatedStockItems = db.deductInventoryForOrder(order.lineItems || []);
+    if (updatedStockItems.length > 0) {
+      wsHub.broadcast('STOCK_UPDATED', updatedStockItems);
+    }
+
+    // 2. Broadcast real-time event to all connected terminals
     wsHub.broadcast('ORDER_CREATED', { order, kdsTicket });
     wsHub.broadcast('TABLE_UPDATED', { tableId: order.table });
     wsHub.broadcast('ANALYTICS_UPDATED', db.getAnalytics());
+
+    // 3. Autonomous n8n Workflow Dispatch (asynchronous)
+    n8nService.triggerWorkflow('order-dispatch', {
+      orderId: order.id,
+      table: order.table,
+      items: order.lineItems,
+      subtotal: order.subtotal,
+      total: order.total,
+    }).then((dispatchRes) => {
+      wsHub.broadcast('KDS_ROUTING_PROCESSED', dispatchRes.data);
+    }).catch((err) => console.warn('[n8n] order-dispatch async trigger:', err.message));
+
+    // 4. Check if any stock items are now critical/low and trigger auto-supply
+    const hasLowStock = (db.getInventory() || []).some((it) => it.status === 'critical' || it.status === 'low');
+    if (hasLowStock) {
+      n8nService.triggerWorkflow('auto-supply', { mode: 'auto_replenish' })
+        .then(() => console.log('⚡ n8n Auto-Supply replenished low stock successfully'))
+        .catch(() => {});
+    }
+
     res.status(201).json({ success: true, data: { order, kdsTicket } });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });

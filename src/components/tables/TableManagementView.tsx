@@ -167,7 +167,7 @@ export const TableManagementView: React.FC = () => {
   const toast = useToast();
   const [selectedSection, setSelectedSection] = useState<'main' | 'patio' | 'vip' | 'bar'>('main');
   const [selectedTableId, setSelectedTableId] = useState<string>('T-12');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'columns'>('grid');
   const [floorTables, setFloorTables] = useState<FloorTableItem[]>(INITIAL_FLOOR_TABLES);
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
@@ -289,29 +289,43 @@ export const TableManagementView: React.FC = () => {
               <span>Reserve Table</span>
             </button>
 
-            {/* View Toggle */}
-            <div className="flex items-center p-1 bg-surface-container-low rounded-lg ml-2 border border-surface-container-high/40">
+            {/* View Toggle Near Refresh Button */}
+            <div className="flex items-center p-1 bg-surface-container-low rounded-xl ml-1 border border-surface-container-high/40 shadow-sm">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded transition-all ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === 'grid'
-                    ? 'bg-primary-container text-on-primary-container font-bold shadow-sm'
+                    ? 'bg-primary text-on-primary shadow-sm'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
-                title="Visual Layout"
+                title="Visual Floor Layout"
               >
-                <span className="material-symbols-outlined text-[18px] block">grid_view</span>
+                <span className="material-symbols-outlined text-[16px]">grid_view</span>
+                <span className="hidden sm:inline">Grid</span>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded transition-all ${
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === 'list'
-                    ? 'bg-primary-container text-on-primary-container font-bold shadow-sm'
+                    ? 'bg-primary text-on-primary shadow-sm'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
-                title="List View"
+                title="Column-wise Table Ledger"
               >
-                <span className="material-symbols-outlined text-[18px] block">view_list</span>
+                <span className="material-symbols-outlined text-[16px]">table_rows</span>
+                <span className="hidden sm:inline">Column Ledger</span>
+              </button>
+              <button
+                onClick={() => setViewMode('columns')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === 'columns'
+                    ? 'bg-primary text-on-primary shadow-sm'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+                title="Section Lanes View"
+              >
+                <span className="material-symbols-outlined text-[16px]">view_column</span>
+                <span className="hidden sm:inline">Sections</span>
               </button>
             </div>
           </div>
@@ -454,118 +468,254 @@ export const TableManagementView: React.FC = () => {
 
       {/* Main Work Area: Visual Floor Map + Inspector Sidebar */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
-        {/* Floor Grid Architecture Layout Canvas (8 Cols) */}
+        {/* Floor View Switcher Container (8 Cols) */}
         <div className="xl:col-span-8 flex flex-col gap-4">
-          <div className="relative w-full rounded-2xl bg-surface-container-low p-6 shadow-md overflow-hidden min-h-[640px] flex flex-col justify-between border border-surface-container-high/30">
-            {/* Zone Markers */}
-            <div className="flex items-center justify-between text-on-surface-variant/50 font-mono-metric text-body-sm pb-4 select-none">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[16px]">door_front</span>
-                <span className="font-label-sm text-label-sm uppercase tracking-wider">
-                  Main Entryway / Reception Desk
-                </span>
+          {/* MODE 1: VISUAL GRID CANVAS */}
+          {viewMode === 'grid' && (
+            <div className="relative w-full rounded-2xl bg-surface-container-low p-6 shadow-md overflow-hidden min-h-[640px] flex flex-col justify-between border border-surface-container-high/30 animate-fadeIn">
+              {/* Zone Markers */}
+              <div className="flex items-center justify-between text-on-surface-variant/50 font-mono-metric text-body-sm pb-4 select-none">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px]">door_front</span>
+                  <span className="font-label-sm text-label-sm uppercase tracking-wider">
+                    Main Entryway / Reception Desk
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="flex items-center gap-1 font-label-sm text-label-sm uppercase">
+                    <span className="material-symbols-outlined text-[14px]">soup_kitchen</span> Kitchen Service Pass
+                  </span>
+                  <span className="font-label-sm text-label-sm uppercase">Scale: 1:50</span>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="flex items-center gap-1 font-label-sm text-label-sm uppercase">
-                  <span className="material-symbols-outlined text-[14px]">soup_kitchen</span> Kitchen Service Pass
-                </span>
-                <span className="font-label-sm text-label-sm uppercase">Scale: 1:50</span>
-              </div>
-            </div>
 
-            {/* Visual Table Floor Matrix */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 relative z-10">
-              {floorTables.map((table) => {
-                const isSelected = table.id === selectedTableId;
-                return (
-                  <div
-                    key={table.id}
-                    onClick={() => setSelectedTableId(table.id)}
-                    className={`group relative p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${
-                      isSelected
-                        ? 'bg-surface-container-high ring-2 ring-primary border-primary-container shadow-lg scale-[1.02]'
-                        : 'bg-surface-container hover:bg-surface-container-high border-surface-container-high/40'
-                    }`}
-                  >
-                    {/* Top Seat Pegs */}
-                    <div className="flex justify-center gap-2 mb-2">
-                      {Array.from({ length: Math.min(3, Math.ceil(table.capacity / 2)) }).map((_, i) => (
-                        <span
-                          key={i}
-                          className={`w-2.5 h-2.5 rounded-full ${
-                            table.status === 'occupied'
-                              ? 'bg-primary-container/80'
-                              : table.status === 'reserved'
-                              ? 'bg-tertiary/70'
-                              : 'bg-surface-container-highest'
-                          }`}
-                        />
-                      ))}
-                    </div>
-
-                    <div className="flex items-start justify-between">
-                      <div className="flex flex-col">
-                        <span className="font-headline-md text-headline-md text-on-surface font-bold">
-                          {table.name}
-                        </span>
-                        <span className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px]">group</span>
-                          {table.capacity} Seats {table.guestsCount ? `• ${table.guestsCount} guests` : ''}
-                        </span>
+              {/* Visual Table Floor Matrix */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 relative z-10">
+                {floorTables.map((table) => {
+                  const isSelected = table.id === selectedTableId;
+                  return (
+                    <div
+                      key={table.id}
+                      onClick={() => setSelectedTableId(table.id)}
+                      className={`group relative p-4 rounded-xl transition-all cursor-pointer shadow-sm border ${
+                        isSelected
+                          ? 'bg-surface-container-high ring-2 ring-primary border-primary-container shadow-lg scale-[1.02]'
+                          : 'bg-surface-container hover:bg-surface-container-high border-surface-container-high/40'
+                      }`}
+                    >
+                      {/* Top Seat Pegs */}
+                      <div className="flex justify-center gap-2 mb-2">
+                        {Array.from({ length: Math.min(3, Math.ceil(table.capacity / 2)) }).map((_, i) => (
+                          <span
+                            key={i}
+                            className={`w-2.5 h-2.5 rounded-full ${
+                              table.status === 'occupied'
+                                ? 'bg-primary-container/80'
+                                : table.status === 'reserved'
+                                ? 'bg-tertiary/70'
+                                : 'bg-surface-container-highest'
+                            }`}
+                          />
+                        ))}
                       </div>
-                      {getStatusBadge(table.status)}
-                    </div>
 
-                    {/* Table Bottom Meta */}
-                    <div className="mt-4 pt-2 flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm border-t border-surface-container-high/30">
-                      {table.status === 'occupied' ? (
-                        <>
-                          <span className="font-mono-metric text-primary font-bold">
-                            ₹{(table.amount || 1840).toLocaleString('en-IN')}
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col">
+                          <span className="font-headline-md text-headline-md text-on-surface font-bold">
+                            {table.name}
                           </span>
-                          <span className="font-mono-metric text-xs text-secondary">
-                            {table.timeActive || '30m'}
+                          <span className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[14px]">group</span>
+                            {table.capacity} Seats {table.guestsCount ? `• ${table.guestsCount} guests` : ''}
                           </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-secondary flex items-center gap-1 font-label-sm text-label-sm">
-                            <span className="material-symbols-outlined text-[14px]">check_circle</span>
-                            {table.status === 'reserved' ? 'Reserved' : 'Ready'}
-                          </span>
-                          <span className="font-mono-metric text-xs">
-                            {table.readyTime || '10m ago'}
-                          </span>
-                        </>
-                      )}
-                    </div>
+                        </div>
+                        {getStatusBadge(table.status)}
+                      </div>
 
-                    {/* Bottom Seat Pegs */}
-                    <div className="flex justify-center gap-2 mt-2">
-                      {Array.from({ length: Math.min(3, Math.floor(table.capacity / 2)) }).map((_, i) => (
-                        <span
-                          key={i}
-                          className={`w-2.5 h-2.5 rounded-full ${
-                            table.status === 'occupied'
-                              ? 'bg-primary-container/80'
-                              : table.status === 'reserved'
-                              ? 'bg-tertiary/70'
-                              : 'bg-surface-container-highest'
+                      {/* Table Bottom Meta */}
+                      <div className="mt-4 pt-2 flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm border-t border-surface-container-high/30">
+                        {table.status === 'occupied' ? (
+                          <>
+                            <span className="font-mono-metric text-primary font-bold">
+                              ₹{(table.amount || 1840).toLocaleString('en-IN')}
+                            </span>
+                            <span className="font-mono-metric text-xs text-secondary">
+                              {table.timeActive || '30m'}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-secondary flex items-center gap-1 font-label-sm text-label-sm">
+                              <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                              {table.status === 'reserved' ? 'Reserved' : 'Ready'}
+                            </span>
+                            <span className="font-mono-metric text-xs">
+                              {table.readyTime || '10m ago'}
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Bottom Seat Pegs */}
+                      <div className="flex justify-center gap-2 mt-2">
+                        {Array.from({ length: Math.min(3, Math.floor(table.capacity / 2)) }).map((_, i) => (
+                          <span
+                            key={i}
+                            className={`w-2.5 h-2.5 rounded-full ${
+                              table.status === 'occupied'
+                                ? 'bg-primary-container/80'
+                                : table.status === 'reserved'
+                                ? 'bg-tertiary/70'
+                                : 'bg-surface-container-highest'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Bottom Hall Perimeter */}
+              <div className="pt-4 flex justify-between items-center text-xs text-on-surface-variant/40 font-mono-metric border-t border-surface-container-high/30 mt-4 select-none">
+                <span>Emergency Exit West</span>
+                <span>Bar Station Access East</span>
+              </div>
+            </div>
+          )}
+
+          {/* MODE 2: COLUMN-WISE TABLE LEDGER */}
+          {viewMode === 'list' && (
+            <div className="bg-surface-container-low rounded-2xl p-space-md shadow-md border border-surface-container-high/30 overflow-hidden animate-fadeIn flex flex-col gap-3">
+              <div className="flex items-center justify-between pb-2 border-b border-outline-variant/20">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">table_rows</span>
+                  <h3 className="font-headline-md font-bold text-on-surface">Floor Table Master Ledger</h3>
+                </div>
+                <span className="text-xs text-on-surface-variant font-mono">{floorTables.length} Active Tables</span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-surface-container-lowest text-on-surface-variant uppercase font-bold text-[10px] tracking-wider border-b border-surface-container-high/40">
+                    <tr>
+                      <th className="py-2.5 px-3">Table #</th>
+                      <th className="py-2.5 px-2">Section</th>
+                      <th className="py-2.5 px-2">Capacity</th>
+                      <th className="py-2.5 px-2">Status</th>
+                      <th className="py-2.5 px-3">Occupant / Guest</th>
+                      <th className="py-2.5 px-2">Server</th>
+                      <th className="py-2.5 px-2">Time</th>
+                      <th className="py-2.5 px-2">Bill (INR)</th>
+                      <th className="py-2.5 px-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-surface-container-high/20">
+                    {floorTables.map((t) => {
+                      const isSelected = t.id === selectedTableId;
+                      return (
+                        <tr
+                          key={t.id}
+                          onClick={() => setSelectedTableId(t.id)}
+                          className={`cursor-pointer transition-colors ${
+                            isSelected ? 'bg-primary-container/15 font-bold' : 'hover:bg-surface-container'
                           }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+                        >
+                          <td className="py-2.5 px-3 font-mono font-bold text-primary">{t.name}</td>
+                          <td className="py-2.5 px-2 text-on-surface-variant capitalize">{t.section || 'main'}</td>
+                          <td className="py-2.5 px-2 font-mono">{t.capacity} Pax</td>
+                          <td className="py-2.5 px-2">{getStatusBadge(t.status)}</td>
+                          <td className="py-2.5 px-3 text-on-surface font-medium truncate max-w-[140px]">
+                            {t.customerName || (t.status === 'available' ? '—' : 'Walk-in')}
+                          </td>
+                          <td className="py-2.5 px-2 text-on-surface-variant">{t.server || '—'}</td>
+                          <td className="py-2.5 px-2 font-mono text-on-surface-variant">{t.timeActive || t.readyTime || '—'}</td>
+                          <td className="py-2.5 px-2 font-mono font-bold text-on-surface">
+                            {t.amount ? `₹${t.amount.toLocaleString('en-IN')}` : '—'}
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            {t.status === 'occupied' ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedTableId(t.id);
+                                  setIsTransferOpen(true);
+                                }}
+                                className="px-2 py-1 rounded bg-surface-container text-xs hover:bg-surface-container-high"
+                              >
+                                Transfer
+                              </button>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedTableId(t.id);
+                                  toast.success(`Table ${t.name} selected for seating`, 'Table Ready');
+                                }}
+                                className="px-2 py-1 rounded bg-primary-container text-on-primary-container text-xs font-bold"
+                              >
+                                Seat
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
+          )}
 
-            {/* Bottom Hall Perimeter */}
-            <div className="pt-4 flex justify-between items-center text-xs text-on-surface-variant/40 font-mono-metric border-t border-surface-container-high/30 mt-4 select-none">
-              <span>Emergency Exit West</span>
-              <span>Bar Station Access East</span>
+          {/* MODE 3: SECTION LANES KANBAN */}
+          {viewMode === 'columns' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 animate-fadeIn">
+              {[
+                { id: 'main', name: 'Main Hall', icon: 'restaurant', tables: floorTables.filter((t) => !t.section || t.section === 'main') },
+                { id: 'patio', name: 'Outdoor Patio', icon: 'deck', tables: floorTables.filter((t) => t.section === 'patio') },
+                { id: 'vip', name: 'VIP Cabana', icon: 'star', tables: floorTables.filter((t) => t.section === 'vip') },
+                { id: 'bar', name: 'Bar Lounge', icon: 'wine_bar', tables: floorTables.filter((t) => t.section === 'bar') },
+              ].map((lane) => (
+                <div key={lane.id} className="p-3 bg-surface-container-low rounded-2xl border border-outline-variant/30 flex flex-col gap-2 shadow-sm">
+                  <div className="flex items-center justify-between pb-2 border-b border-outline-variant/20">
+                    <div className="flex items-center gap-1.5 font-bold text-xs text-on-surface">
+                      <span className="material-symbols-outlined text-[16px] text-primary">{lane.icon}</span>
+                      <span>{lane.name}</span>
+                    </div>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-bold">
+                      {lane.tables.length}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-2 max-h-[560px] overflow-y-auto">
+                    {lane.tables.map((t) => {
+                      const isSelected = t.id === selectedTableId;
+                      return (
+                        <div
+                          key={t.id}
+                          onClick={() => setSelectedTableId(t.id)}
+                          className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col gap-1.5 ${
+                            isSelected ? 'bg-primary-container/20 border-primary ring-1 ring-primary/40' : 'bg-surface-container hover:bg-surface-container-high border-outline-variant/20'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs text-on-surface">{t.name} ({t.capacity}p)</span>
+                            {getStatusBadge(t.status)}
+                          </div>
+                          {t.status === 'occupied' && (
+                            <div className="flex justify-between text-[11px] font-mono">
+                              <span className="text-on-surface-variant truncate max-w-[90px]">{t.customerName || 'Dine-in'}</span>
+                              <span className="font-bold text-primary">₹{t.amount?.toLocaleString('en-IN')}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Inspector Sidebar (4 Cols) */}

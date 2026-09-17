@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { fetchLiveWeatherAndDiningRush, WeatherForecastData } from '../../services/weather';
+import { api } from '../../services/api';
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -26,10 +28,25 @@ export const Header: React.FC<HeaderProps> = ({
   isConnected = true,
   latencyMs = 12,
 }) => {
-  const { user, signOut } = useAuth();
+  const { user, userType, switchRole, signOut } = useAuth();
   const [timeString, setTimeString] = useState<string>('19:42:15');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [weather, setWeather] = useState<WeatherForecastData | null>(null);
+  const [simulating, setSimulating] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchLiveWeatherAndDiningRush().then((w) => setWeather(w)).catch(() => {});
+  }, []);
+
+  const handlePulseSim = async () => {
+    try {
+      setSimulating(true);
+      await api.pulseSimulation();
+    } catch {} finally {
+      setTimeout(() => setSimulating(false), 500);
+    }
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -60,181 +77,217 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-surface-container-low/90 backdrop-blur-xl z-40 px-space-md lg:px-space-lg flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-surface-container-high/50">
-      {/* Left: Mobile Toggle & Search */}
-      <div className="flex items-center gap-space-sm lg:gap-space-md flex-1 max-w-xl">
+    <header className="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-surface-container-low/95 backdrop-blur-xl z-40 px-3 sm:px-6 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-surface-container-high/50 overflow-hidden">
+      {/* Left: Mobile Toggle & Quick Search */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-lg min-w-0">
         {/* Mobile Hamburger Toggle */}
         <button
           onClick={onToggleMobileMenu}
-          className="lg:hidden p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors"
+          className="lg:hidden p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors shrink-0"
           title="Open Menu"
         >
-          <span className="material-symbols-outlined text-[24px]">menu</span>
+          <span className="material-symbols-outlined text-[22px]">menu</span>
         </button>
 
-        {/* Search Input Button / Bar */}
-        <div className="relative w-full max-w-md">
+        {/* Search Input Button */}
+        <div className="relative w-full max-w-sm min-w-0">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">
             search
           </span>
           <input
-            className="w-full pl-10 pr-12 py-2 bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant rounded-lg font-body-sm text-body-sm cursor-pointer outline-none focus:ring-1 focus:ring-primary-container border border-surface-container-high/40 transition-all"
-            placeholder="Press ⌘K to quick search tables, orders, guests..."
+            className="w-full pl-9 pr-10 py-1.5 bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant rounded-xl text-xs cursor-pointer outline-none border border-surface-container-high/40 truncate"
+            placeholder="⌘K Search dishes, tables, orders..."
             readOnly
             onClick={onOpenSearch}
             type="text"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm border border-surface-container-high/60">
+          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-mono border border-surface-container-high/60">
             ⌘K
           </kbd>
         </div>
 
-        {/* Quick Status Pills for Desktop */}
-        <div className="hidden xl:flex items-center gap-space-xs shrink-0">
-          <button
-            onClick={onQuickOrder}
-            className="px-space-sm py-1 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm flex items-center gap-1 transition-colors"
+        {/* Live Weather Indicator Pill (Desktop) */}
+        {weather && (
+          <div
+            className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface text-xs border border-outline-variant/30 shrink-0 cursor-help"
+            title={`${weather.weatherDescription} · ${weather.diningImpact}`}
           >
-            <span>⚡</span>
-            <span>Quick Sale</span>
-          </button>
+            <span className="material-symbols-outlined text-[15px] text-primary">{weather.weatherIcon}</span>
+            <span className="font-bold">{weather.temperature}°C</span>
+            <span className="text-[11px] text-on-surface-variant max-w-[100px] truncate">{weather.weatherDescription}</span>
+          </div>
+        )}
+
+        {/* Fast Jump Shortcuts for Desktop */}
+        <div className="hidden xl:flex items-center gap-1 shrink-0">
           <button
             onClick={onNavigateTables}
-            className="px-space-sm py-1 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm flex items-center gap-1 transition-colors"
+            className="px-2 py-1 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
           >
-            <span>🍽️</span>
-            <span>Tables</span>
+            🍽️ Tables
           </button>
           <button
             onClick={onNavigateKitchen}
-            className="px-space-sm py-1 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm flex items-center gap-1 transition-colors"
+            className="px-2 py-1 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
           >
-            <span>🔔</span>
-            <span>KDS Kitchen</span>
+            🔔 KDS
           </button>
         </div>
       </div>
 
-      {/* Right Controls */}
-      <div className="flex items-center gap-space-sm lg:gap-space-md">
-        <div className="hidden md:flex items-center gap-space-sm px-space-sm py-1 rounded-lg bg-surface-container-lowest border border-surface-container-high/40">
-          <span
-            className={`w-2 h-2 rounded-full ${
-              isConnected ? 'bg-secondary animate-pulse' : 'bg-error'
-            }`}
-          />
-          <span className="font-label-sm text-label-sm text-on-surface-variant font-medium">
-            {isConnected ? `InsForge Live (${latencyMs}ms)` : 'Reconnecting...'}
+      {/* Right: Quick Action Controls */}
+      <div className="flex items-center gap-2 shrink-0">
+        {/* Live Simulation Pulse */}
+        <button
+          onClick={handlePulseSim}
+          disabled={simulating}
+          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#ff6d5a]/10 hover:bg-[#ff6d5a]/20 text-[#ff6d5a] text-xs font-bold border border-[#ff6d5a]/30 transition-all shrink-0"
+          title="Inject an instant live order pulse into the floor and KDS"
+        >
+          <span className={`material-symbols-outlined text-[15px] ${simulating ? 'animate-spin' : ''}`}>
+            {simulating ? 'sync' : 'auto_mode'}
+          </span>
+          <span className="hidden md:inline">{simulating ? 'Pulsing...' : '⚡ Demo Pulse'}</span>
+        </button>
+
+        {/* InsForge Status Pill */}
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-lowest border border-surface-container-high/40 shrink-0">
+          <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-secondary animate-pulse' : 'bg-error'}`} />
+          <span className="text-[11px] text-on-surface-variant font-medium">
+            {isConnected ? `InsForge Live (${latencyMs}ms)` : 'Connecting...'}
           </span>
         </div>
 
-        <div className="hidden lg:flex items-center gap-1 text-on-surface-variant font-mono-metric text-mono-metric">
-          <span className="material-symbols-outlined text-[16px]">schedule</span>
+        {/* Clock */}
+        <div className="hidden lg:flex items-center gap-1 text-on-surface-variant font-mono text-xs shrink-0">
+          <span className="material-symbols-outlined text-[15px]">schedule</span>
           <span>{timeString}</span>
         </div>
 
-        {/* PIN Switcher Shortcut */}
+        {/* Fast PIN Switcher */}
         <button
           onClick={onOpenStaffPin}
           title="Staff PIN Switcher"
-          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-xs text-on-surface border border-surface-container-high/40 font-bold transition-all"
+          className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-xs text-on-surface border border-surface-container-high/40 font-bold transition-all shrink-0"
         >
-          <span className="material-symbols-outlined text-[16px] text-primary">pin</span>
-          <span>PIN Switch</span>
+          <span className="material-symbols-outlined text-[15px] text-primary">pin</span>
+          <span>PIN</span>
         </button>
 
+        {/* Quick Order Button */}
         <button
           onClick={onQuickOrder}
-          className="flex items-center gap-space-xs px-space-md py-2 bg-primary-container text-on-primary-container hover:opacity-95 active:scale-95 font-label-lg text-label-lg rounded-lg shadow-sm transition-all"
+          className="flex items-center gap-1 px-3 py-1.5 bg-primary-container text-on-primary-container hover:opacity-95 active:scale-95 text-xs font-bold rounded-xl shadow-sm transition-all shrink-0"
         >
-          <span className="material-symbols-outlined text-[20px]">add</span>
+          <span className="material-symbols-outlined text-[16px]">add</span>
           <span className="hidden sm:inline">New Order</span>
         </button>
 
-        {/* Profile Avatar & Interactive Auth Dropdown */}
-        <div className="relative" ref={menuRef}>
+        {/* Profile Avatar Dropdown */}
+        <div className="relative shrink-0" ref={menuRef}>
           <button
             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-            className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-primary/40 transition-all focus:outline-none"
+            className="flex items-center gap-1.5 p-0.5 rounded-full hover:ring-2 hover:ring-primary/40 transition-all focus:outline-none"
             title="User Profile & Staff Session"
           >
             {user?.avatarUrl ? (
               <img
                 alt={user.name}
-                className="w-9 h-9 rounded-full object-cover shrink-0 ring-1 ring-surface-container-high shadow-sm"
+                className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-surface-container-high shadow-sm"
                 src={user.avatarUrl}
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm shadow-sm ring-1 ring-surface-container-high">
+              <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs shadow-sm ring-1 ring-surface-container-high">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
             )}
           </button>
 
-          {/* Popover Menu */}
+          {/* Interactive Dropdown */}
           {isProfileMenuOpen && (
-            <div className="absolute right-0 top-12 w-72 bg-surface-container rounded-2xl shadow-2xl border border-surface-container-high p-3 flex flex-col gap-2.5 z-50 animate-fadeIn">
-              {/* User Info Header */}
-              <div className="p-3 bg-surface-container-lowest rounded-xl flex items-center gap-3 border border-surface-container-high/40">
-                <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-headline-md shrink-0">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                </div>
+            <div className="absolute right-0 mt-2 w-64 bg-surface-container rounded-2xl shadow-2xl border border-surface-container-high/60 p-space-sm flex flex-col gap-2 animate-fadeIn z-50">
+              <div className="p-space-sm bg-surface-container-lowest rounded-xl flex items-center gap-space-sm border border-surface-container-high/40">
+                {user?.avatarUrl ? (
+                  <img
+                    alt={user.name}
+                    className="w-9 h-9 rounded-full object-cover shrink-0 ring-1 ring-primary-container"
+                    src={user.avatarUrl}
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm shrink-0">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                )}
                 <div className="flex flex-col min-w-0">
-                  <span className="font-bold text-sm text-on-surface truncate">{user?.name || 'Staff User'}</span>
-                  <span className="text-[11px] text-on-surface-variant font-mono truncate">{user?.email || 'authenticated'}</span>
-                  <span className="text-[10px] text-secondary font-bold font-mono mt-0.5">
-                    {user?.role || 'Staff'} · {user?.pinAuthLevel || 'Floor (L2)'}
+                  <span className="font-bold text-xs text-on-surface truncate">
+                    {user?.name || 'User'}
+                  </span>
+                  <span className="text-[10px] text-on-surface-variant truncate">
+                    {user?.email || 'user@restoflow.internal'}
+                  </span>
+                  <span className="text-[10px] text-primary font-bold uppercase font-mono mt-0.5">
+                    {userType.toUpperCase()} MODE
                   </span>
                 </div>
               </div>
 
-              {/* Menu Actions */}
-              <div className="flex flex-col gap-1 text-xs">
-                <button
-                  onClick={() => {
-                    setIsProfileMenuOpen(false);
-                    onOpenStaffPin?.();
-                  }}
-                  className="w-full px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center gap-2 font-semibold transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px] text-primary">pin</span>
-                  <span>Quick Staff PIN Switch</span>
-                </button>
+              {/* Fast Role Switch in Dropdown */}
+              <div className="flex flex-col gap-1 p-1 bg-surface-container-lowest rounded-xl border border-outline-variant/30">
+                <span className="text-[10px] uppercase font-bold text-on-surface-variant px-1.5 py-0.5">Switch Profile Mode</span>
+                <div className="grid grid-cols-3 gap-1">
+                  {[
+                    { id: 'customer', label: '👤 Guest' },
+                    { id: 'staff', label: '👨🍳 Staff' },
+                    { id: 'admin', label: '👑 Admin' },
+                  ].map((r) => (
+                    <button
+                      key={r.id}
+                      onClick={() => {
+                        switchRole(r.id as any);
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className={`py-1 rounded-lg text-[10px] font-bold transition-all ${
+                        userType === r.id
+                          ? 'bg-primary text-on-primary shadow-sm'
+                          : 'bg-surface-container hover:bg-surface-container-high text-on-surface'
+                      }`}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
+              <div className="flex flex-col gap-0.5">
                 <button
                   onClick={() => {
                     setIsProfileMenuOpen(false);
                     onOpenAuthModal?.();
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center gap-2 font-semibold transition-colors"
+                  className="w-full flex items-center gap-2 px-space-md py-2 rounded-lg text-xs text-on-surface hover:bg-surface-container-high transition-colors font-medium text-left"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-secondary">switch_account</span>
-                  <span>Sign In / Switch InsForge Account</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary">account_circle</span>
+                  <span>Authentication Hub</span>
                 </button>
-
                 <button
                   onClick={() => {
                     setIsProfileMenuOpen(false);
                     onNavigateSettings?.();
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center gap-2 font-semibold transition-colors"
+                  className="w-full flex items-center gap-2 px-space-md py-2 rounded-lg text-xs text-on-surface hover:bg-surface-container-high transition-colors font-medium text-left"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant">database</span>
-                  <span>InsForge BaaS &amp; Cloud Settings</span>
+                  <span className="material-symbols-outlined text-[16px] text-tertiary">settings</span>
+                  <span>System Settings</span>
                 </button>
-              </div>
-
-              {/* Sign Out Button */}
-              <div className="pt-2 border-t border-surface-container-high/40">
                 <button
                   onClick={() => {
-                    signOut();
                     setIsProfileMenuOpen(false);
+                    signOut();
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-error/10 hover:bg-error/20 text-error flex items-center justify-center gap-1.5 font-bold transition-colors"
+                  className="w-full flex items-center gap-2 px-space-md py-2 rounded-lg text-xs text-error hover:bg-error-container/20 transition-colors font-bold text-left border-t border-surface-container-high/30 mt-1 pt-2"
                 >
                   <span className="material-symbols-outlined text-[16px]">logout</span>
-                  <span>Sign Out Session</span>
+                  <span>Sign Out</span>
                 </button>
               </div>
             </div>

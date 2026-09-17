@@ -1,19 +1,45 @@
-import { NavItem, KpiMetric, LiveOrder, PopularDish, FloorTable } from '../types';
+import { NavItem, KpiMetric, LiveOrder, PopularDish, FloorTable, UserRoleType } from '../types';
 
-export const NAV_ITEMS: NavItem[] = [
+export const ADMIN_NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
   { id: 'pos-new-order', label: 'POS / New Order', icon: 'shopping_bag', badge: 'Fast POS', badgeType: 'fast-pos' },
   { id: 'orders', label: 'Orders', icon: 'receipt_long', badge: '8', badgeType: 'default' },
   { id: 'tables', label: 'Tables', icon: 'grid_view' },
-  { id: 'kitchen', label: 'Kitchen', icon: 'local_fire_department', badge: 'Urgent', badgeType: 'urgent' },
+  { id: 'kitchen', label: 'Kitchen (KDS)', icon: 'local_fire_department', badge: 'Urgent', badgeType: 'urgent' },
   { id: 'reservations', label: 'Reservations', icon: 'calendar_today' },
-  { id: 'menu', label: 'Menu', icon: 'menu_book' },
-  { id: 'inventory', label: 'Inventory', icon: 'inventory_2', badgeType: 'dot' },
-  { id: 'customers', label: 'Customers', icon: 'group' },
-  { id: 'staff', label: 'Staff', icon: 'badge' },
+  { id: 'menu', label: 'Menu Catalog', icon: 'menu_book' },
+  { id: 'inventory', label: 'Inventory & Supply', icon: 'inventory_2', badgeType: 'dot' },
+  { id: 'customers', label: 'Customers CRM', icon: 'group' },
+  { id: 'staff', label: 'Staff Roster', icon: 'badge' },
+  { id: 'n8n-automations', label: 'AI Workflows (n8n)', icon: 'hub', badge: 'AI Engine', badgeType: 'fast-pos' },
   { id: 'reports-analytics', label: 'Reports & Analytics', icon: 'analytics' },
   { id: 'settings', label: 'Settings', icon: 'settings' },
+  { id: 'checkout', label: 'Checkout Till', icon: 'point_of_sale' },
 ];
+
+export const STAFF_NAV_ITEMS: NavItem[] = [
+  { id: 'pos-new-order', label: 'POS / Fast Order', icon: 'shopping_bag', badge: 'Fast POS', badgeType: 'fast-pos' },
+  { id: 'kitchen', label: 'Kitchen KDS', icon: 'local_fire_department', badge: 'Urgent', badgeType: 'urgent' },
+  { id: 'tables', label: 'Floor Tables', icon: 'grid_view' },
+  { id: 'orders', label: 'Order Dispatch', icon: 'receipt_long', badge: 'Live', badgeType: 'default' },
+  { id: 'reservations', label: 'Guest Bookings', icon: 'calendar_today' },
+  { id: 'checkout', label: 'Billing Settlement', icon: 'point_of_sale' },
+];
+
+export const CUSTOMER_NAV_ITEMS: NavItem[] = [
+  { id: 'customer-portal', label: 'Order Food & Menu', icon: 'restaurant_menu', badge: '10% OFF', badgeType: 'fast-pos' },
+  { id: 'reservations', label: 'Book a Table', icon: 'event_seat' },
+  { id: 'orders', label: 'My Live Orders', icon: 'schedule' },
+  { id: 'customers', label: 'My VIP Pass', icon: 'workspace_premium' },
+];
+
+export const NAV_ITEMS = ADMIN_NAV_ITEMS;
+
+export function getNavItemsForRole(role: UserRoleType): NavItem[] {
+  if (role === 'customer') return CUSTOMER_NAV_ITEMS;
+  if (role === 'staff') return STAFF_NAV_ITEMS;
+  return ADMIN_NAV_ITEMS;
+}
 
 export const KPI_METRICS: KpiMetric[] = [
   {

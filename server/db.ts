@@ -17,6 +17,7 @@ export interface DbSchema {
   reservations: any[];
   inventory: any[];
   wasteLogs: any[];
+  purchaseOrders: any[];
   customers: any[];
   staff: any[];
   settings: any;
@@ -1543,6 +1544,90 @@ class Database {
     }]).then().catch(() => {});
 
     return waste;
+  }
+
+  // Purchase Orders & Autonomous Supply Ledgers
+  public getPurchaseOrders() {
+    if (!this.data.purchaseOrders) this.data.purchaseOrders = [];
+    return this.data.purchaseOrders;
+  }
+
+  public addPurchaseOrders(pos: any[]) {
+    if (!this.data.purchaseOrders) this.data.purchaseOrders = [];
+    for (const po of pos) {
+      const existing = this.data.purchaseOrders.find((p) => p.poNumber === po.poNumber);
+      if (!existing) {
+        this.data.purchaseOrders.unshift({
+          ...po,
+          createdAt: new Date().toISOString(),
+          status: po.status || 'DISPATCHED',
+        });
+      }
+    }
+    this.saveData();
+    return this.data.purchaseOrders;
+  }
+
+  // Deduct ingredient inventory on order creation
+  public deductInventoryForOrder(lineItems: any[]) {
+    if (!Array.isArray(lineItems)) return [];
+    const updatedItems = [];
+
+    const INGREDIENT_RECIPE_MAP: Record<string, Array<{ searchKey: string; usage: number }>> = {
+      'butter chicken': [
+        { searchKey: 'Chicken', usage: 0.3 },
+        { searchKey: 'Butter', usage: 0.08 },
+        { searchKey: 'Deggi Mirch', usage: 0.02 },
+      ],
+      'paneer tikka': [
+        { searchKey: 'Paneer', usage: 0.25 },
+        { searchKey: 'Deggi Mirch', usage: 0.03 },
+      ],
+      'biryani': [
+        { searchKey: 'Basmati Rice', usage: 0.2 },
+        { searchKey: 'Chicken', usage: 0.25 },
+        { searchKey: 'Ghee', usage: 0.05 },
+      ],
+      'naan': [
+        { searchKey: 'Butter', usage: 0.04 },
+      ],
+      'dal makhani': [
+        { searchKey: 'Butter', usage: 0.06 },
+        { searchKey: 'Deggi Mirch', usage: 0.02 },
+      ],
+    };
+
+    for (const line of lineItems) {
+      const lineName = (line.name || '').toLowerCase();
+      const qty = Number(line.qty) || 1;
+
+      for (const [dishKey, ingredients] of Object.entries(INGREDIENT_RECIPE_MAP)) {
+        if (lineName.includes(dishKey)) {
+          for (const ing of ingredients) {
+            const match = this.data.inventory.find((item) =>
+              item.name.toLowerCase().includes(ing.searchKey.toLowerCase())
+            );
+            if (match && match.currentStock > 0) {
+              const deduction = Math.round(ing.usage * qty * 10) / 10;
+              match.currentStock = Math.max(0, Math.round((match.currentStock - deduction) * 10) / 10);
+              match.valuation = Math.round(match.currentStock * match.unitCost);
+              match.status =
+                match.currentStock <= match.reorderPoint
+                  ? match.currentStock <= 2
+                    ? 'critical'
+                    : 'low'
+                  : 'healthy';
+              updatedItems.push(match);
+            }
+          }
+        }
+      }
+    }
+
+    if (updatedItems.length > 0) {
+      this.saveData();
+    }
+    return updatedItems;
   }
 
   // Customers

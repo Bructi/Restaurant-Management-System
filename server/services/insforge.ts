@@ -1,9 +1,21 @@
+try {
+  if (process.loadEnvFile) {
+    process.loadEnvFile('.env.local');
+  }
+} catch {
+  try {
+    if (process.loadEnvFile) {
+      process.loadEnvFile('.env');
+    }
+  } catch {}
+}
+
 import { createClient, createAdminClient } from '@insforge/sdk';
 
-const INSFORGE_URL = process.env.INSFORGE_URL || '';
-const INSFORGE_API_KEY = process.env.INSFORGE_API_KEY || '';
-const INSFORGE_ANON_KEY = process.env.INSFORGE_ANON_KEY || '';
-const PROJECT_ID = process.env.INSFORGE_PROJECT_ID || '';
+const INSFORGE_URL = process.env.INSFORGE_URL || 'https://n982kqwn.ap-southeast.insforge.app';
+const INSFORGE_API_KEY = process.env.INSFORGE_API_KEY || 'ik_5e952c3e9819e5e8e82154da360a71a4';
+const INSFORGE_ANON_KEY = process.env.INSFORGE_ANON_KEY || 'anon_cdc7dff7ed46f451f1f24e9c37c1437523d8a4dce1cdd3c6377e19174caa522f';
+const PROJECT_ID = process.env.INSFORGE_PROJECT_ID || '1d2e8674-5e0c-4c27-a31c-688bfbbfb5e3';
 
 export const insforgeAdmin = createAdminClient({
   baseUrl: INSFORGE_URL,

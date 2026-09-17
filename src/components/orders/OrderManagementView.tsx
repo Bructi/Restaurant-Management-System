@@ -3,6 +3,7 @@ import { api } from '../../services/api';
 import { subscribeRealtime } from '../../hooks/useRealtimeSync';
 import { useToast } from '../../contexts/ToastContext';
 import { printThermalReceipt } from '../../utils/exportUtils';
+import { LiveDeliveryMap } from '../common/LiveDeliveryMap';
 
 interface OrderRecord {
   id: string;
@@ -148,7 +149,7 @@ const MOCK_ORDERS: OrderRecord[] = [
 
 export const OrderManagementView: React.FC = () => {
   const toast = useToast();
-  const [activeTab, setActiveTab] = useState<'all' | 'new' | 'prep' | 'ready' | 'completed' | 'cancelled'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'new' | 'prep' | 'ready' | 'completed' | 'cancelled' | 'map'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('#ORD-10482');
   const [tableFilter, setTableFilter] = useState('all');
@@ -484,9 +485,28 @@ export const OrderManagementView: React.FC = () => {
             108
           </span>
         </button>
+        <button
+          onClick={() => setActiveTab('map')}
+          className={`flex items-center gap-2 px-space-md py-2.5 rounded-xl font-label-lg text-label-lg shrink-0 transition-all ${
+            activeTab === 'map'
+              ? 'bg-primary text-on-primary shadow-sm font-bold'
+              : 'bg-surface-container-low hover:bg-surface-container text-primary font-bold'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[18px]">map</span>
+          <span>🛵 Delivery Fleet Map (GPS Live)</span>
+        </button>
       </div>
 
+      {/* Render Leaflet Map View if 'map' tab is selected */}
+      {activeTab === 'map' && (
+        <div className="w-full">
+          <LiveDeliveryMap height="580px" selectedOrderId={selectedOrderId} />
+        </div>
+      )}
+
       {/* Workspace Container (Split Layout: Master Table + Detail Drawer) */}
+      {activeTab !== 'map' && (
       <div className="grid grid-cols-1 2xl:grid-cols-12 gap-space-md items-start">
         {/* Master Orders Table (7 cols on 2xl) */}
         <div className="2xl:col-span-7 bg-surface-container-low rounded-xl shadow-sm overflow-hidden flex flex-col border border-surface-container-high/30">
@@ -817,6 +837,7 @@ export const OrderManagementView: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

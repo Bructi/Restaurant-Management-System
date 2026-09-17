@@ -15,7 +15,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenAuthModal,
   onOpenStaffPin,
 }) => {
-  const { user, signInWithOAuth } = useAuth();
+  const { user, switchRole, signInWithOAuth } = useAuth();
   const toast = useToast();
 
   const [analytics, setAnalytics] = useState<any>({
@@ -199,35 +199,119 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           Engineered for busy kitchens, high-turnover dining rooms, and multi-station restaurants. Touch-first POS, automated station routing, live table statuses, recipe food costing, and instant GST compliance.
         </p>
 
-        {/* Main CTA Action Buttons */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
-          <button
-            onClick={() => onEnterApp('pos-new-order')}
-            className="px-6 py-3.5 rounded-2xl bg-primary-container text-on-primary-container font-headline-md text-base font-black shadow-xl shadow-primary-container/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center gap-2"
+        {/* 3 Dedicated Role Portals */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl w-full text-left">
+          {/* Role 1: Customer */}
+          <div
+            onClick={() => {
+              switchRole('customer');
+              onEnterApp('customer-portal');
+            }}
+            className="p-5 bg-surface-container-low hover:bg-surface-container rounded-2xl border border-emerald-500/30 hover:border-emerald-500 shadow-md cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between gap-3 group"
           >
-            <span className="material-symbols-outlined text-[22px]">point_of_sale</span>
-            <span>Launch Live POS Terminal</span>
-          </button>
+            <div className="flex items-center justify-between">
+              <span className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-xl">
+                👤
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-[10px] uppercase font-mono">
+                Customer App
+              </span>
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-on-surface group-hover:text-emerald-600 transition-colors">
+                Customer Dining Portal
+              </h3>
+              <p className="text-xs text-on-surface-variant mt-1">
+                Order dishes at table, reserve VIP cabanas, and track food preparation live.
+              </p>
+            </div>
+            <div className="flex items-center text-xs font-bold text-emerald-600 gap-1 pt-2 border-t border-outline-variant/20">
+              <span>Enter as Guest (Ananya)</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </div>
+          </div>
 
+          {/* Role 2: Staff */}
+          <div
+            onClick={() => {
+              switchRole('staff');
+              onEnterApp('pos-new-order');
+            }}
+            className="p-5 bg-surface-container-low hover:bg-surface-container rounded-2xl border border-secondary/30 hover:border-secondary shadow-md cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between gap-3 group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xl">
+                👨🍳
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-bold text-[10px] uppercase font-mono">
+                Staff Station
+              </span>
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-on-surface group-hover:text-secondary transition-colors">
+                Floor &amp; Kitchen KDS
+              </h3>
+              <p className="text-xs text-on-surface-variant mt-1">
+                High-speed POS dispatch, station tickets, table turnover, and settlement till.
+              </p>
+            </div>
+            <div className="flex items-center text-xs font-bold text-secondary gap-1 pt-2 border-t border-outline-variant/20">
+              <span>Enter as Staff (Sunil)</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </div>
+          </div>
+
+          {/* Role 3: Admin */}
+          <div
+            onClick={() => {
+              switchRole('admin');
+              onEnterApp('dashboard');
+            }}
+            className="p-5 bg-surface-container-low hover:bg-surface-container rounded-2xl border border-primary/30 hover:border-primary shadow-md cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between gap-3 group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl">
+                👑
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-[10px] uppercase font-mono">
+                Administrator
+              </span>
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-on-surface group-hover:text-primary transition-colors">
+                Executive Operations Hub
+              </h3>
+              <p className="text-xs text-on-surface-variant mt-1">
+                AI inventory supply, n8n orchestrator, menu matrix, CRM, and analytics.
+              </p>
+            </div>
+            <div className="flex items-center text-xs font-bold text-primary gap-1 pt-2 border-t border-outline-variant/20">
+              <span>Enter as Admin (Aniket)</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick OAuth & Sign-in Row */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <button
             onClick={handleGoogleLogin}
-            className="px-5 py-3.5 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface font-headline-md text-sm font-bold border border-surface-container-high shadow-md flex items-center gap-2.5 transition-all"
+            className="px-4 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface text-xs font-bold border border-surface-container-high/60 shadow-sm flex items-center gap-2 transition-all"
           >
-            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
             </svg>
-            <span>Continue with Google</span>
+            <span>Continue with Google OAuth</span>
           </button>
-
           <button
-            onClick={onOpenAuthModal}
-            className="px-5 py-3.5 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface font-headline-md text-sm font-bold border border-surface-container-high shadow-md flex items-center gap-2 transition-all"
+            onClick={onOpenStaffPin}
+            className="px-4 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface text-xs font-bold border border-surface-container-high/60 shadow-sm flex items-center gap-1.5 transition-all"
           >
-            <span className="material-symbols-outlined text-[20px] text-secondary">badge</span>
-            <span>Staff / Owner Sign In</span>
+            <span className="material-symbols-outlined text-[16px] text-primary">pin</span>
+            <span>Fast Staff PIN Switch</span>
           </button>
         </div>
 

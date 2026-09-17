@@ -9,17 +9,21 @@
     "client": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "start": "tsx server/index.ts"
+    "start": "tsx server/index.ts",
+    "n8n:sync": "tsx server/scripts/provision-n8n.ts"
   },
   "dependencies": {
     "@insforge/sdk": "^1.5.2",
+    "@types/leaflet": "^1.9.22",
     "clsx": "^2.1.1",
     "concurrently": "^10.0.5",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.475.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "recharts": "^3.10.1",
     "tailwind-merge": "^3.0.1",
     "tsx": "^4.23.13",
     "ws": "^8.21.3"
