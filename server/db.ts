@@ -23,6 +23,15 @@ export interface DbSchema {
   settings: any;
   peripherals: any[];
   analytics: any;
+  coupons: any[];
+  deliveryDrivers: any[];
+  splitPayments: any[];
+  tipPoolDistributions: any[];
+  reservationDeposits: any[];
+  tableSessions: any[];
+  marketingCampaigns: any[];
+  tillSessions: any[];
+  kdsSlaLogs: any[];
 }
 
 const SEED_DATA: DbSchema = {
@@ -63,7 +72,7 @@ const SEED_DATA: DbSchema = {
       phone: '+91 98334 11204',
       itemsSummary: 'Tandoori Chicken, Dal Makhani, Roti',
       itemsCount: 3,
-      staff: 'Aniket S.',
+      staff: 'Floor Staff',
       total: 1260,
       subtotal: 1100,
       taxes: 80,
@@ -206,7 +215,7 @@ const SEED_DATA: DbSchema = {
       table: 'Table T-04',
       orderType: 'Dine-In',
       pax: 2,
-      server: 'Aniket S.',
+      server: 'Floor Staff',
       elapsedMinutes: 19,
       isUrgent: true,
       status: 'cooking',
@@ -266,6 +275,11 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Charcoal-grilled cottage cheese cubes with peppers and mint dip.',
+      recipeIngredients: [
+        { ingredientId: 'ING-014', name: 'Fresh Paneer (Malai Block)', qty: 0.25, unit: 'kg' },
+        { ingredientId: 'ING-091', name: 'Kashmiri Deggi Mirch Powder', qty: 0.03, unit: 'kg' },
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.04, unit: 'blocks' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuCp_6CFR3E-8f37S3fRDufLwRpCRWr4UmocpRyuHFSetsbzBmXbMkNSBtpShT6_Pft40jHQkyG2WrmcTizjo3WsSl_8Ng48_1mI1U_AplNCGFH1TfIccLd_xFA97TESR97G_CGhbuVeIaM22wXEw1Fi5pYJPRYZFYbz7CY_LeJrT7N06th1UTYmwhkuSXHlwcNED8ZQP3N7yy-MnLV_7Lnk-adRqs0-Q_E21-yTwQONnIY1dwVblzw6',
       altText: 'Paneer Tikka',
@@ -285,6 +299,11 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Tandoori chicken in rich velvety makhani tomato butter gravy.',
+      recipeIngredients: [
+        { ingredientId: 'ING-008', name: 'Spring Chicken (Skinless Cut)', qty: 0.35, unit: 'kg' },
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.08, unit: 'blocks' },
+        { ingredientId: 'ING-091', name: 'Kashmiri Deggi Mirch Powder', qty: 0.02, unit: 'kg' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuDH8LH1fdiIdDAAuM87hOyrSr5o0N_k21tQrJ62lukG9qcewaJ3scqOfcOI8BTTj0kp5I7WxsdMEhkIDsgIddnzgGIkknVVFk4OPoTBnXY1zeyz7kFzDVa_s5BQFHdWy-zQchP8Jki9oFwlcj1REaKmgoXsiKRs4tHCJXUV93jNIH3eTbsjuyD33aqAqPsKcoEtlT-4EGRlxKbXUVTXIGci17x0zWNBxPLSV2-W6Lc90T-fxaV7E-Vq',
       altText: 'Butter Chicken',
@@ -304,6 +323,11 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Velvety butter gravy with roasted whole spices, fresh cream, and tender soft paneer cubes.',
+      recipeIngredients: [
+        { ingredientId: 'ING-014', name: 'Fresh Paneer (Malai Block)', qty: 0.25, unit: 'kg' },
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.08, unit: 'blocks' },
+        { ingredientId: 'ING-091', name: 'Kashmiri Deggi Mirch Powder', qty: 0.02, unit: 'kg' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuCt6tS1yZeVJXYs7xnTN1ccvHa2HW2saDI3CsZiEgyQpS9cf75gOQWe5gm_HVxvY5TfSP3mUaHKQ8UnRKrpZ9Dn8Fj0mZvYFKUwDhYqb81xz4RPZsnyXTofmCcDaPPmvH9yyKK0DwKET7UtFW7mdiCHDNaPenqqjyDVtmrNpWWhwtBoreECBuC21r4YOYhmEiNPc_4HE76B3ZKmgXlKMjbZKR5S4nshmDa2oQ4SO9jom5MsfNTDtFfF',
       altText: 'Paneer Butter Masala',
@@ -323,6 +347,11 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Whole spring chicken marinated with Kashmiri deggi mirch and roasted over charcoal.',
+      recipeIngredients: [
+        { ingredientId: 'ING-008', name: 'Spring Chicken (Skinless Cut)', qty: 0.50, unit: 'kg' },
+        { ingredientId: 'ING-091', name: 'Kashmiri Deggi Mirch Powder', qty: 0.04, unit: 'kg' },
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.02, unit: 'blocks' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuCufIW8nyrb93az0RcAMyVwzXqp6w-12rHazdtVueoPFXyz8rp8jtpKSkl6_Y7XOO2LqLrXxOK7EFIwcyNLiqcnbNCNeCw9YqR_wiUfxZt7JKF0PZapMkJelnsOJCMUE8_5Mqr_534FzXzFbyJJD8VdJuevYKcWKpqbEB7rfBCsbKa-mQhVCcgdOK7vTaI7K9DMaxIx5a_1Hdmvm_k6JdUaPc4lRe1zWAO5mEyWK4gsNrXLakk0GXxI',
       altText: 'Tandoori Chicken',
@@ -342,6 +371,10 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: '11-inch thin crust topped with San Marzano tomatoes, bocconcini cheese, and fresh basil.',
+      recipeIngredients: [
+        { ingredientId: 'ING-014', name: 'Fresh Paneer (Malai Block)', qty: 0.15, unit: 'kg' },
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.04, unit: 'blocks' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuAjvcVl0Dd0pb9eeX_hjPlmBqMLYPwwAHc8HtROmwfCNs7n_un5k2lA1ursr96DkhFGiAh8nT7grEk0acpZK5MByfvzNK5U-cYaNxl6aEmdlz4uuHaGrhSE7kZlKlKzmGFhV-KmQugsIRdjxH0clgEzsYx64b8zD_vnb9m6-6B1I2ItJfXVgnq4unxRydNIKkKvN0AZV5eC5hbE2cpnwXPvZExy1rMyr8N7kpG0fSdABO7AI8ySQBjw',
       altText: 'Margherita Pizza',
@@ -361,6 +394,9 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Warm fried milk dumplings soaked in green cardamom & saffron infused sugar syrup.',
+      recipeIngredients: [
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.03, unit: 'blocks' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuCfS7MBQ6KXSlb_StqI-OQHKbrGZMaMnmGVAd_mGTltJEDQfNYGMgs4iNkbAzug13ZfQSncWAqDm2T_B7bMw9NiHomU3tpRMxttgnvPPnGAE5CiWrYRgXJm1wIT-728DD0m4Y-v7WDGgEAFIKfak7FxiOIGvAZc8bhPJBOAOLCJUzh9jlqW4qfZOSiqR-VBCOaBRBxjQ8ca4X_Dwy65cQOCtGf7eb2UaceqWryfPxBUZwIFuxK_aF33',
       altText: 'Gulab Jamun',
@@ -380,6 +416,9 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Slow-brewed Assam CTC black tea with crushed ginger, cloves, cinnamon, and whole milk.',
+      recipeIngredients: [
+        { ingredientId: 'ING-091', name: 'Kashmiri Deggi Mirch Powder', qty: 0.005, unit: 'kg' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuCPRzaZGbWKdYmTmXGIsIB2JzYXr4dtw9FVzIj2FHAYpFyb8fi_yvJsaY71lLvnPGYd_1_3PV8gEnAYzNBQKuWc-8Qw1Ey1UvuzZxpX6mZcyHwALj547f50_uFh8AZ4a0wL8BPknMRyJboOPHc3zX7Sfy1OZU0hHKYRvT_pTK8VA03yguKV4Jh2id0IE2j1ohAccEG9IRgCbpvQybTlN-8-p9Y2mQvyD6Re26YPBGeQOOvJ1fTPYeHq',
       altText: 'Masala Chai',
@@ -399,6 +438,9 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Freshly baked tandoori bread brushed with butter and garlic.',
+      recipeIngredients: [
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.04, unit: 'blocks' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuA9PrUCnLDZ8dc0ytNrGsbbI2GnDy44k38_XZUDxdNWj6hYxTUAbxylXQkaJ6q8c_ubW-v_m23TgSScf5uw19nZSsapsF1CuJCjvsePNavpa4tGCnXJJOnSQa-2JTpOd_jCbEAQxshoB4XKQQlMAjMYFGTdWtf7P6NXlc3abJIFwpAVFFjuTHtnV5K38xqHwsZrl8YtbE7nwBpISqsdl48c3bPD-VWW2Zwi0Fl2RZ0AtTaajBFh6EsK',
       altText: 'Garlic Naan',
@@ -418,6 +460,11 @@ const SEED_DATA: DbSchema = {
       dineInActive: true,
       onlineActive: true,
       description: 'Fragrant basmati rice dum cooked with spiced chicken and caramelised onions.',
+      recipeIngredients: [
+        { ingredientId: 'ING-032', name: 'Basmati Rice (Daawat Royal)', qty: 0.20, unit: 'kg' },
+        { ingredientId: 'ING-008', name: 'Spring Chicken (Skinless Cut)', qty: 0.25, unit: 'kg' },
+        { ingredientId: 'ING-055', name: 'Amul Salted Butter (500g)', qty: 0.03, unit: 'blocks' },
+      ],
       imageUrl:
         'https://lh3.googleusercontent.com/aida-public/AB6AXuBENWDfx1-d0UWSah0Kgdyaer1PRWXCJeC4hQf9ZyVg2qPQoOixLFLTRdidHssPfL_tRyv6Qs5RAoV8JwV2UtPrDImdSZ-5WiTJKd1y1nuVM-saxxWYA1asa5zFqkALDG0ptHc9g-pwJXl5SkFc6A_Qszb8Tr6Y0qrg7odVsGF6f1LejRHiyTGqdtICtMH8lWeHky0LwakwaMT4-xJhiLDBh2LgTEtNOZbMwemeeAYzjJdEpJSBa6RK',
       altText: 'Chicken Dum Biryani',
@@ -426,16 +473,16 @@ const SEED_DATA: DbSchema = {
 
   floorTables: [
     { id: 'T01', name: 'T01', capacity: 4, section: 'main', status: 'occupied', guestsCount: 4, server: 'Sunil R.', orderInfo: 'Occupied (30m)', amount: 1540, timeSeated: '30m' },
-    { id: 'T02', name: 'T02', capacity: 2, section: 'main', status: 'occupied', guestsCount: 2, server: 'Aniket S.', orderInfo: 'Occupied (15m)', amount: 840, timeSeated: '15m' },
+    { id: 'T02', name: 'T02', capacity: 2, section: 'main', status: 'occupied', guestsCount: 2, server: 'Floor Staff', orderInfo: 'Occupied (15m)', amount: 840, timeSeated: '15m' },
     { id: 'T03', name: 'T03', capacity: 2, section: 'main', status: 'available', orderInfo: 'Available' },
-    { id: 'T04', name: 'T04', capacity: 4, section: 'main', status: 'occupied', guestsCount: 2, server: 'Aniket S.', orderInfo: 'Occupied (ORD-10481)', amount: 1260, timeSeated: '18m' },
+    { id: 'T04', name: 'T04', capacity: 4, section: 'main', status: 'occupied', guestsCount: 2, server: 'Floor Staff', orderInfo: 'Occupied (ORD-10481)', amount: 1260, timeSeated: '18m' },
     { id: 'T05', name: 'T05', capacity: 6, section: 'main', status: 'reserved', orderInfo: 'Reserved (20:45 PM)', customerName: 'Dr. Alok Verma' },
     { id: 'T06', name: 'T06', capacity: 4, section: 'main', status: 'occupied', guestsCount: 4, server: 'Rajesh P.', orderInfo: 'Occupied (50m)', amount: 2890, timeSeated: '50m' },
     { id: 'T07', name: 'T07', capacity: 4, section: 'main', status: 'available', orderInfo: 'Available' },
     { id: 'T08', name: 'T08', capacity: 6, section: 'main', status: 'occupied', guestsCount: 5, server: 'Sunil R.', orderInfo: 'Occupied (Rahul K.)', amount: 2450, timeSeated: '44m' },
     { id: 'T09', name: 'T09', capacity: 2, section: 'main', status: 'cleaning', orderInfo: 'Cleaning' },
     { id: 'T10', name: 'T10', capacity: 4, section: 'main', status: 'occupied', guestsCount: 3, server: 'Meera K.', orderInfo: 'Occupied', amount: 1980, timeSeated: '26m' },
-    { id: 'T11', name: 'T11', capacity: 2, section: 'main', status: 'occupied', guestsCount: 2, server: 'Aniket S.', orderInfo: 'Occupied', amount: 920, timeSeated: '15m' },
+    { id: 'T11', name: 'T11', capacity: 2, section: 'main', status: 'occupied', guestsCount: 2, server: 'Floor Staff', orderInfo: 'Occupied', amount: 920, timeSeated: '15m' },
     {
       id: 'T12',
       name: 'T12',
@@ -458,7 +505,7 @@ const SEED_DATA: DbSchema = {
     { id: 'T18', name: 'T18', capacity: 4, section: 'patio', status: 'cleaning', orderInfo: 'Cleaning' },
     { id: 'T19', name: 'T19', capacity: 2, section: 'vip', status: 'available', orderInfo: 'Available' },
     { id: 'T20', name: 'T20', capacity: 4, section: 'vip', status: 'occupied', guestsCount: 4, server: 'Sunil R.', orderInfo: 'Occupied', amount: 3200, timeSeated: '40m' },
-    { id: 'T21', name: 'T21', capacity: 6, section: 'vip', status: 'occupied', guestsCount: 6, server: 'Aniket S.', orderInfo: 'Occupied', amount: 5600, timeSeated: '55m' },
+    { id: 'T21', name: 'T21', capacity: 6, section: 'vip', status: 'occupied', guestsCount: 6, server: 'Floor Staff', orderInfo: 'Occupied', amount: 5600, timeSeated: '55m' },
     { id: 'T22', name: 'T22', capacity: 2, section: 'vip', status: 'reserved', orderInfo: 'Reserved', customerName: 'Karan Singhania' },
     { id: 'T23', name: 'T23', capacity: 4, section: 'bar', status: 'available', orderInfo: 'Available' },
     { id: 'T24', name: 'T24', capacity: 8, section: 'bar', status: 'occupied', guestsCount: 8, server: 'Rajesh P.', orderInfo: 'Occupied', amount: 6800, timeSeated: '48m' },
@@ -667,7 +714,7 @@ const SEED_DATA: DbSchema = {
   staff: [
     {
       id: 'EMP-001',
-      name: 'Aniket Sharma',
+      name: 'Operations Manager',
       role: 'General Manager',
       department: 'Management',
       clockInTime: '17:30 IST',
@@ -789,6 +836,281 @@ const SEED_DATA: DbSchema = {
     netMarginPct: 30.0,
     avgTurnaround: '16.4m',
   },
+
+  coupons: [
+    {
+      code: 'SPICE10',
+      description: '10% Off Happy Hour & Dining Special',
+      discountType: 'percentage',
+      discountValue: 10,
+      minOrderAmount: 300,
+      maxDiscountAmount: 500,
+      active: true,
+      usageCount: 42,
+      expiryDate: '2026-12-31',
+    },
+    {
+      code: 'WELCOME20',
+      description: '20% Off First-Time Guest Welcome',
+      discountType: 'percentage',
+      discountValue: 20,
+      minOrderAmount: 500,
+      maxDiscountAmount: 300,
+      active: true,
+      usageCount: 18,
+      expiryDate: '2026-12-31',
+    },
+    {
+      code: 'FESTIVE100',
+      description: 'Flat ₹100 Off on orders above ₹800',
+      discountType: 'fixed',
+      discountValue: 100,
+      minOrderAmount: 800,
+      maxDiscountAmount: 100,
+      active: true,
+      usageCount: 29,
+      expiryDate: '2026-10-31',
+    },
+    {
+      code: 'HAPPYHOUR',
+      description: '15% Off Afternoon Appetizers & Drinks (3PM - 7PM)',
+      discountType: 'percentage',
+      discountValue: 15,
+      minOrderAmount: 400,
+      maxDiscountAmount: 400,
+      active: true,
+      usageCount: 14,
+      expiryDate: '2026-12-31',
+    },
+  ],
+
+  deliveryDrivers: [
+    {
+      id: 'DRV-101',
+      name: 'Ramesh Kumar',
+      phone: '+91 98450 11992',
+      vehicle: 'EV Bike (KA-01-EA-4921)',
+      lat: 12.9352,
+      lng: 77.6245,
+      status: 'on_the_way',
+      etaMinutes: 8,
+      activeOrderId: '#ORD-10477',
+      destination: 'Koramangala 4th Block',
+      customerName: 'Amit Joshi',
+      itemsSummary: '1x Butter Chicken, 2x Naan',
+      lastPing: new Date().toISOString(),
+    },
+    {
+      id: 'DRV-102',
+      name: 'Suresh Gowda',
+      phone: '+91 98220 44511',
+      vehicle: 'Hero Splendor (KA-03-HJ-8812)',
+      lat: 12.9784,
+      lng: 77.6408,
+      status: 'on_the_way',
+      etaMinutes: 12,
+      activeOrderId: '#ORD-10476',
+      destination: 'Indiranagar 100ft Road',
+      customerName: 'Sneha Roy',
+      itemsSummary: '2x Chicken Dum Biryani, 1x Raita',
+      lastPing: new Date().toISOString(),
+    },
+    {
+      id: 'DRV-103',
+      name: 'Vikas Patil',
+      phone: '+91 98110 33420',
+      vehicle: 'Ather 450X (KA-04-EK-9022)',
+      lat: 12.9698,
+      lng: 77.5998,
+      status: 'picking_up',
+      etaMinutes: 4,
+      activeOrderId: '#ORD-10474',
+      destination: 'Lavelle Road Residency',
+      customerName: 'Rohan Deshmukh',
+      itemsSummary: '1x Paneer Tikka, 1x Dal Makhani',
+      lastPing: new Date().toISOString(),
+    },
+    {
+      id: 'DRV-104',
+      name: 'Manjunath R.',
+      phone: '+91 98990 77112',
+      vehicle: 'TVS iQube (KA-01-MP-1104)',
+      lat: 12.9716,
+      lng: 77.5946,
+      status: 'idle',
+      etaMinutes: 0,
+      activeOrderId: null,
+      destination: null,
+      customerName: null,
+      itemsSummary: null,
+      lastPing: new Date().toISOString(),
+    },
+  ],
+
+  splitPayments: [
+    {
+      id: 'SPLIT-1001',
+      orderId: '#ORD-10482',
+      tableId: 'Table T-12',
+      totalAmount: 1840,
+      splits: [
+        { guestIndex: 1, guestName: 'Guest 1', amount: 460, method: 'UPI', refNumber: 'UPI-9821' },
+        { guestIndex: 2, guestName: 'Guest 2', amount: 460, method: 'UPI', refNumber: 'UPI-9822' },
+        { guestIndex: 3, guestName: 'Guest 3', amount: 460, method: 'Card', refNumber: 'EDC-8812' },
+        { guestIndex: 4, guestName: 'Guest 4', amount: 460, method: 'Cash', refNumber: 'CSH-01' },
+      ],
+      tipAmount: 100,
+      settledAt: new Date().toISOString(),
+      status: 'completed',
+    },
+  ],
+
+  tipPoolDistributions: [
+    {
+      id: 'TIP-881',
+      date: '2026-09-15',
+      shift: 'Dinner Shift',
+      totalTipsCollected: 3840,
+      staffCount: 5,
+      sharePerStaff: 768,
+      distributedBy: 'General Manager',
+      distributedAt: new Date().toISOString(),
+      recipients: [
+        { staffId: 'EMP-004', name: 'Chef Harish Rawat', amount: 768 },
+        { staffId: 'EMP-012', name: 'Sunil Rathod', amount: 768 },
+        { staffId: 'EMP-018', name: 'Meera Kumari', amount: 768 },
+        { staffId: 'EMP-022', name: 'Rajesh Paswan', amount: 768 },
+        { staffId: 'EMP-001', name: 'Operations Lead', amount: 768 },
+      ],
+    },
+  ],
+
+  reservationDeposits: [
+    {
+      id: 'DEP-401',
+      reservationId: 'RES-401',
+      guestName: 'Dr. Alok Verma',
+      amount: 2000,
+      paymentMethod: 'UPI',
+      status: 'secured',
+      transactionRef: 'DEP-TXN-882194',
+      date: '2026-09-16',
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 'DEP-402',
+      reservationId: 'RES-402',
+      guestName: 'Sunita Rao',
+      amount: 1000,
+      paymentMethod: 'Card',
+      status: 'adjusted_in_bill',
+      transactionRef: 'DEP-TXN-882195',
+      date: '2026-09-16',
+      createdAt: new Date().toISOString(),
+    },
+  ],
+
+  tableSessions: [
+    {
+      id: 'SESS-101',
+      tableId: 'T12',
+      tableName: 'Table T-12',
+      section: 'main',
+      pax: 4,
+      server: 'Sunil R.',
+      customerName: 'Ananya Verma',
+      seatedAt: new Date(Date.now() - 42 * 60000).toISOString(),
+      releasedAt: null,
+      durationMinutes: 42,
+      totalBill: 1840,
+      status: 'active',
+    },
+    {
+      id: 'SESS-102',
+      tableId: 'T04',
+      tableName: 'Table T-04',
+      section: 'main',
+      pax: 2,
+      server: 'Floor Staff',
+      customerName: 'Vikram Malhotra',
+      seatedAt: new Date(Date.now() - 18 * 60000).toISOString(),
+      releasedAt: null,
+      durationMinutes: 18,
+      totalBill: 1260,
+      status: 'active',
+    },
+    {
+      id: 'SESS-100',
+      tableId: 'T08',
+      tableName: 'Table T-08',
+      section: 'main',
+      pax: 5,
+      server: 'Sunil R.',
+      customerName: 'Rahul Kapoor',
+      seatedAt: new Date(Date.now() - 90 * 60000).toISOString(),
+      releasedAt: new Date(Date.now() - 10 * 60000).toISOString(),
+      durationMinutes: 80,
+      totalBill: 2450,
+      status: 'completed',
+    },
+  ],
+
+  marketingCampaigns: [
+    {
+      id: 'CMP-801',
+      title: 'Weekend Saffron Biryani Feast',
+      channel: 'WhatsApp & SMS',
+      targetTier: 'Platinum & Gold VIP',
+      targetAudienceCount: 342,
+      template: 'Namaste {{guest_name}}! ✨ Exclusive VIP invite for this weekend at SpiceRoute Kitchen. Enjoy a complimentary Chef Tasting Platter with your table booking. Use code SPICE10 for 10% off. Reserve now!',
+      status: 'SENT',
+      dispatchedAt: new Date(Date.now() - 3600000).toISOString(),
+      deliveredCount: 338,
+      readCount: 295,
+      conversions: 24,
+    },
+  ],
+
+  tillSessions: [
+    {
+      id: 'TILL-901',
+      date: '2026-09-16',
+      shift: 'Dinner Shift 02',
+      cashierName: 'Meera Kumari',
+      openingFloat: 5000,
+      cashSalesCollected: 23450,
+      cashPayouts: 0,
+      expectedCash: 28450,
+      actualCountedCash: 28450,
+      discrepancy: 0,
+      status: 'open',
+      openedAt: new Date(Date.now() - 5 * 3600000).toISOString(),
+      closedAt: null,
+    },
+  ],
+
+  kdsSlaLogs: [
+    {
+      id: 'SLA-101',
+      ticketId: '#KOT-846',
+      orderId: '#ORD-10480',
+      station: 'Pantry',
+      targetMinutes: 15,
+      actualMinutes: 6,
+      onTime: true,
+      bumpedAt: new Date(Date.now() - 120000).toISOString(),
+    },
+    {
+      id: 'SLA-102',
+      ticketId: '#KOT-844',
+      orderId: '#ORD-10477',
+      station: 'Curry',
+      targetMinutes: 15,
+      actualMinutes: 13,
+      onTime: true,
+      bumpedAt: new Date(Date.now() - 600000).toISOString(),
+    },
+  ],
 };
 
 class Database {
@@ -806,7 +1128,30 @@ class Database {
       }
       if (fs.existsSync(DB_FILE)) {
         const fileContent = fs.readFileSync(DB_FILE, 'utf-8');
-        return JSON.parse(fileContent);
+        const parsed = JSON.parse(fileContent);
+        // Ensure new collections exist even on legacy db.json
+        if (!parsed.coupons) parsed.coupons = SEED_DATA.coupons;
+        if (!parsed.deliveryDrivers) parsed.deliveryDrivers = SEED_DATA.deliveryDrivers;
+        if (!parsed.splitPayments) parsed.splitPayments = SEED_DATA.splitPayments;
+        if (!parsed.tipPoolDistributions) parsed.tipPoolDistributions = SEED_DATA.tipPoolDistributions;
+        if (!parsed.reservationDeposits) parsed.reservationDeposits = SEED_DATA.reservationDeposits;
+        if (!parsed.tableSessions) parsed.tableSessions = SEED_DATA.tableSessions;
+        if (!parsed.marketingCampaigns) parsed.marketingCampaigns = SEED_DATA.marketingCampaigns;
+        if (!parsed.tillSessions) parsed.tillSessions = SEED_DATA.tillSessions;
+        if (!parsed.kdsSlaLogs) parsed.kdsSlaLogs = SEED_DATA.kdsSlaLogs;
+
+        // Ensure menu items have recipe BOMs
+        if (Array.isArray(parsed.menuItems)) {
+          parsed.menuItems.forEach((m: any) => {
+            if (!m.recipeIngredients) {
+              const seedDish = SEED_DATA.menuItems.find((sm) => sm.id === m.id || sm.name === m.name);
+              if (seedDish?.recipeIngredients) {
+                m.recipeIngredients = seedDish.recipeIngredients;
+              }
+            }
+          });
+        }
+        return parsed;
       }
     } catch (err) {
       console.error('Error reading db.json, falling back to seed data:', err);
@@ -1086,7 +1431,7 @@ class Database {
       table: order.table || 'Table T-01',
       orderType: order.tableType?.includes('Dine') ? 'Dine-In' : 'Takeaway',
       pax: order.pax || 2,
-      server: order.staff || 'Aniket S.',
+      server: order.staff || 'Floor Staff',
       elapsedMinutes: 1,
       status: 'new',
       createdAt: new Date().toISOString(),
@@ -1226,14 +1571,32 @@ class Database {
     if (index !== -1) {
       const ticket = this.data.kdsTickets[index];
       ticket.status = 'ready';
+
+      // Record SLA prep duration
+      const createdAtTime = ticket.createdAt ? new Date(ticket.createdAt).getTime() : Date.now() - 10 * 60000;
+      const actualPrepMinutes = Math.max(1, Math.round((Date.now() - createdAtTime) / 60000));
+
+      if (!this.data.kdsSlaLogs) this.data.kdsSlaLogs = [];
+      this.data.kdsSlaLogs.unshift({
+        id: `SLA-${Date.now().toString().slice(-4)}`,
+        ticketId: ticket.id,
+        orderId: ticket.orderId,
+        station: ticket.items?.[0]?.station || 'Kitchen',
+        targetMinutes: 15,
+        actualMinutes: actualPrepMinutes,
+        onTime: actualPrepMinutes <= 15,
+        bumpedAt: new Date().toISOString(),
+      });
+
       // Also update parent order if exists
       const order = this.data.orders.find((o) => o.id === ticket.orderId);
       if (order) {
         order.kitchenStatus = 'ready';
-        order.kitchenTime = 'Ready to Expedite';
+        order.kitchenTime = `Ready (${actualPrepMinutes}m prep)`;
+        order.actualPrepMinutes = actualPrepMinutes;
         insforgeAdmin.database.from('orders').update({
           kitchen_status: 'ready',
-          kitchen_time: 'Ready to Expedite',
+          kitchen_time: order.kitchenTime,
         }).eq('id', order.id).then().catch(() => {});
       }
       this.data.kdsTickets.splice(index, 1);
@@ -1244,7 +1607,7 @@ class Database {
         status: 'ready',
       }).eq('id', ticketId).then().catch(() => {});
 
-      return ticket;
+      return { ...ticket, actualPrepMinutes, onTime: actualPrepMinutes <= 15 };
     }
     return null;
   }
@@ -1601,6 +1964,35 @@ class Database {
       const lineName = (line.name || '').toLowerCase();
       const qty = Number(line.qty) || 1;
 
+      // 1. Check exact dish recipe BOM first
+      const dish = (this.data.menuItems || []).find((m) =>
+        lineName.includes(m.name.toLowerCase()) || m.name.toLowerCase().includes(lineName)
+      );
+
+      if (dish && Array.isArray(dish.recipeIngredients) && dish.recipeIngredients.length > 0) {
+        for (const recipeItem of dish.recipeIngredients) {
+          const match = this.data.inventory.find(
+            (item) => item.id === recipeItem.ingredientId || item.name.toLowerCase().includes(recipeItem.name.toLowerCase())
+          );
+          if (match && match.currentStock > 0) {
+            const deduction = Math.round((recipeItem.qty || 0.1) * qty * 10) / 10;
+            match.currentStock = Math.max(0, Math.round((match.currentStock - deduction) * 10) / 10);
+            match.valuation = Math.round(match.currentStock * match.unitCost);
+            match.status =
+              match.currentStock <= match.reorderPoint
+                ? match.currentStock <= 2
+                  ? 'critical'
+                  : 'low'
+                : 'healthy';
+            if (!updatedItems.find((u) => u.id === match.id)) {
+              updatedItems.push(match);
+            }
+          }
+        }
+        continue;
+      }
+
+      // 2. Fallback to ingredient mapping
       for (const [dishKey, ingredients] of Object.entries(INGREDIENT_RECIPE_MAP)) {
         if (lineName.includes(dishKey)) {
           for (const ing of ingredients) {
@@ -1617,7 +2009,9 @@ class Database {
                     ? 'critical'
                     : 'low'
                   : 'healthy';
-              updatedItems.push(match);
+              if (!updatedItems.find((u) => u.id === match.id)) {
+                updatedItems.push(match);
+              }
             }
           }
         }
@@ -1718,6 +2112,1210 @@ class Database {
       }).eq('id', id).then().catch(() => {});
     }
     return staff;
+  }
+
+  public clockOutStaff(id: string) {
+    const staff = this.data.staff.find((s) => s.id === id);
+    if (staff) {
+      staff.status = 'off';
+      staff.clockOutTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST';
+      this.saveData();
+
+      insforgeAdmin.database.from('staff').update({
+        status: 'off',
+        clock_out_time: staff.clockOutTime,
+      }).eq('id', id).then().catch(() => {});
+    }
+    return staff;
+  }
+
+  // ==========================================
+  // 1. DELIVERY FLEET & DRIVER METHODS
+  // ==========================================
+  public getDeliveryDrivers() {
+    if (!this.data.deliveryDrivers) this.data.deliveryDrivers = [];
+    return this.data.deliveryDrivers;
+  }
+
+  public getDeliveryDriverById(id: string) {
+    return (this.data.deliveryDrivers || []).find((d) => d.id === id);
+  }
+
+  public updateDriverLocation(id: string, updates: { lat?: number; lng?: number; status?: string; etaMinutes?: number; destination?: string; customerName?: string; activeOrderId?: string }) {
+    const driver = this.getDeliveryDriverById(id);
+    if (driver) {
+      Object.assign(driver, updates);
+      driver.lastPing = new Date().toISOString();
+      this.saveData();
+    }
+    return driver;
+  }
+
+  public assignOrderToDriver(driverId: string, orderId: string, destination: string, customerName: string) {
+    const driver = this.getDeliveryDriverById(driverId);
+    if (driver) {
+      driver.activeOrderId = orderId;
+      driver.destination = destination;
+      driver.customerName = customerName;
+      driver.status = 'on_the_way';
+      driver.etaMinutes = 15;
+      driver.lastPing = new Date().toISOString();
+
+      // Update order status
+      const order = this.getOrderById(orderId);
+      if (order) {
+        order.driverId = driverId;
+        order.driverName = driver.name;
+        order.driverPhone = driver.phone;
+        order.kitchenStatus = 'out_for_delivery';
+        order.kitchenTime = 'Out for Delivery';
+      }
+
+      this.saveData();
+    }
+    return driver;
+  }
+
+  // ==========================================
+  // 2. COUPON & PROMOTION ENGINE METHODS
+  // ==========================================
+  public getCoupons() {
+    if (!this.data.coupons) this.data.coupons = [];
+    return this.data.coupons;
+  }
+
+  public validateCoupon(code: string, subtotal: number) {
+    const cleanCode = (code || '').trim().toUpperCase();
+    const coupon = (this.data.coupons || []).find((c) => c.code.toUpperCase() === cleanCode && c.active);
+
+    if (!coupon) {
+      return { valid: false, message: `Coupon code '${code}' is invalid or inactive` };
+    }
+
+    if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+      return { valid: false, message: `Coupon '${cleanCode}' has expired` };
+    }
+
+    if (subtotal < (coupon.minOrderAmount || 0)) {
+      return { valid: false, message: `Minimum order amount of ₹${coupon.minOrderAmount} required for coupon '${cleanCode}'` };
+    }
+
+    let discountAmount = 0;
+    if (coupon.discountType === 'percentage') {
+      discountAmount = Math.round(subtotal * (coupon.discountValue / 100));
+      if (coupon.maxDiscountAmount) {
+        discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+      }
+    } else {
+      discountAmount = Math.min(coupon.discountValue, subtotal);
+    }
+
+    return {
+      valid: true,
+      code: coupon.code,
+      discountAmount,
+      netTotal: Math.max(0, subtotal - discountAmount),
+      coupon,
+    };
+  }
+
+  public addCoupon(coupon: any) {
+    const newCoupon = {
+      code: (coupon.code || `PROMO${Math.floor(10 + Math.random() * 90)}`).toUpperCase(),
+      description: coupon.description || 'Special Promotion',
+      discountType: coupon.discountType || 'percentage',
+      discountValue: Number(coupon.discountValue) || 10,
+      minOrderAmount: Number(coupon.minOrderAmount) || 0,
+      maxDiscountAmount: Number(coupon.maxDiscountAmount) || 500,
+      active: coupon.active ?? true,
+      usageCount: 0,
+      expiryDate: coupon.expiryDate || '2026-12-31',
+    };
+    if (!this.data.coupons) this.data.coupons = [];
+    this.data.coupons.unshift(newCoupon);
+    this.saveData();
+    return newCoupon;
+  }
+
+  public toggleCouponActive(code: string) {
+    const coupon = (this.data.coupons || []).find((c) => c.code.toUpperCase() === code.toUpperCase());
+    if (coupon) {
+      coupon.active = !coupon.active;
+      this.saveData();
+    }
+    return coupon;
+  }
+
+  // ==========================================
+  // 3. SPLIT PAYMENT & TENDER SETTLEMENT
+  // ==========================================
+  public getSplitPayments(orderId?: string) {
+    if (!this.data.splitPayments) this.data.splitPayments = [];
+    if (orderId) {
+      return this.data.splitPayments.filter((p) => p.orderId === orderId);
+    }
+    return this.data.splitPayments;
+  }
+
+  public recordSplitPayment(orderId: string, tableId: string, splits: Array<{ guestIndex: number; guestName?: string; amount: number; method: string; refNumber?: string }>, tipAmount = 0) {
+    const totalPaid = splits.reduce((acc, s) => acc + (Number(s.amount) || 0), 0);
+    const id = `SPLIT-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const record = {
+      id,
+      orderId,
+      tableId,
+      totalAmount: totalPaid,
+      splits: splits.map((s, idx) => ({
+        guestIndex: s.guestIndex || idx + 1,
+        guestName: s.guestName || `Guest ${idx + 1}`,
+        amount: Number(s.amount) || 0,
+        method: s.method || 'UPI',
+        refNumber: s.refNumber || `TXN-${Math.floor(10000 + Math.random() * 90000)}`,
+      })),
+      tipAmount: Number(tipAmount) || 0,
+      settledAt: new Date().toISOString(),
+      status: 'completed',
+    };
+
+    if (!this.data.splitPayments) this.data.splitPayments = [];
+    this.data.splitPayments.unshift(record);
+
+    // Update parent order
+    if (orderId) {
+      this.updateOrderStatus(orderId, {
+        paymentStatus: 'paid',
+        paymentMethod: `Split (${splits.map((s) => s.method).join(', ')})`,
+        splitPaymentId: id,
+      });
+    }
+
+    // Release table
+    if (tableId) {
+      const cleanId = tableId.replace('Table ', '').trim();
+      this.updateTable(cleanId, {
+        status: 'available',
+        amount: undefined,
+        guestsCount: undefined,
+        customerName: undefined,
+        server: undefined,
+        timeSeated: undefined,
+        orderInfo: 'Available',
+      });
+    }
+
+    this.recalculateAnalytics();
+    this.saveData();
+    return record;
+  }
+
+  // ==========================================
+  // 4. LOYALTY POINTS & VIP ENGINE
+  // ==========================================
+  public creditLoyaltyPoints(customerIdOrPhone: string, points: number, reason: string, orderId?: string) {
+    const cust = (this.data.customers || []).find(
+      (c) => c.id === customerIdOrPhone || c.phone === customerIdOrPhone || c.name.toLowerCase() === customerIdOrPhone.toLowerCase()
+    );
+
+    if (cust) {
+      cust.points = (cust.points || 0) + points;
+      if (!cust.pointsHistory) cust.pointsHistory = [];
+      cust.pointsHistory.unshift({
+        type: 'credit',
+        points,
+        reason,
+        orderId,
+        date: new Date().toISOString(),
+      });
+
+      // Check for tier upgrade
+      if (cust.totalSpend >= 50000 || cust.points >= 5000) {
+        cust.tier = 'Platinum';
+      } else if (cust.totalSpend >= 25000 || cust.points >= 2500) {
+        cust.tier = 'Gold';
+      } else if (cust.totalSpend >= 10000 || cust.points >= 1000) {
+        cust.tier = 'Silver';
+      }
+
+      this.saveData();
+
+      insforgeAdmin.database.from('customers').update({
+        points: cust.points,
+        tier: cust.tier,
+      }).eq('id', cust.id).then().catch(() => {});
+
+      return cust;
+    }
+    return null;
+  }
+
+  public redeemLoyaltyPoints(customerIdOrPhone: string, pointsToRedeem: number) {
+    const cust = (this.data.customers || []).find(
+      (c) => c.id === customerIdOrPhone || c.phone === customerIdOrPhone || c.name.toLowerCase() === customerIdOrPhone.toLowerCase()
+    );
+
+    if (!cust) {
+      return { success: false, error: 'Customer not found' };
+    }
+
+    if ((cust.points || 0) < pointsToRedeem) {
+      return { success: false, error: `Insufficient points. Balance: ${cust.points || 0}` };
+    }
+
+    cust.points = cust.points - pointsToRedeem;
+    if (!cust.pointsHistory) cust.pointsHistory = [];
+    cust.pointsHistory.unshift({
+      type: 'debit',
+      points: pointsToRedeem,
+      reason: 'Redeemed for order discount',
+      date: new Date().toISOString(),
+    });
+
+    this.saveData();
+
+    insforgeAdmin.database.from('customers').update({
+      points: cust.points,
+    }).eq('id', cust.id).then().catch(() => {});
+
+    return {
+      success: true,
+      redeemedPoints: pointsToRedeem,
+      discountValue: pointsToRedeem, // 1 point = ₹1
+      remainingPoints: cust.points,
+      customer: cust,
+    };
+  }
+
+  public updateCustomerSpendAndVisits(customerNameOrPhone: string, amount: number) {
+    const cust = (this.data.customers || []).find(
+      (c) => c.phone === customerNameOrPhone || c.name.toLowerCase() === customerNameOrPhone.toLowerCase()
+    );
+
+    if (cust) {
+      cust.visits = (cust.visits || 0) + 1;
+      cust.totalSpend = (cust.totalSpend || 0) + amount;
+      const pointsEarned = Math.round(amount * 0.1);
+      cust.points = (cust.points || 0) + pointsEarned;
+      cust.lastVisit = 'Today';
+
+      if (cust.totalSpend >= 50000) cust.tier = 'Platinum';
+      else if (cust.totalSpend >= 25000) cust.tier = 'Gold';
+      else if (cust.totalSpend >= 10000) cust.tier = 'Silver';
+
+      this.saveData();
+
+      insforgeAdmin.database.from('customers').update({
+        visits: cust.visits,
+        total_spend: cust.totalSpend,
+        points: cust.points,
+        tier: cust.tier,
+        last_visit: cust.lastVisit,
+      }).eq('id', cust.id).then().catch(() => {});
+
+      return cust;
+    }
+    return null;
+  }
+
+  // ==========================================
+  // 5. RECIPE BOM & DYNAMIC COGS ENGINE
+  // ==========================================
+  public getRecipeForDish(menuItemId: string) {
+    const dish = (this.data.menuItems || []).find((m) => m.id === menuItemId || m.sku === menuItemId);
+    if (!dish) return null;
+
+    const recipe = dish.recipeIngredients || [];
+    let calculatedCost = 0;
+
+    const enriched = recipe.map((item: any) => {
+      const ing = (this.data.inventory || []).find((i) => i.id === item.ingredientId || i.name.toLowerCase().includes(item.name.toLowerCase()));
+      const unitCost = ing ? ing.unitCost : 100;
+      const lineCost = Math.round(unitCost * (item.qty || 1) * 10) / 10;
+      calculatedCost += lineCost;
+      return {
+        ...item,
+        unitCost,
+        lineCost,
+        currentInventoryStock: ing ? ing.currentStock : 'N/A',
+      };
+    });
+
+    const foodCostPct = dish.price > 0 ? Number(((calculatedCost / dish.price) * 100).toFixed(1)) : 30;
+    const marginPct = Number((100 - foodCostPct).toFixed(1));
+
+    return {
+      dishId: dish.id,
+      dishName: dish.name,
+      price: dish.price,
+      calculatedCost: Math.round(calculatedCost),
+      foodCostPct,
+      marginPct,
+      matrixTier: marginPct >= 70 ? 'Star' : marginPct >= 50 ? 'Plowhorse' : 'Puzzle',
+      ingredients: enriched,
+    };
+  }
+
+  public updateDishRecipe(menuItemId: string, recipeIngredients: Array<{ ingredientId: string; name: string; qty: number; unit: string }>) {
+    const dish = (this.data.menuItems || []).find((m) => m.id === menuItemId || m.sku === menuItemId);
+    if (!dish) return null;
+
+    dish.recipeIngredients = recipeIngredients;
+
+    // Recalculate cost
+    let calculatedCost = 0;
+    for (const item of recipeIngredients) {
+      const ing = (this.data.inventory || []).find((i) => i.id === item.ingredientId);
+      const unitCost = ing ? ing.unitCost : 100;
+      calculatedCost += unitCost * item.qty;
+    }
+
+    dish.cost = Math.round(calculatedCost);
+    dish.foodCostPct = dish.price > 0 ? Number(((dish.cost / dish.price) * 100).toFixed(1)) : 30;
+    dish.marginPct = Number((100 - dish.foodCostPct).toFixed(1));
+    dish.matrixTier = dish.marginPct >= 70 ? 'Star' : 'Plowhorse';
+
+    this.saveData();
+    return dish;
+  }
+
+  // ==========================================
+  // 6. KDS LINE-ITEM STATION REASSIGNMENT & PRIORITY
+  // ==========================================
+  public reassignKdsItemStation(ticketId: string, itemId: string, newStation: string, priorityTag?: string) {
+    const ticket = (this.data.kdsTickets || []).find((t) => t.id === ticketId);
+    if (ticket) {
+      const item = ticket.items.find((i: any) => i.id === itemId);
+      if (item) {
+        item.station = newStation;
+        if (priorityTag) item.priorityTag = priorityTag;
+      }
+      this.saveData();
+      return { ticket, item };
+    }
+    return null;
+  }
+
+  public setKdsTicketPriority(ticketId: string, isUrgent: boolean, specialNote?: string) {
+    const ticket = (this.data.kdsTickets || []).find((t) => t.id === ticketId);
+    if (ticket) {
+      ticket.isUrgent = isUrgent;
+      if (specialNote) ticket.specialNote = specialNote;
+      this.saveData();
+    }
+    return ticket;
+  }
+
+  // ==========================================
+  // 7. HARDWARE PERIPHERALS & SOCKET DIAGNOSTICS
+  // ==========================================
+  public getPeripherals() {
+    if (!this.data.peripherals) this.data.peripherals = [];
+    return this.data.peripherals;
+  }
+
+  public addPeripheral(device: any) {
+    const count = (this.data.peripherals || []).length + 1;
+    const id = device.id || `DEV-0${count < 10 ? '0' + count : count}`;
+    const newDev = {
+      id,
+      name: device.name || 'Thermal KOT Printer',
+      deviceType: device.deviceType || 'Thermal ESC/POS 80mm',
+      model: device.model || 'Epson TM-T88VI',
+      ipAddress: device.ipAddress || '192.168.1.125:9100',
+      status: device.status || 'online',
+      lastPing: 5,
+      ...device,
+    };
+    if (!this.data.peripherals) this.data.peripherals = [];
+    this.data.peripherals.push(newDev);
+    this.saveData();
+    return newDev;
+  }
+
+  public updatePeripheral(id: string, updates: any) {
+    const dev = (this.data.peripherals || []).find((p) => p.id === id);
+    if (dev) {
+      Object.assign(dev, updates);
+      this.saveData();
+    }
+    return dev;
+  }
+
+  public pingAllPeripherals() {
+    const devices = this.data.peripherals || [];
+    const results = devices.map((d) => {
+      // Simulate live network ping with random jitter (3-12ms)
+      const latencyMs = Math.floor(3 + Math.random() * 8);
+      d.lastPing = latencyMs;
+      return {
+        id: d.id,
+        name: d.name,
+        ip: d.ipAddress,
+        latencyMs,
+        status: d.status,
+        timestamp: new Date().toISOString(),
+      };
+    });
+    this.saveData();
+    return results;
+  }
+
+  public logTestPrint(deviceId: string, title: string) {
+    const dev = (this.data.peripherals || []).find((p) => p.id === deviceId);
+    return {
+      success: true,
+      deviceId,
+      deviceName: dev ? dev.name : 'Printer Device',
+      jobId: `PRINT-${Date.now()}`,
+      title,
+      timestamp: new Date().toISOString(),
+      status: 'SENT_TO_SPOOLER',
+    };
+  }
+
+  // ==========================================
+  // 8. WASTE LOGS & SPOILAGE ANALYTICS
+  // ==========================================
+  public getWasteLogs(category?: string) {
+    const logs = this.data.wasteLogs || [];
+    if (category && category !== 'all') {
+      return logs.filter((l) => (l.category || '').toLowerCase() === category.toLowerCase());
+    }
+    return logs;
+  }
+
+  public getWasteSummary() {
+    const logs = this.data.wasteLogs || [];
+    const totalWasteCost = logs.reduce((acc, l) => acc + (Number(l.cost) || 0), 0);
+    const totalInventoryValuation = (this.data.inventory || []).reduce((acc, i) => acc + (Number(i.valuation) || 0), 0);
+    const wastePercentage = totalInventoryValuation > 0 ? Number(((totalWasteCost / totalInventoryValuation) * 100).toFixed(2)) : 0.74;
+
+    const reasonMap: Record<string, number> = {};
+    logs.forEach((l) => {
+      const r = l.reason || 'General Spoilage';
+      reasonMap[r] = (reasonMap[r] || 0) + (Number(l.cost) || 0);
+    });
+
+    return {
+      totalWasteCost,
+      totalEntries: logs.length,
+      totalInventoryValuation,
+      wastePercentage,
+      reasonBreakdown: Object.entries(reasonMap).map(([reason, cost]) => ({ reason, cost })),
+      recentLogs: logs.slice(0, 10),
+    };
+  }
+
+  // ==========================================
+  // 9. TIP POOL DISTRIBUTION & SHIFT HOURS
+  // ==========================================
+  public getTipPoolSummary() {
+    const orders = this.data.orders || [];
+    const activeStaff = (this.data.staff || []).filter((s) => s.status === 'active');
+    
+    // Calculate total tips from orders (service charge + tips)
+    const totalTipsCollected = orders.reduce((acc, o) => acc + (Number(o.serviceCharge) || 0), 0);
+    const staffCount = activeStaff.length || 1;
+    const sharePerStaff = Math.round(totalTipsCollected / staffCount);
+
+    return {
+      totalTipsCollected,
+      activeStaffCount: staffCount,
+      sharePerStaff,
+      activeStaff: activeStaff.map((s) => ({
+        id: s.id,
+        name: s.name,
+        role: s.role,
+        department: s.department,
+        currentTipsEarned: s.tipsEarned || 0,
+        projectedShare: sharePerStaff,
+      })),
+      recentDistributions: this.data.tipPoolDistributions || [],
+    };
+  }
+
+  public distributeTipPool(distributedBy = 'General Manager') {
+    const summary = this.getTipPoolSummary();
+    const id = `TIP-${Date.now().toString().slice(-4)}`;
+
+    const recipients = summary.activeStaff.map((s) => {
+      const staffMember = (this.data.staff || []).find((st) => st.id === s.id);
+      if (staffMember) {
+        staffMember.tipsEarned = (staffMember.tipsEarned || 0) + summary.sharePerStaff;
+      }
+      return {
+        staffId: s.id,
+        name: s.name,
+        amount: summary.sharePerStaff,
+      };
+    });
+
+    const record = {
+      id,
+      date: new Date().toISOString().split('T')[0],
+      shift: 'Dinner Shift Live',
+      totalTipsCollected: summary.totalTipsCollected,
+      staffCount: summary.activeStaffCount,
+      sharePerStaff: summary.sharePerStaff,
+      distributedBy,
+      distributedAt: new Date().toISOString(),
+      recipients,
+    };
+
+    if (!this.data.tipPoolDistributions) this.data.tipPoolDistributions = [];
+    this.data.tipPoolDistributions.unshift(record);
+
+    this.saveData();
+    return record;
+  }
+
+  // ==========================================
+  // 10. TABLE AVAILABILITY & DEPOSIT METHODS
+  // ==========================================
+  public checkTableAvailability(tableId: string, date: string, timeSlot: string, pax = 2) {
+    const cleanTable = tableId.replace('Table ', '').trim();
+    const reservations = this.data.reservations || [];
+    const floorTables = this.data.floorTables || [];
+
+    const tableObj = floorTables.find((t) => t.id === cleanTable || t.name === cleanTable);
+    if (!tableObj) {
+      return { available: false, reason: `Table ${cleanTable} does not exist on the floor` };
+    }
+
+    if (pax > tableObj.capacity) {
+      return { available: false, reason: `Table ${cleanTable} has capacity of ${tableObj.capacity} Pax, but party size is ${pax}` };
+    }
+
+    // Check for conflicting reservation at same date & timeSlot
+    const conflict = reservations.find(
+      (r) => (r.table && r.table.includes(cleanTable)) && r.date === date && r.timeSlot.includes(timeSlot.split(' ')[0]) && r.status !== 'cancelled'
+    );
+
+    if (conflict) {
+      return {
+        available: false,
+        reason: `Table ${cleanTable} is already reserved by ${conflict.guestName} at ${conflict.timeSlot}`,
+        conflictWith: conflict,
+      };
+    }
+
+    return {
+      available: true,
+      table: tableObj,
+      suggestedDeposit: pax >= 6 ? 2000 : 1000,
+    };
+  }
+
+  public recordReservationDeposit(reservationId: string, amount: number, paymentMethod = 'UPI') {
+    const res = (this.data.reservations || []).find((r) => r.id === reservationId);
+    const id = `DEP-${Math.floor(400 + Math.random() * 600)}`;
+
+    const deposit = {
+      id,
+      reservationId,
+      guestName: res ? res.guestName : 'Guest',
+      amount: Number(amount) || 1000,
+      paymentMethod,
+      status: 'secured',
+      transactionRef: `DEP-TXN-${Date.now().toString().slice(-6)}`,
+      date: res ? res.date : new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!this.data.reservationDeposits) this.data.reservationDeposits = [];
+    this.data.reservationDeposits.unshift(deposit);
+
+    if (res) {
+      res.depositAmount = amount;
+      res.depositStatus = 'secured';
+      res.status = 'confirmed';
+    }
+
+    this.saveData();
+    return deposit;
+  }
+
+  public getReservationDeposits() {
+    if (!this.data.reservationDeposits) this.data.reservationDeposits = [];
+    return this.data.reservationDeposits;
+  }
+
+  // ==========================================
+  // 11. KDS EXPO AGGREGATOR ENGINE
+  // ==========================================
+  public getKdsExpoSummary() {
+    const activeTickets = (this.data.kdsTickets || []).filter((t) => t.status !== 'ready' && t.status !== 'completed');
+    const stationMap: Record<string, { station: string; pendingItemsCount: number; dishes: Record<string, number> }> = {
+      Tandoor: { station: 'Tandoor', pendingItemsCount: 0, dishes: {} },
+      Curry: { station: 'Curry', pendingItemsCount: 0, dishes: {} },
+      Bar: { station: 'Bar', pendingItemsCount: 0, dishes: {} },
+      Pantry: { station: 'Pantry', pendingItemsCount: 0, dishes: {} },
+      Dessert: { station: 'Dessert', pendingItemsCount: 0, dishes: {} },
+    };
+
+    const overallDishes: Record<string, { name: string; station: string; totalQty: number; ticketCount: number }> = {};
+    let oldestWaitMinutes = 0;
+    let urgentTicketsCount = 0;
+
+    activeTickets.forEach((t) => {
+      if (t.isUrgent) urgentTicketsCount += 1;
+      const elapsed = Number(t.elapsedMinutes) || 1;
+      if (elapsed > oldestWaitMinutes) oldestWaitMinutes = elapsed;
+
+      (t.items || []).forEach((it: any) => {
+        if (!it.isDone) {
+          const st = it.station || 'Curry';
+          if (!stationMap[st]) {
+            stationMap[st] = { station: st, pendingItemsCount: 0, dishes: {} };
+          }
+          stationMap[st].pendingItemsCount += (it.qty || 1);
+          stationMap[st].dishes[it.name] = (stationMap[st].dishes[it.name] || 0) + (it.qty || 1);
+
+          if (!overallDishes[it.name]) {
+            overallDishes[it.name] = { name: it.name, station: st, totalQty: 0, ticketCount: 0 };
+          }
+          overallDishes[it.name].totalQty += (it.qty || 1);
+          overallDishes[it.name].ticketCount += 1;
+        }
+      });
+    });
+
+    return {
+      activeTicketsCount: activeTickets.length,
+      urgentTicketsCount,
+      oldestWaitMinutes,
+      stations: Object.values(stationMap),
+      aggregatedDishes: Object.values(overallDishes).sort((a, b) => b.totalQty - a.totalQty),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  // ==========================================
+  // 12. ORDER ITEM VOIDING & INVENTORY REFUND
+  // ==========================================
+  public voidOrderItem(orderId: string, itemId: string, reason = 'Customer cancelled item') {
+    const order = this.getOrderById(orderId);
+    if (!order || !Array.isArray(order.lineItems)) return null;
+
+    const itemIndex = order.lineItems.findIndex((li: any) => li.id === itemId || li.name === itemId);
+    if (itemIndex === -1) return null;
+
+    const itemToVoid = order.lineItems[itemIndex];
+    order.lineItems.splice(itemIndex, 1);
+
+    // Recalculate order financial totals
+    const subtotal = order.lineItems.reduce((acc: number, li: any) => acc + (li.price * (li.qty || 1)), 0);
+    const taxes = Math.round(subtotal * 0.05);
+    const serviceCharge = Math.round(subtotal * 0.05);
+    const total = subtotal + taxes + serviceCharge;
+
+    order.subtotal = subtotal;
+    order.taxes = taxes;
+    order.serviceCharge = serviceCharge;
+    order.total = total;
+    order.itemsCount = order.lineItems.length;
+    order.itemsSummary = order.lineItems.map((li: any) => `${li.qty}x ${li.name}`).join(', ') || 'No active items';
+
+    // Refund raw inventory ingredients back into stock!
+    const dish = (this.data.menuItems || []).find((m) => m.name.toLowerCase() === itemToVoid.name.toLowerCase());
+    const refundedIngredients: any[] = [];
+
+    if (dish && Array.isArray(dish.recipeIngredients)) {
+      dish.recipeIngredients.forEach((ri: any) => {
+        const ing = this.data.inventory.find((i) => i.id === ri.ingredientId);
+        if (ing) {
+          const refundQty = (ri.qty || 0.1) * (itemToVoid.qty || 1);
+          this.receiveStock(ing.id, refundQty);
+          refundedIngredients.push({ name: ing.name, refundedQty });
+        }
+      });
+    }
+
+    // Log wastage / cancellation record
+    this.logWastage(itemToVoid.name, `${itemToVoid.qty || 1} portions`, `Voided from ${orderId}: ${reason}`, Math.round(itemToVoid.price * 0.3));
+
+    // Update corresponding KDS ticket item if exists
+    const kds = (this.data.kdsTickets || []).find((t) => t.orderId === orderId);
+    if (kds && Array.isArray(kds.items)) {
+      const kIndex = kds.items.findIndex((ki: any) => ki.name === itemToVoid.name);
+      if (kIndex !== -1) {
+        kds.items.splice(kIndex, 1);
+      }
+    }
+
+    this.recalculateAnalytics();
+    this.saveData();
+
+    return {
+      order,
+      voidedItem: itemToVoid,
+      refundedIngredients,
+      newTotal: total,
+    };
+  }
+
+  public addItemsToOrder(orderId: string, newItems: any[]) {
+    const order = this.getOrderById(orderId);
+    if (!order) return null;
+
+    if (!Array.isArray(order.lineItems)) order.lineItems = [];
+
+    newItems.forEach((it: any, idx: number) => {
+      order.lineItems.push({
+        id: `li-${Date.now()}-${idx}`,
+        name: it.name,
+        qty: Number(it.qty) || 1,
+        price: Number(it.price) || 200,
+        station: it.station || 'Curry',
+        status: 'Fired to line',
+        modifiers: it.modifiers,
+      });
+    });
+
+    // Deduct stock for new items
+    this.deductInventoryForOrder(newItems);
+
+    // Recalculate totals
+    const subtotal = order.lineItems.reduce((acc: number, li: any) => acc + (li.price * (li.qty || 1)), 0);
+    const taxes = Math.round(subtotal * 0.05);
+    const serviceCharge = Math.round(subtotal * 0.05);
+    const total = subtotal + taxes + serviceCharge;
+
+    order.subtotal = subtotal;
+    order.taxes = taxes;
+    order.serviceCharge = serviceCharge;
+    order.total = total;
+    order.itemsCount = order.lineItems.length;
+    order.itemsSummary = order.lineItems.map((li: any) => `${li.qty}x ${li.name}`).join(', ');
+
+    // Append to KDS ticket
+    const kds = (this.data.kdsTickets || []).find((t) => t.orderId === orderId);
+    if (kds) {
+      newItems.forEach((it: any, idx: number) => {
+        kds.items.push({
+          id: `k-${Date.now()}-${idx}`,
+          name: it.name,
+          qty: it.qty || 1,
+          station: it.station || 'Curry',
+          isDone: false,
+          modifiers: it.modifiers,
+        });
+      });
+    }
+
+    this.recalculateAnalytics();
+    this.saveData();
+    return order;
+  }
+
+  // ==========================================
+  // 13. TABLE SEATING SESSIONS & ANALYTICS
+  // ==========================================
+  public startTableSession(tableId: string, pax = 2, server = 'Floor Staff', customerName = 'Walk-in Guests') {
+    const cleanId = tableId.replace('Table ', '').trim();
+    if (!this.data.tableSessions) this.data.tableSessions = [];
+
+    const id = `SESS-${Date.now().toString().slice(-4)}`;
+    const session = {
+      id,
+      tableId: cleanId,
+      tableName: `Table ${cleanId}`,
+      section: (this.getTableById(cleanId)?.section) || 'main',
+      pax: Number(pax) || 2,
+      server,
+      customerName,
+      seatedAt: new Date().toISOString(),
+      releasedAt: null,
+      durationMinutes: 1,
+      totalBill: 0,
+      status: 'active',
+    };
+
+    this.data.tableSessions.unshift(session);
+    this.saveData();
+    return session;
+  }
+
+  public endTableSession(tableId: string, totalBill = 0) {
+    const cleanId = tableId.replace('Table ', '').trim();
+    const session = (this.data.tableSessions || []).find((s) => s.tableId === cleanId && s.status === 'active');
+
+    if (session) {
+      session.releasedAt = new Date().toISOString();
+      session.status = 'completed';
+      session.totalBill = Number(totalBill) || session.totalBill || 0;
+      const seatedTime = new Date(session.seatedAt).getTime();
+      session.durationMinutes = Math.max(1, Math.round((Date.now() - seatedTime) / 60000));
+      this.saveData();
+      return session;
+    }
+    return null;
+  }
+
+  public getTableAnalytics() {
+    const sessions = this.data.tableSessions || [];
+    const completedSessions = sessions.filter((s) => s.status === 'completed');
+    const totalTurnoversToday = sessions.length;
+
+    let totalDuration = 0;
+    completedSessions.forEach((s) => {
+      totalDuration += (s.durationMinutes || 45);
+    });
+
+    const avgTurnaroundMinutes = completedSessions.length > 0 ? Math.round(totalDuration / completedSessions.length) : 42;
+
+    const sectionDurationMap: Record<string, { count: number; totalDuration: number }> = {};
+    sessions.forEach((s) => {
+      const sec = s.section || 'main';
+      if (!sectionDurationMap[sec]) sectionDurationMap[sec] = { count: 0, totalDuration: 0 };
+      sectionDurationMap[sec].count += 1;
+      sectionDurationMap[sec].totalDuration += (s.durationMinutes || 30);
+    });
+
+    return {
+      totalTurnoversToday,
+      activeSessionsCount: sessions.filter((s) => s.status === 'active').length,
+      avgTurnaroundMinutes: `${avgTurnaroundMinutes}m`,
+      sectionTurnovers: Object.entries(sectionDurationMap).map(([section, data]) => ({
+        section,
+        turnovers: data.count,
+        avgMinutes: data.count > 0 ? Math.round(data.totalDuration / data.count) : 0,
+      })),
+      recentSessions: sessions.slice(0, 10),
+    };
+  }
+
+  // ==========================================
+  // 14. KDS SLA BREACH LOGS & TIMING
+  // ==========================================
+  public getKdsSlaMetrics() {
+    const logs = this.data.kdsSlaLogs || [];
+    const totalCompletedTickets = logs.length;
+    const onTimeTickets = logs.filter((l) => l.onTime).length;
+    const onTimePercentage = totalCompletedTickets > 0 ? Number(((onTimeTickets / totalCompletedTickets) * 100).toFixed(1)) : 94.2;
+
+    const totalPrepTime = logs.reduce((acc, l) => acc + (Number(l.actualMinutes) || 12), 0);
+    const avgPrepMinutes = totalCompletedTickets > 0 ? Number((totalPrepTime / totalCompletedTickets).toFixed(1)) : 11.8;
+
+    return {
+      totalCompletedTickets,
+      onTimeTickets,
+      overdueTickets: totalCompletedTickets - onTimeTickets,
+      onTimePercentage,
+      avgPrepMinutes,
+      targetSlaMinutes: 15,
+      slaHistory: logs.slice(0, 15),
+    };
+  }
+
+  // ==========================================
+  // 15. PURCHASE ORDER RECEIVING & STOCK INGESTION
+  // ==========================================
+  public receivePurchaseOrder(poNumber: string, notes = 'Supplier shipment inspected and received') {
+    const pos = this.data.purchaseOrders || [];
+    const po = pos.find((p) => p.poNumber === poNumber);
+    if (!po) return null;
+
+    po.status = 'RECEIVED';
+    po.receivedAt = new Date().toISOString();
+    po.receiverNotes = notes;
+
+    const ingestedItems: any[] = [];
+
+    // Automatically ingest each line item into raw inventory!
+    if (Array.isArray(po.lineItems)) {
+      po.lineItems.forEach((item: any) => {
+        const rawName = item.name.replace(/\+/, '').trim();
+        const ing = this.data.inventory.find((i) => rawName.toLowerCase().includes(i.name.toLowerCase()) || i.name.toLowerCase().includes(rawName.toLowerCase()));
+
+        if (ing) {
+          const qtyNumber = parseFloat(item.quantity?.replace(/[^0-9.]/g, '') || '10');
+          this.receiveStock(ing.id, qtyNumber);
+          ingestedItems.push({ ingredientId: ing.id, name: ing.name, qtyAdded: qtyNumber, newStock: ing.currentStock });
+        }
+      });
+    }
+
+    this.saveData();
+    return { po, ingestedItems };
+  }
+
+  public cancelPurchaseOrder(poNumber: string, reason = 'Cancelled by purchase manager') {
+    const pos = this.data.purchaseOrders || [];
+    const po = pos.find((p) => p.poNumber === poNumber);
+    if (!po) return null;
+
+    po.status = 'CANCELLED';
+    po.cancelledAt = new Date().toISOString();
+    po.cancelReason = reason;
+
+    this.saveData();
+    return po;
+  }
+
+  // ==========================================
+  // 16. MARKETING CAMPAIGNS & BROADCAST
+  // ==========================================
+  public createAndSendCampaign(campaignData: any) {
+    const customers = this.data.customers || [];
+    const targetTier = campaignData.targetTier || 'All';
+
+    const targetedGuests = customers.filter((c) => {
+      if (targetTier === 'All' || targetTier === 'all') return true;
+      if (targetTier.includes('Platinum') && c.tier === 'Platinum') return true;
+      if (targetTier.includes('Gold') && (c.tier === 'Gold' || c.tier === 'Platinum')) return true;
+      return c.tier?.toLowerCase() === targetTier.toLowerCase();
+    });
+
+    const id = `CMP-${Math.floor(800 + Math.random() * 200)}`;
+    const newCampaign = {
+      id,
+      title: campaignData.title || 'Special Dining Invitation',
+      channel: campaignData.channel || 'WhatsApp & SMS',
+      targetTier,
+      targetAudienceCount: targetedGuests.length,
+      template: campaignData.template || 'Namaste {{guest_name}}! Join us at SpiceRoute Kitchen for signature dining specials!',
+      status: 'SENT',
+      dispatchedAt: new Date().toISOString(),
+      deliveredCount: targetedGuests.length,
+      readCount: Math.round(targetedGuests.length * 0.86),
+      conversions: Math.round(targetedGuests.length * 0.12),
+    };
+
+    if (!this.data.marketingCampaigns) this.data.marketingCampaigns = [];
+    this.data.marketingCampaigns.unshift(newCampaign);
+    this.saveData();
+
+    return {
+      campaign: newCampaign,
+      recipients: targetedGuests.map((g) => ({ name: g.name, phone: g.phone, tier: g.tier })),
+    };
+  }
+
+  public getCampaigns() {
+    if (!this.data.marketingCampaigns) this.data.marketingCampaigns = [];
+    return this.data.marketingCampaigns;
+  }
+
+  // ==========================================
+  // 17. CASH DRAWER TILL SESSIONS & RECONCILIATION
+  // ==========================================
+  public getTillStatus() {
+    if (!this.data.tillSessions) this.data.tillSessions = [];
+    const activeTill = this.data.tillSessions.find((t) => t.status === 'open') || this.data.tillSessions[0];
+
+    const orders = this.data.orders || [];
+    const cashOrders = orders.filter((o) => (o.paymentMethod || '').toLowerCase().includes('cash') && o.paymentStatus === 'paid');
+    const cashCollected = cashOrders.reduce((acc, o) => acc + (Number(o.total) || 0), 0);
+
+    const openingFloat = activeTill ? (activeTill.openingFloat || 5000) : 5000;
+    const currentExpectedCash = openingFloat + cashCollected;
+
+    return {
+      activeTill,
+      openingFloat,
+      cashSalesCount: cashOrders.length,
+      cashCollected,
+      currentExpectedCash,
+      tillStatus: activeTill?.status || 'open',
+    };
+  }
+
+  public openTillSession(cashierName = 'Counter Cashier', openingFloat = 5000) {
+    if (!this.data.tillSessions) this.data.tillSessions = [];
+    const id = `TILL-${Math.floor(900 + Math.random() * 100)}`;
+
+    const session = {
+      id,
+      date: new Date().toISOString().split('T')[0],
+      shift: 'Live Counter Shift',
+      cashierName,
+      openingFloat: Number(openingFloat) || 5000,
+      cashSalesCollected: 0,
+      cashPayouts: 0,
+      expectedCash: Number(openingFloat) || 5000,
+      actualCountedCash: Number(openingFloat) || 5000,
+      discrepancy: 0,
+      status: 'open',
+      openedAt: new Date().toISOString(),
+      closedAt: null,
+    };
+
+    this.data.tillSessions.unshift(session);
+    this.saveData();
+    return session;
+  }
+
+  public closeTillSession(actualCountedCash: number, notes = 'End of shift drawer balancing') {
+    const tillInfo = this.getTillStatus();
+    const session = tillInfo.activeTill;
+    if (!session) return null;
+
+    session.status = 'closed';
+    session.closedAt = new Date().toISOString();
+    session.actualCountedCash = Number(actualCountedCash);
+    session.expectedCash = tillInfo.currentExpectedCash;
+    session.discrepancy = Number((actualCountedCash - tillInfo.currentExpectedCash).toFixed(2));
+    session.closingNotes = notes;
+
+    this.saveData();
+    return session;
+  }
+
+  // ==========================================
+  // 18. CUSTOMER ALLERGENS & DIETARY WARNINGS
+  // ==========================================
+  public checkAllergenConflict(customerIdentifier: string, dishNames: string[]) {
+    const cust = (this.data.customers || []).find(
+      (c) => c.id === customerIdentifier || c.phone === customerIdentifier || c.name.toLowerCase() === customerIdentifier.toLowerCase()
+    );
+
+    const warnings: Array<{ dish: string; allergen: string; severity: 'HIGH_ALERT' | 'PREFERENCE' }> = [];
+    const tags = cust?.dietaryTags || [];
+
+    for (const dishName of dishNames) {
+      const lowerDish = dishName.toLowerCase();
+      const menuDish = (this.data.menuItems || []).find((m) => m.name.toLowerCase().includes(lowerDish));
+
+      for (const tag of tags) {
+        const lowerTag = tag.toLowerCase();
+        if (lowerTag.includes('gluten') && (lowerDish.includes('naan') || lowerDish.includes('roti') || lowerDish.includes('pizza'))) {
+          warnings.push({ dish: dishName, allergen: 'Gluten / Wheat Flour in Tandoor Dough', severity: 'HIGH_ALERT' });
+        }
+        if (lowerTag.includes('veg') && menuDish && !menuDish.isVeg) {
+          warnings.push({ dish: dishName, allergen: 'Non-Vegetarian Ingredient for Vegetarian Guest', severity: 'HIGH_ALERT' });
+        }
+        if (lowerTag.includes('peanut') || lowerTag.includes('nut')) {
+          if (lowerDish.includes('butter chicken') || lowerDish.includes('korma')) {
+            warnings.push({ dish: dishName, allergen: 'Nut / Cashew paste in gravy base', severity: 'HIGH_ALERT' });
+          }
+        }
+      }
+    }
+
+    return {
+      hasConflict: warnings.length > 0,
+      customerName: cust?.name || 'Guest',
+      dietaryTags: tags,
+      warnings,
+    };
+  }
+
+  // ==========================================
+  // 19. WEATHER PREP FORECASTER
+  // ==========================================
+  public getWeatherPrepForecast(temperature = 26, weatherCode = 0) {
+    let forecastTitle = 'Standard Fair Weather Shift';
+    let beverageAdjustment = 'Normal PAR levels';
+    let tandoorAdjustment = 'Normal PAR levels';
+    let soupAndStarterDemand = 'Standard volume';
+    let seatingRecommendation = '100% Outdoor & Indoor operational';
+
+    if (weatherCode >= 51 && weatherCode <= 67) {
+      forecastTitle = 'Rainy Evening Dining Surge';
+      tandoorAdjustment = '+35% Tandoori Tikka & Hot Karahi demand';
+      soupAndStarterDemand = '+40% Hot Soups & Kebabs';
+      beverageAdjustment = '-20% Cold Beverages / Shift to Hot Masala Chai';
+      seatingRecommendation = 'Move all outdoor patio reservations to indoor hall';
+    } else if (temperature > 32) {
+      forecastTitle = 'Hot Summer Afternoon Wave';
+      beverageAdjustment = '+45% Cold Mocktail & Lassi pre-batching recommended';
+      soupAndStarterDemand = 'Higher Salad & Cold Appetizer orders';
+      seatingRecommendation = 'Activate indoor AC zones & mist cooling';
+    }
+
+    return {
+      temperature,
+      weatherCode,
+      forecastTitle,
+      recommendations: [
+        { department: 'Tandoor Station', action: tandoorAdjustment },
+        { department: 'Pantry & Bar', action: beverageAdjustment },
+        { department: 'Curry Station', action: soupAndStarterDemand },
+        { department: 'Floor Seating', action: seatingRecommendation },
+      ],
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  // ==========================================
+  // 20. UNIVERSAL FULL-TEXT SEARCH
+  // ==========================================
+  public universalSearch(query: string) {
+    const raw = (query || '').trim().toLowerCase();
+    if (!raw) return [];
+    // Normalize: allow "#10482" to match "ORD-10482", strip leading #/ord- noise variants
+    const q = raw.replace(/^#/, '');
+    const str = (v: any) => String(v ?? '').toLowerCase();
+
+    const results: Array<{ type: string; title: string; subtitle: string; icon: string; id: string }> = [];
+
+    // 1. Tables
+    (this.data.floorTables || []).forEach((t) => {
+      if (str(t.name).includes(q) || str(t.customerName).includes(q) || str(t.section).includes(q) || str(t.id).includes(q)) {
+        results.push({
+          type: 'table',
+          id: String(t.id ?? t.name ?? ''),
+          title: `Table ${t.name || t.id}`,
+          subtitle: `${String(t.status || 'unknown').toUpperCase()} · ${t.capacity ?? '?'} Pax · Section: ${t.section || 'main'}${t.customerName ? ` · ${t.customerName}` : ''}`,
+          icon: 'table_restaurant',
+        });
+      }
+    });
+
+    // 2. Orders
+    (this.data.orders || []).forEach((o) => {
+      if (str(o.id).includes(q) || str(o.customer).includes(q) || str(o.table).includes(q) || str(o.itemsSummary).includes(q) || str(o.phone).includes(q)) {
+        results.push({
+          type: 'order',
+          id: String(o.id ?? ''),
+          title: String(o.id ?? 'Order'),
+          subtitle: `${o.customer || 'Walk-in'} · ${o.table || 'Takeaway'} · ₹${o.total || 0} (${o.kitchenStatus || 'new'})`,
+          icon: 'receipt_long',
+        });
+      }
+    });
+
+    // 3. Menu Items
+    (this.data.menuItems || []).forEach((m) => {
+      if (str(m.name).includes(q) || str(m.category).includes(q) || str(m.description).includes(q)) {
+        results.push({
+          type: 'dish',
+          id: String(m.id ?? m.name ?? ''),
+          title: String(m.name ?? 'Dish'),
+          subtitle: `₹${m.price ?? 0} · ${m.category || 'menu'} · ${m.isVeg ? 'Veg' : 'Non-Veg'} · Margin ${m.marginPct || 70}%`,
+          icon: 'restaurant_menu',
+        });
+      }
+    });
+
+    // 4. Customers
+    (this.data.customers || []).forEach((c) => {
+      if (str(c.name).includes(q) || str(c.phone).includes(q) || str(c.tier).includes(q)) {
+        results.push({
+          type: 'guest',
+          id: String(c.id ?? c.phone ?? c.name ?? ''),
+          title: String(c.name ?? 'Guest'),
+          subtitle: `${c.tier || 'Standard'} Member · ${c.phone || 'no phone'} · ${c.points || 0} pts`,
+          icon: 'person',
+        });
+      }
+    });
+
+    // 5. Staff
+    (this.data.staff || []).forEach((s) => {
+      if (str(s.name).includes(q) || str(s.role).includes(q) || str(s.department).includes(q)) {
+        results.push({
+          type: 'staff',
+          id: String(s.id ?? s.name ?? ''),
+          title: String(s.name ?? 'Staff'),
+          subtitle: `${s.role || 'Staff'} · ${s.department || ''} · ${s.station || ''}`.trim(),
+          icon: 'badge',
+        });
+      }
+    });
+
+    return results.slice(0, 15);
   }
 
   // Settings

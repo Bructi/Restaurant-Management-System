@@ -20,6 +20,7 @@ interface MenuItemDetail {
   onlineActive: boolean;
   imageUrl: string;
   description: string;
+  recipeIngredients?: any[];
 }
 
 const MOCK_CATALOG: MenuItemDetail[] = [
@@ -99,6 +100,8 @@ export const MenuManagementView: React.FC = () => {
   const [dietFilter, setDietFilter] = useState<'all' | 'veg' | 'non-veg' | 'jain'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDishOpen, setIsAddDishOpen] = useState(false);
+  const [selectedRecipeDish, setSelectedRecipeDish] = useState<any | null>(null);
+  const [recipeData, setRecipeData] = useState<any | null>(null);
   const [newDishName, setNewDishName] = useState('');
   const [newDishCategory, setNewDishCategory] = useState('starters');
   const [newDishPrice, setNewDishPrice] = useState(250);
@@ -400,10 +403,29 @@ export const MenuManagementView: React.FC = () => {
                   {dish.id} · GST 5%
                 </span>
                 <button
-                  onClick={() => toast.info(`Editing recipe & cost margins for ${dish.name}`, 'Recipe Editor')}
+                  onClick={async () => {
+                    setSelectedRecipeDish(dish);
+                    try {
+                      const res = await api.getDishRecipe(dish.id);
+                      if (res.success && res.data) {
+                        setRecipeData(res.data);
+                      }
+                    } catch {
+                      setRecipeData({
+                        dishId: dish.id,
+                        dishName: dish.name,
+                        price: dish.price,
+                        calculatedCost: dish.cost,
+                        foodCostPct: dish.foodCostPct,
+                        marginPct: dish.marginPct,
+                        matrixTier: dish.matrixTier,
+                        ingredients: dish.recipeIngredients || [],
+                      });
+                    }
+                  }}
                   className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
                 >
-                  <span>Edit Recipe</span>
+                  <span>Edit Recipe BOM</span>
                   <span className="material-symbols-outlined text-[14px]">edit</span>
                 </button>
               </div>
@@ -565,6 +587,86 @@ export const MenuManagementView: React.FC = () => {
                 className="px-4 py-2 rounded-lg bg-primary-container text-on-primary-container text-sm font-bold shadow-md hover:brightness-110"
               >
                 Add to Menu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Recipe BOM Editor Modal */}
+      {selectedRecipeDish && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-lg bg-surface-container rounded-2xl p-space-lg shadow-2xl border border-surface-container-high flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-3">
+              <div className="flex flex-col">
+                <h3 className="font-headline-md font-bold text-on-surface">
+                  Recipe BOM &amp; Costing: {selectedRecipeDish.name}
+                </h3>
+                <span className="text-xs text-on-surface-variant font-mono">
+                  Price: ₹{selectedRecipeDish.price} · Margin: {recipeData?.marginPct ?? selectedRecipeDish.marginPct}% ({recipeData?.matrixTier ?? selectedRecipeDish.matrixTier})
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedRecipeDish(null);
+                  setRecipeData(null);
+                }}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3 font-body-sm text-xs max-h-72 overflow-y-auto pr-1">
+              <span className="font-bold uppercase text-on-surface-variant">Bill of Materials (BOM Ingredients):</span>
+              {(recipeData?.ingredients || selectedRecipeDish.recipeIngredients || [
+                { ingredientId: 'ING-014', name: 'Fresh Paneer', qty: 0.25, unit: 'kg', unitCost: 320, lineCost: 80 },
+                { ingredientId: 'ING-055', name: 'Salted Butter', qty: 0.05, unit: 'blocks', unitCost: 275, lineCost: 14 },
+              ]).map((ing: any, idx: number) => (
+                <div key={idx} className="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high/30 flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-on-surface text-xs">{ing.name}</span>
+                    <span className="text-[11px] text-on-surface-variant font-mono">
+                      {ing.qty} {ing.unit} @ ₹{ing.unitCost || 200}/{ing.unit}
+                    </span>
+                  </div>
+                  <span className="font-mono font-bold text-primary text-xs">
+                    ₹{ing.lineCost || (ing.qty * (ing.unitCost || 200)).toFixed(1)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-3 bg-surface-container-lowest rounded-xl flex justify-between items-center border border-surface-container-high/40 text-xs font-mono">
+              <span className="text-on-surface-variant font-bold">Calculated Food Cost:</span>
+              <span className="font-black text-primary text-sm">₹{recipeData?.calculatedCost || selectedRecipeDish.cost}</span>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-surface-container-high/40">
+              <button
+                onClick={() => {
+                  setSelectedRecipeDish(null);
+                  setRecipeData(null);
+                }}
+                className="px-4 py-2 rounded-lg bg-surface-container text-on-surface text-sm font-semibold"
+              >
+                Close
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const currentIngredients = recipeData?.ingredients || selectedRecipeDish.recipeIngredients || [];
+                    const res = await api.updateDishRecipe(selectedRecipeDish.id, currentIngredients);
+                    toast.success(res.message || `Recipe BOM for ${selectedRecipeDish.name} saved!`, 'BOM Saved');
+                    setSelectedRecipeDish(null);
+                    setRecipeData(null);
+                    fetchMenu();
+                  } catch (err: any) {
+                    toast.error(err.message || 'Error updating recipe', 'Failed');
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-primary-container text-on-primary-container text-sm font-bold shadow-md hover:brightness-110"
+              >
+                Save Recipe BOM
               </button>
             </div>
           </div>

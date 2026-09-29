@@ -17,13 +17,45 @@ settingsRouter.post('/', (req: Request, res: Response) => {
   res.json({ success: true, message: 'Settings saved', data: updated });
 });
 
-// POST ping all hardware peripherals
+// GET all hardware peripherals
+settingsRouter.get('/peripherals', (_req: Request, res: Response) => {
+  const peripherals = db.getPeripherals();
+  res.json({ success: true, count: peripherals.length, data: peripherals });
+});
+
+// POST add peripheral device
+settingsRouter.post('/peripherals', (req: Request, res: Response) => {
+  try {
+    const dev = db.addPeripheral(req.body);
+    wsHub.broadcast('PERIPHERAL_ADDED', dev);
+    res.status(201).json({ success: true, message: 'Device added to fleet', data: dev });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// PATCH update peripheral status (e.g. online, low_paper, offline)
+settingsRouter.patch('/peripherals/:id', (req: Request, res: Response) => {
+  const dev = db.updatePeripheral(req.params.id, req.body);
+  if (!dev) {
+    return res.status(404).json({ success: false, error: 'Peripheral device not found' });
+  }
+  wsHub.broadcast('PERIPHERAL_UPDATED', dev);
+  res.json({ success: true, message: 'Peripheral status updated', data: dev });
+});
+
+// POST test print job
+settingsRouter.post('/peripherals/:id/test-print', (req: Request, res: Response) => {
+  const { title = 'RestoFlow Alignment Test Page' } = req.body;
+  const result = db.logTestPrint(req.params.id, title);
+  wsHub.broadcast('PRINT_JOB_DISPATCHED', result);
+  res.json(result);
+});
+
+// POST ping all hardware peripherals dynamically
 settingsRouter.post('/ping', (_req: Request, res: Response) => {
-  const results = [
-    { name: 'Billing Master EPSON TM-T88VI', ip: '192.168.1.120:9100', latencyMs: 4, status: 'online' },
-    { name: 'Tandoor & Starters KOT Printer', ip: '192.168.1.121:9100', latencyMs: 8, status: 'low_paper' },
-    { name: 'Curry Station TM-U220B', ip: '192.168.1.122:9100', latencyMs: 6, status: 'online' },
-    { name: 'PineLabs EDC Terminal', ip: 'Cloud Webhook (PL-882194)', latencyMs: 12, status: 'online' },
-  ];
+  const results = db.pingAllPeripherals();
+  wsHub.broadcast('PERIPHERALS_PINGED', results);
   res.json({ success: true, allResponsive: true, data: results });
 });
+

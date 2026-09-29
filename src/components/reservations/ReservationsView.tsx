@@ -604,7 +604,20 @@ export const ReservationsView: React.FC = () => {
                     return;
                   }
                   try {
-                    await api.createReservation({
+                    // Check availability first
+                    const check = await api.checkTableAvailability({
+                      tableId: newTable,
+                      date: '2026-09-16',
+                      timeSlot: newTimeSlot,
+                      pax: newPax,
+                    });
+
+                    if (!check.data.available) {
+                      toast.error(check.data.reason || 'Table is not available for this time slot', 'Booking Conflict');
+                      return;
+                    }
+
+                    const res = await api.createReservation({
                       guestName: newGuestName,
                       phone: newPhone,
                       timeSlot: newTimeSlot,
@@ -614,11 +627,19 @@ export const ReservationsView: React.FC = () => {
                       notes: newNotes,
                       depositAmount: newDeposit,
                     });
+
+                    if (res.data?.id && newDeposit > 0) {
+                      await api.recordReservationDeposit(res.data.id, {
+                        amount: newDeposit,
+                        paymentMethod: 'UPI',
+                      }).catch(() => {});
+                    }
+
                     setIsNewResOpen(false);
                     setNewGuestName('');
                     setNewPhone('');
                     setNewNotes('');
-                    toast.success(`Reservation for ${newGuestName} (${newPax} Pax) confirmed!`, 'Reservation Added');
+                    toast.success(`Reservation for ${newGuestName} (${newPax} Pax) confirmed with ₹${newDeposit} deposit!`, 'Reservation Added');
                     fetchReservations();
                   } catch (err: any) {
                     toast.error(err.message || 'Error creating reservation', 'Failed');

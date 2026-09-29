@@ -32,3 +32,12 @@ analyticsRouter.get('/pipeline', (_req: Request, res: Response) => {
   const pipelineData = db.getPipelineSegments();
   res.json({ success: true, data: pipelineData });
 });
+
+// GET weather-driven dining insights & chef prep suggestions
+analyticsRouter.get('/weather-insights', (req: Request, res: Response) => {
+  const temp = Number(req.query.temp) || 26;
+  const code = Number(req.query.code) || 0;
+  const forecast = db.getWeatherPrepForecast(temp, code);
+  res.json({ success: true, data: forecast });
+});
+

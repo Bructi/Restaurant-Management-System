@@ -473,16 +473,17 @@ export const ReportsAnalyticsView: React.FC = () => {
                     <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
-                <XAxis dataKey="time" stroke="#888" fontSize={11} tickLine={false} />
-                <YAxis stroke="#888" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v / 1000}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
+                <XAxis dataKey="time" stroke="#64748b" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v / 1000}k`} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1f2937',
-                    borderColor: '#374151',
+                    backgroundColor: '#ffffff',
+                    borderColor: '#e2e8f0',
                     borderRadius: '12px',
                     fontSize: '12px',
-                    color: '#fff',
+                    color: '#0f172a',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                   }}
                   formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Hourly Sales']}
                   labelFormatter={(label) => `Time Window: ${label}`}
@@ -521,14 +522,16 @@ export const ReportsAnalyticsView: React.FC = () => {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1f2937',
-                    borderColor: '#374151',
+                    backgroundColor: '#ffffff',
+                    borderColor: '#e2e8f0',
                     borderRadius: '12px',
                     fontSize: '12px',
+                    color: '#0f172a',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                   }}
                   formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Revenue']}
                 />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '8px', color: '#475569' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -565,15 +568,17 @@ export const ReportsAnalyticsView: React.FC = () => {
           <div className="w-full h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={DISH_MARGIN_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.3} />
-                <XAxis dataKey="name" stroke="#888" fontSize={11} tickLine={false} />
-                <YAxis stroke="#888" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v / 1000}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
+                <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} />
+                <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v / 1000}k`} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1f2937',
-                    borderColor: '#374151',
+                    backgroundColor: '#ffffff',
+                    borderColor: '#e2e8f0',
                     borderRadius: '12px',
                     fontSize: '12px',
+                    color: '#0f172a',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                   }}
                   formatter={(val: any, name: any) => [`₹${Number(val).toLocaleString('en-IN')}`, name === 'revenue' ? 'Sales Revenue' : 'COGS Cost']}
                 />

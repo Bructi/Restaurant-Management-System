@@ -11,6 +11,31 @@ reservationsRouter.get('/', (_req: Request, res: Response) => {
   res.json({ success: true, count: reservations.length, data: reservations });
 });
 
+// GET all reservation deposits
+reservationsRouter.get('/deposits', (_req: Request, res: Response) => {
+  const deposits = db.getReservationDeposits();
+  res.json({ success: true, count: deposits.length, data: deposits });
+});
+
+// POST check table availability for reservation
+reservationsRouter.post('/check-availability', (req: Request, res: Response) => {
+  const { tableId, date, timeSlot, pax } = req.body;
+  if (!tableId || !date || !timeSlot) {
+    return res.status(400).json({ success: false, error: 'tableId, date, and timeSlot are required' });
+  }
+
+  const result = db.checkTableAvailability(tableId, date, timeSlot, Number(pax) || 2);
+  res.json({ success: true, data: result });
+});
+
+// POST record reservation deposit
+reservationsRouter.post('/:id/deposit', (req: Request, res: Response) => {
+  const { amount, paymentMethod } = req.body;
+  const deposit = db.recordReservationDeposit(req.params.id, Number(amount) || 1000, paymentMethod || 'UPI');
+  wsHub.broadcast('RESERVATION_DEPOSIT_RECORDED', deposit);
+  res.status(201).json({ success: true, message: 'Deposit recorded successfully', data: deposit });
+});
+
 // POST new reservation
 reservationsRouter.post('/', async (req: Request, res: Response) => {
   try {

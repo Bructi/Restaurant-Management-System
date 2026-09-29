@@ -19,13 +19,11 @@ export interface UserProfile {
 export const DEMO_ADMIN_USERS: UserProfile[] = [
   {
     id: 'ADMIN-001',
-    name: 'Aniket Sharma',
-    email: 'aniket.manager@restoflow.internal',
+    name: 'General Manager',
+    email: 'manager@restoflow.com',
     userType: 'admin',
     role: 'General Manager & Owner',
     pinAuthLevel: 'Master (L4)',
-    avatarUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBRIY9O8ZI5EoAGNW7e10RLz47BWjjbevkW-yhUUoEcK8OoVTQESuutdLaBXGbzvMpQamrJ7BYNwDXnh6PLuX9LmWWN3I0SH6yQS-e7WbTqzZCT_Piwa0WV8pQfjSvEs508f0VmWTfcoOpH97UGtZWWFzXWEy8jjsIXKfgZN77uAQJuFwRbNPRJaxC4_TrGv_KcouVXj55Y1IGIP1uE-0jw1eZWhWJNsdrvci2QVBf9jadgc_pAl6H-',
   },
 ];
 
@@ -66,8 +64,6 @@ export const DEMO_CUSTOMER_USERS: UserProfile[] = [
     role: 'Gold VIP Member',
     vipTier: 'Gold',
     loyaltyPoints: 3640,
-    avatarUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuCt6tS1yZeVJXYs7xnTN1ccvHa2HW2saDI3CsZiEgyQpS9cf75gOQWe5gm_HVxvY5TfSP3mUaHKQ8UnRKrpZ9Dn8Fj0mZvYFKUwDhYqb81xz4RPZsnyXTofmCcDaPPmvH9yyKK0DwKET7UtFW7mdiCHDNaPenqqjyDVtmrNpWWhwtBoreECBuC21r4YOYhmEiNPc_4HE76B3ZKmgXlKMjbZKR5S4nshmDa2oQ4SO9jom5MsfNTDtFfF',
   },
   {
     id: 'CUST-801',
@@ -131,9 +127,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(() => {
     try {
       const stored = localStorage.getItem(STORED_USER_KEY);
-      return stored ? JSON.parse(stored) : DEMO_ADMIN_USERS[0];
+      return stored ? JSON.parse(stored) : null;
     } catch {
-      return DEMO_ADMIN_USERS[0];
+      return null;
     }
   });
   const [loading, setLoading] = useState(true);

@@ -100,8 +100,20 @@ export const InventoryManagementView: React.FC = () => {
   const [wasteReason, setWasteReason] = useState('Expiry / Shelf life exceeded');
   const [wasteCost, setWasteCost] = useState(480);
   const [runningN8nSupply, setRunningN8nSupply] = useState(false);
-  const [inventoryTab, setInventoryTab] = useState<'stock' | 'pos' | 'suppliers'>('stock');
+  const [inventoryTab, setInventoryTab] = useState<'stock' | 'pos' | 'suppliers' | 'waste'>('stock');
   const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
+  const [wasteLogsList, setWasteLogsList] = useState<any[]>([]);
+  const [wasteSummary, setWasteSummary] = useState<any>(null);
+
+  const fetchWasteData = () => {
+    api.getWasteLogs().then((res) => {
+      if (res.success && res.data) setWasteLogsList(res.data);
+    }).catch(() => {});
+
+    api.getWasteSummary().then((res) => {
+      if (res.success && res.data) setWasteSummary(res.data);
+    }).catch(() => {});
+  };
 
   const handleRunN8nSupply = async () => {
     try {
@@ -141,11 +153,13 @@ export const InventoryManagementView: React.FC = () => {
   useEffect(() => {
     fetchInventory();
     fetchPurchaseOrders();
+    fetchWasteData();
 
     const unsub = subscribeRealtime((event) => {
-      if (event.type === 'STOCK_UPDATED' || event.type === 'INVENTORY_AUTOSUPPLY_COMPLETED') {
+      if (event.type === 'STOCK_UPDATED' || event.type === 'INVENTORY_AUTOSUPPLY_COMPLETED' || event.type === 'WASTE_LOGGED') {
         fetchInventory();
         fetchPurchaseOrders();
+        fetchWasteData();
       }
     });
 
@@ -362,6 +376,7 @@ export const InventoryManagementView: React.FC = () => {
         {[
           { id: 'stock', label: 'Live Ingredients Ledger', icon: 'inventory_2', count: filteredStock.length },
           { id: 'pos', label: 'n8n Purchase Orders Ledger', icon: 'local_shipping', count: purchaseOrders.length, badge: 'Auto-Pilot' },
+          { id: 'waste', label: 'Kitchen Waste Logs & Spoilage', icon: 'delete_sweep', count: wasteLogsList.length },
           { id: 'suppliers', label: 'Certified Supplier Network', icon: 'storefront', count: 6 },
         ].map((tab) => (
           <button
@@ -566,6 +581,27 @@ export const InventoryManagementView: React.FC = () => {
                     <span className="text-xs text-on-surface-variant font-semibold">Total Order Cost:</span>
                     <span className="text-sm font-black font-mono text-primary">₹{po.totalCost?.toLocaleString('en-IN')}</span>
                   </div>
+
+                  {po.status !== 'RECEIVED' && (
+                    <div className="pt-2 border-t border-surface-container-high/30 flex items-center justify-end">
+                      <button
+                        onClick={async () => {
+                          try {
+                            await api.receivePurchaseOrder(po.poNumber, { notes: 'Shipment verified by Store Incharge' });
+                            toast.success(`Received PO ${po.poNumber} & updated inventory stock!`, 'PO Received');
+                            fetchPurchaseOrders();
+                            fetchInventory();
+                          } catch (err: any) {
+                            toast.error(err.message || 'Error receiving PO', 'Failed');
+                          }
+                        }}
+                        className="w-full py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold shadow-sm hover:brightness-110 flex items-center justify-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">inventory</span>
+                        <span>Receive &amp; Ingest to Stock</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -573,7 +609,71 @@ export const InventoryManagementView: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 3: Certified Supplier Network Directory */}
+      {/* Tab 3: Waste Logs & Spoilage Analysis */}
+      {inventoryTab === 'waste' && (
+        <div className="bg-surface-container-low rounded-2xl p-space-md shadow-sm flex flex-col gap-4 border border-surface-container-high/30 animate-fadeIn">
+          <div className="flex items-center justify-between pb-2 border-b border-outline-variant/20">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-error text-[24px]">delete_sweep</span>
+              <div>
+                <h3 className="font-headline-md font-bold text-on-surface">Kitchen Waste &amp; Spoilage Ledger</h3>
+                <p className="text-xs text-on-surface-variant">Real-time loss tracking, scrap analysis, and valuation impact</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsWasteOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-error text-on-error text-xs font-bold flex items-center gap-1.5 shadow-sm hover:brightness-110"
+            >
+              <span className="material-symbols-outlined text-[16px]">add</span>
+              <span>+ Record New Wastage</span>
+            </button>
+          </div>
+
+          {wasteSummary && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 bg-surface-container rounded-xl border border-outline-variant/30 flex justify-between items-center">
+                <span className="text-xs text-on-surface-variant">Total Waste Cost:</span>
+                <span className="font-mono text-sm font-bold text-error">₹{wasteSummary.totalWasteCost?.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="p-3 bg-surface-container rounded-xl border border-outline-variant/30 flex justify-between items-center">
+                <span className="text-xs text-on-surface-variant">Scrap % of Inventory:</span>
+                <span className="font-mono text-sm font-bold text-secondary">{wasteSummary.wastePercentage}%</span>
+              </div>
+              <div className="p-3 bg-surface-container rounded-xl border border-outline-variant/30 flex justify-between items-center">
+                <span className="text-xs text-on-surface-variant">Total Logged Incidents:</span>
+                <span className="font-mono text-sm font-bold text-on-surface">{wasteSummary.totalEntries}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-body-sm">
+              <thead className="bg-surface-container-lowest text-on-surface-variant uppercase text-xs tracking-wider border-b border-surface-container-high/40 font-semibold">
+                <tr>
+                  <th className="py-2.5 px-3">Item Name</th>
+                  <th className="py-2.5 px-3">Wasted Quantity</th>
+                  <th className="py-2.5 px-3">Cost (INR)</th>
+                  <th className="py-2.5 px-3">Reason for Spoilage</th>
+                  <th className="py-2.5 px-3">Logged At</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-surface-container-high/20 text-xs">
+                {wasteLogsList.map((log: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-surface-container transition-colors">
+                    <td className="py-2.5 px-3 font-bold text-on-surface">{log.item}</td>
+                    <td className="py-2.5 px-3 font-mono">{log.qty}</td>
+                    <td className="py-2.5 px-3 font-mono font-bold text-error">₹{log.cost}</td>
+                    <td className="py-2.5 px-3 text-on-surface-variant">{log.reason}</td>
+                    <td className="py-2.5 px-3 font-mono text-on-surface-variant text-[11px]">{new Date(log.loggedAt || Date.now()).toLocaleTimeString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Certified Supplier Network Directory */}
       {inventoryTab === 'suppliers' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 animate-fadeIn">
           {[

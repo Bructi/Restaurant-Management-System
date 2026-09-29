@@ -60,7 +60,7 @@ const MOCK_ORDERS: OrderRecord[] = [
     phone: '+91 98334 11204',
     itemsSummary: 'Tandoori Chicken, Dal Makhani, Roti',
     itemsCount: 3,
-    staff: 'Aniket S.',
+    staff: 'Floor Staff',
     total: 1260,
     paymentStatus: 'unpaid',
     paymentMethod: 'Unpaid',

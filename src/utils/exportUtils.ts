@@ -135,7 +135,7 @@ export function printThermalReceipt(receipt: ThermalReceiptData): void {
   </div>
   <div style="display: flex; justify-content: space-between;" class="small">
     <span><b>Rcpt #:</b> ${receiptNum}</span>
-    <span><b>Server:</b> ${receipt.staff || 'Aniket S.'}</span>
+    <span><b>Server:</b> ${receipt.staff || 'Staff Captain'}</span>
   </div>
   ${receipt.customer ? `<div class="small"><b>Customer:</b> ${receipt.customer} ${receipt.phone ? `(${receipt.phone})` : ''}</div>` : ''}
   <div class="small"><b>Date:</b> ${orderTime}</div>

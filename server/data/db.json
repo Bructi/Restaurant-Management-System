@@ -1,6 +1,49 @@
 {
   "orders": [
     {
+      "id": "#ORD-99060",
+      "createdAt": "2026-09-26T15:02:49.075Z",
+      "time": "8:32 PM",
+      "kitchenStatus": "new",
+      "kitchenTime": "New (1m)",
+      "itemsCount": 3,
+      "itemsSummary": "1x Garlic Naan, 1x Garlic Naan, 1x Butter Chicken",
+      "subtotal": 540,
+      "taxes": 27,
+      "serviceCharge": 27,
+      "total": 594,
+      "table": "Table T07",
+      "tableType": "Dine-In · 4 Pax",
+      "customer": "Aditya Oberoi",
+      "phone": "+91 98330 99443",
+      "staff": "Sunil R.",
+      "paymentStatus": "unpaid",
+      "paymentMethod": "Pending",
+      "lineItems": [
+        {
+          "name": "Garlic Naan",
+          "qty": 1,
+          "price": 80,
+          "station": "Tandoor",
+          "status": "Fired to kitchen"
+        },
+        {
+          "name": "Garlic Naan",
+          "qty": 1,
+          "price": 80,
+          "station": "Tandoor",
+          "status": "Fired to kitchen"
+        },
+        {
+          "name": "Butter Chicken",
+          "qty": 1,
+          "price": 380,
+          "station": "Curry",
+          "status": "Fired to kitchen"
+        }
+      ]
+    },
+    {
       "id": "#ORD-77112",
       "createdAt": "2026-09-17T08:30:50.544Z",
       "time": "2:00 PM",
@@ -106,7 +149,7 @@
       "phone": "+91 98334 11204",
       "itemsSummary": "Tandoori Chicken, Dal Makhani, Roti",
       "itemsCount": 3,
-      "staff": "Aniket S.",
+      "staff": "Floor Staff",
       "total": 1260,
       "subtotal": 1100,
       "taxes": 80,
@@ -252,6 +295,40 @@
   ],
   "kdsTickets": [
     {
+      "id": "#KOT-823",
+      "orderId": "#ORD-99060",
+      "table": "Table T07",
+      "orderType": "Dine-In",
+      "pax": 2,
+      "server": "Sunil R.",
+      "elapsedMinutes": 1,
+      "status": "new",
+      "createdAt": "2026-09-26T15:02:49.140Z",
+      "items": [
+        {
+          "id": "k-1790434969141-0",
+          "name": "Garlic Naan",
+          "qty": 1,
+          "station": "Tandoor",
+          "isDone": false
+        },
+        {
+          "id": "k-1790434969141-1",
+          "name": "Garlic Naan",
+          "qty": 1,
+          "station": "Tandoor",
+          "isDone": false
+        },
+        {
+          "id": "k-1790434969141-2",
+          "name": "Butter Chicken",
+          "qty": 1,
+          "station": "Curry",
+          "isDone": false
+        }
+      ]
+    },
+    {
       "id": "#KOT-936",
       "orderId": "#ORD-77112",
       "table": "Table T-12",
@@ -331,7 +408,7 @@
       "table": "Table T-04",
       "orderType": "Dine-In",
       "pax": 2,
-      "server": "Aniket S.",
+      "server": "Floor Staff",
       "elapsedMinutes": 19,
       "isUrgent": true,
       "status": "cooking",
@@ -444,7 +521,27 @@
       "onlineActive": true,
       "description": "Charcoal-grilled cottage cheese cubes with peppers and mint dip.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuCp_6CFR3E-8f37S3fRDufLwRpCRWr4UmocpRyuHFSetsbzBmXbMkNSBtpShT6_Pft40jHQkyG2WrmcTizjo3WsSl_8Ng48_1mI1U_AplNCGFH1TfIccLd_xFA97TESR97G_CGhbuVeIaM22wXEw1Fi5pYJPRYZFYbz7CY_LeJrT7N06th1UTYmwhkuSXHlwcNED8ZQP3N7yy-MnLV_7Lnk-adRqs0-Q_E21-yTwQONnIY1dwVblzw6",
-      "altText": "Paneer Tikka"
+      "altText": "Paneer Tikka",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-014",
+          "name": "Fresh Paneer (Malai Block)",
+          "qty": 0.25,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-091",
+          "name": "Kashmiri Deggi Mirch Powder",
+          "qty": 0.03,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.04,
+          "unit": "blocks"
+        }
+      ]
     },
     {
       "id": "m2",
@@ -462,7 +559,27 @@
       "onlineActive": true,
       "description": "Tandoori chicken in rich velvety makhani tomato butter gravy.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuDH8LH1fdiIdDAAuM87hOyrSr5o0N_k21tQrJ62lukG9qcewaJ3scqOfcOI8BTTj0kp5I7WxsdMEhkIDsgIddnzgGIkknVVFk4OPoTBnXY1zeyz7kFzDVa_s5BQFHdWy-zQchP8Jki9oFwlcj1REaKmgoXsiKRs4tHCJXUV93jNIH3eTbsjuyD33aqAqPsKcoEtlT-4EGRlxKbXUVTXIGci17x0zWNBxPLSV2-W6Lc90T-fxaV7E-Vq",
-      "altText": "Butter Chicken"
+      "altText": "Butter Chicken",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-008",
+          "name": "Spring Chicken (Skinless Cut)",
+          "qty": 0.35,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.08,
+          "unit": "blocks"
+        },
+        {
+          "ingredientId": "ING-091",
+          "name": "Kashmiri Deggi Mirch Powder",
+          "qty": 0.02,
+          "unit": "kg"
+        }
+      ]
     },
     {
       "id": "m3",
@@ -480,7 +597,27 @@
       "onlineActive": true,
       "description": "Velvety butter gravy with roasted whole spices, fresh cream, and tender soft paneer cubes.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuCt6tS1yZeVJXYs7xnTN1ccvHa2HW2saDI3CsZiEgyQpS9cf75gOQWe5gm_HVxvY5TfSP3mUaHKQ8UnRKrpZ9Dn8Fj0mZvYFKUwDhYqb81xz4RPZsnyXTofmCcDaPPmvH9yyKK0DwKET7UtFW7mdiCHDNaPenqqjyDVtmrNpWWhwtBoreECBuC21r4YOYhmEiNPc_4HE76B3ZKmgXlKMjbZKR5S4nshmDa2oQ4SO9jom5MsfNTDtFfF",
-      "altText": "Paneer Butter Masala"
+      "altText": "Paneer Butter Masala",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-014",
+          "name": "Fresh Paneer (Malai Block)",
+          "qty": 0.25,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.08,
+          "unit": "blocks"
+        },
+        {
+          "ingredientId": "ING-091",
+          "name": "Kashmiri Deggi Mirch Powder",
+          "qty": 0.02,
+          "unit": "kg"
+        }
+      ]
     },
     {
       "id": "m4",
@@ -498,7 +635,27 @@
       "onlineActive": true,
       "description": "Whole spring chicken marinated with Kashmiri deggi mirch and roasted over charcoal.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuCufIW8nyrb93az0RcAMyVwzXqp6w-12rHazdtVueoPFXyz8rp8jtpKSkl6_Y7XOO2LqLrXxOK7EFIwcyNLiqcnbNCNeCw9YqR_wiUfxZt7JKF0PZapMkJelnsOJCMUE8_5Mqr_534FzXzFbyJJD8VdJuevYKcWKpqbEB7rfBCsbKa-mQhVCcgdOK7vTaI7K9DMaxIx5a_1Hdmvm_k6JdUaPc4lRe1zWAO5mEyWK4gsNrXLakk0GXxI",
-      "altText": "Tandoori Chicken"
+      "altText": "Tandoori Chicken",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-008",
+          "name": "Spring Chicken (Skinless Cut)",
+          "qty": 0.5,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-091",
+          "name": "Kashmiri Deggi Mirch Powder",
+          "qty": 0.04,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.02,
+          "unit": "blocks"
+        }
+      ]
     },
     {
       "id": "m5",
@@ -516,7 +673,21 @@
       "onlineActive": true,
       "description": "11-inch thin crust topped with San Marzano tomatoes, bocconcini cheese, and fresh basil.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuAjvcVl0Dd0pb9eeX_hjPlmBqMLYPwwAHc8HtROmwfCNs7n_un5k2lA1ursr96DkhFGiAh8nT7grEk0acpZK5MByfvzNK5U-cYaNxl6aEmdlz4uuHaGrhSE7kZlKlKzmGFhV-KmQugsIRdjxH0clgEzsYx64b8zD_vnb9m6-6B1I2ItJfXVgnq4unxRydNIKkKvN0AZV5eC5hbE2cpnwXPvZExy1rMyr8N7kpG0fSdABO7AI8ySQBjw",
-      "altText": "Margherita Pizza"
+      "altText": "Margherita Pizza",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-014",
+          "name": "Fresh Paneer (Malai Block)",
+          "qty": 0.15,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.04,
+          "unit": "blocks"
+        }
+      ]
     },
     {
       "id": "m6",
@@ -534,7 +705,15 @@
       "onlineActive": true,
       "description": "Warm fried milk dumplings soaked in green cardamom & saffron infused sugar syrup.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuCfS7MBQ6KXSlb_StqI-OQHKbrGZMaMnmGVAd_mGTltJEDQfNYGMgs4iNkbAzug13ZfQSncWAqDm2T_B7bMw9NiHomU3tpRMxttgnvPPnGAE5CiWrYRgXJm1wIT-728DD0m4Y-v7WDGgEAFIKfak7FxiOIGvAZc8bhPJBOAOLCJUzh9jlqW4qfZOSiqR-VBCOaBRBxjQ8ca4X_Dwy65cQOCtGf7eb2UaceqWryfPxBUZwIFuxK_aF33",
-      "altText": "Gulab Jamun"
+      "altText": "Gulab Jamun",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.03,
+          "unit": "blocks"
+        }
+      ]
     },
     {
       "id": "m7",
@@ -552,7 +731,15 @@
       "onlineActive": true,
       "description": "Slow-brewed Assam CTC black tea with crushed ginger, cloves, cinnamon, and whole milk.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuCPRzaZGbWKdYmTmXGIsIB2JzYXr4dtw9FVzIj2FHAYpFyb8fi_yvJsaY71lLvnPGYd_1_3PV8gEnAYzNBQKuWc-8Qw1Ey1UvuzZxpX6mZcyHwALj547f50_uFh8AZ4a0wL8BPknMRyJboOPHc3zX7Sfy1OZU0hHKYRvT_pTK8VA03yguKV4Jh2id0IE2j1ohAccEG9IRgCbpvQybTlN-8-p9Y2mQvyD6Re26YPBGeQOOvJ1fTPYeHq",
-      "altText": "Masala Chai"
+      "altText": "Masala Chai",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-091",
+          "name": "Kashmiri Deggi Mirch Powder",
+          "qty": 0.005,
+          "unit": "kg"
+        }
+      ]
     },
     {
       "id": "m8",
@@ -570,7 +757,15 @@
       "onlineActive": true,
       "description": "Freshly baked tandoori bread brushed with butter and garlic.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuA9PrUCnLDZ8dc0ytNrGsbbI2GnDy44k38_XZUDxdNWj6hYxTUAbxylXQkaJ6q8c_ubW-v_m23TgSScf5uw19nZSsapsF1CuJCjvsePNavpa4tGCnXJJOnSQa-2JTpOd_jCbEAQxshoB4XKQQlMAjMYFGTdWtf7P6NXlc3abJIFwpAVFFjuTHtnV5K38xqHwsZrl8YtbE7nwBpISqsdl48c3bPD-VWW2Zwi0Fl2RZ0AtTaajBFh6EsK",
-      "altText": "Garlic Naan"
+      "altText": "Garlic Naan",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.04,
+          "unit": "blocks"
+        }
+      ]
     },
     {
       "id": "m9",
@@ -588,7 +783,27 @@
       "onlineActive": true,
       "description": "Fragrant basmati rice dum cooked with spiced chicken and caramelised onions.",
       "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuBENWDfx1-d0UWSah0Kgdyaer1PRWXCJeC4hQf9ZyVg2qPQoOixLFLTRdidHssPfL_tRyv6Qs5RAoV8JwV2UtPrDImdSZ-5WiTJKd1y1nuVM-saxxWYA1asa5zFqkALDG0ptHc9g-pwJXl5SkFc6A_Qszb8Tr6Y0qrg7odVsGF6f1LejRHiyTGqdtICtMH8lWeHky0LwakwaMT4-xJhiLDBh2LgTEtNOZbMwemeeAYzjJdEpJSBa6RK",
-      "altText": "Chicken Dum Biryani"
+      "altText": "Chicken Dum Biryani",
+      "recipeIngredients": [
+        {
+          "ingredientId": "ING-032",
+          "name": "Basmati Rice (Daawat Royal)",
+          "qty": 0.2,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-008",
+          "name": "Spring Chicken (Skinless Cut)",
+          "qty": 0.25,
+          "unit": "kg"
+        },
+        {
+          "ingredientId": "ING-055",
+          "name": "Amul Salted Butter (500g)",
+          "qty": 0.03,
+          "unit": "blocks"
+        }
+      ]
     }
   ],
   "floorTables": [
@@ -607,7 +822,7 @@
       "section": "main",
       "status": "occupied",
       "guestsCount": 2,
-      "server": "Aniket S.",
+      "server": "Floor Staff",
       "orderInfo": "Occupied (15m)",
       "amount": 840,
       "timeSeated": "15m"
@@ -627,7 +842,7 @@
       "section": "main",
       "status": "occupied",
       "guestsCount": 2,
-      "server": "Aniket S.",
+      "server": "Floor Staff",
       "orderInfo": "Occupied (ORD-10481)",
       "amount": 1260,
       "timeSeated": "18m"
@@ -658,8 +873,11 @@
       "name": "T07",
       "capacity": 4,
       "section": "main",
-      "status": "available",
-      "orderInfo": "Available"
+      "status": "occupied",
+      "orderInfo": "Occupied · #ORD-99060",
+      "amount": 594,
+      "timeSeated": "Just now",
+      "customerName": "Aditya Oberoi"
     },
     {
       "id": "T08",
@@ -700,7 +918,7 @@
       "section": "main",
       "status": "occupied",
       "guestsCount": 2,
-      "server": "Aniket S.",
+      "server": "Floor Staff",
       "orderInfo": "Occupied",
       "amount": 920,
       "timeSeated": "15m"
@@ -807,7 +1025,7 @@
       "section": "vip",
       "status": "occupied",
       "guestsCount": 6,
-      "server": "Aniket S.",
+      "server": "Floor Staff",
       "orderInfo": "Occupied",
       "amount": 5600,
       "timeSeated": "55m"
@@ -932,12 +1150,12 @@
       "id": "ING-008",
       "name": "Spring Chicken (Skinless Cut)",
       "category": "Meat",
-      "currentStock": 90,
+      "currentStock": 89.4,
       "unit": "kg",
       "parLevel": 40,
       "reorderPoint": 15,
       "unitCost": 220,
-      "valuation": 19800,
+      "valuation": 19668,
       "status": "healthy",
       "supplier": "Suguna Fresh Meats"
     },
@@ -958,12 +1176,12 @@
       "id": "ING-055",
       "name": "Amul Salted Butter (500g)",
       "category": "Dairy",
-      "currentStock": 90,
+      "currentStock": 89.9,
       "unit": "blocks",
       "parLevel": 20,
       "reorderPoint": 5,
       "unitCost": 275,
-      "valuation": 24750,
+      "valuation": 24723,
       "status": "healthy",
       "supplier": "Amul Direct Depot"
     },
@@ -1079,7 +1297,7 @@
   "staff": [
     {
       "id": "EMP-001",
-      "name": "Aniket Sharma",
+      "name": "Operations Manager",
       "role": "General Manager",
       "department": "Management",
       "clockInTime": "11:13 pm IST",
@@ -1162,7 +1380,7 @@
       "deviceType": "Thermal Auto-Cutter",
       "model": "TVS RP-3200 Star",
       "ipAddress": "192.168.1.121:9100",
-      "status": "low_paper",
+      "status": "offline",
       "lastPing": 8
     },
     {
@@ -1185,15 +1403,15 @@
     }
   ],
   "analytics": {
-    "todayRevenue": 49107,
+    "todayRevenue": 49701,
     "yesterdayRevenue": 41050,
-    "totalOrders": 127,
-    "aov": 387,
-    "occupancyPct": 56,
-    "activeTables": 14,
+    "totalOrders": 128,
+    "aov": 388,
+    "occupancyPct": 60,
+    "activeTables": 15,
     "totalTables": 25,
-    "pendingOrdersCount": 7,
-    "mtdRevenue": 491070,
+    "pendingOrdersCount": 8,
+    "mtdRevenue": 497010,
     "foodCostPct": 28.2,
     "netMarginPct": 30,
     "avgTurnaround": "16.4m"
@@ -1309,6 +1527,316 @@
       ],
       "createdAt": "2026-09-17T08:38:13.847Z",
       "status": "DISPATCHED"
+    }
+  ],
+  "coupons": [
+    {
+      "code": "SPICE10",
+      "description": "10% Off Happy Hour & Dining Special",
+      "discountType": "percentage",
+      "discountValue": 10,
+      "minOrderAmount": 300,
+      "maxDiscountAmount": 500,
+      "active": true,
+      "usageCount": 42,
+      "expiryDate": "2026-12-31"
+    },
+    {
+      "code": "WELCOME20",
+      "description": "20% Off First-Time Guest Welcome",
+      "discountType": "percentage",
+      "discountValue": 20,
+      "minOrderAmount": 500,
+      "maxDiscountAmount": 300,
+      "active": true,
+      "usageCount": 18,
+      "expiryDate": "2026-12-31"
+    },
+    {
+      "code": "FESTIVE100",
+      "description": "Flat ₹100 Off on orders above ₹800",
+      "discountType": "fixed",
+      "discountValue": 100,
+      "minOrderAmount": 800,
+      "maxDiscountAmount": 100,
+      "active": true,
+      "usageCount": 29,
+      "expiryDate": "2026-10-31"
+    },
+    {
+      "code": "HAPPYHOUR",
+      "description": "15% Off Afternoon Appetizers & Drinks (3PM - 7PM)",
+      "discountType": "percentage",
+      "discountValue": 15,
+      "minOrderAmount": 400,
+      "maxDiscountAmount": 400,
+      "active": true,
+      "usageCount": 14,
+      "expiryDate": "2026-12-31"
+    }
+  ],
+  "deliveryDrivers": [
+    {
+      "id": "DRV-101",
+      "name": "Ramesh Kumar",
+      "phone": "+91 98450 11992",
+      "vehicle": "EV Bike (KA-01-EA-4921)",
+      "lat": 12.93493972940977,
+      "lng": 77.62530170072297,
+      "status": "on_the_way",
+      "etaMinutes": 7,
+      "activeOrderId": "#ORD-10477",
+      "destination": "Koramangala 4th Block",
+      "customerName": "Amit Joshi",
+      "itemsSummary": "1x Butter Chicken, 2x Naan",
+      "lastPing": "2026-09-26T16:17:35.703Z"
+    },
+    {
+      "id": "DRV-102",
+      "name": "Suresh Gowda",
+      "phone": "+91 98220 44511",
+      "vehicle": "Hero Splendor (KA-03-HJ-8812)",
+      "lat": 12.9784,
+      "lng": 77.6408,
+      "status": "on_the_way",
+      "etaMinutes": 12,
+      "activeOrderId": "#ORD-10476",
+      "destination": "Indiranagar 100ft Road",
+      "customerName": "Sneha Roy",
+      "itemsSummary": "2x Chicken Dum Biryani, 1x Raita",
+      "lastPing": "2026-09-26T16:03:25.011Z"
+    },
+    {
+      "id": "DRV-103",
+      "name": "Vikas Patil",
+      "phone": "+91 98110 33420",
+      "vehicle": "Ather 450X (KA-04-EK-9022)",
+      "lat": 12.9698,
+      "lng": 77.5998,
+      "status": "picking_up",
+      "etaMinutes": 4,
+      "activeOrderId": "#ORD-10474",
+      "destination": "Lavelle Road Residency",
+      "customerName": "Rohan Deshmukh",
+      "itemsSummary": "1x Paneer Tikka, 1x Dal Makhani",
+      "lastPing": "2026-09-26T16:03:25.011Z"
+    },
+    {
+      "id": "DRV-104",
+      "name": "Manjunath R.",
+      "phone": "+91 98990 77112",
+      "vehicle": "TVS iQube (KA-01-MP-1104)",
+      "lat": 12.9716,
+      "lng": 77.5946,
+      "status": "idle",
+      "etaMinutes": 0,
+      "activeOrderId": null,
+      "destination": null,
+      "customerName": null,
+      "itemsSummary": null,
+      "lastPing": "2026-09-26T16:03:25.011Z"
+    }
+  ],
+  "splitPayments": [
+    {
+      "id": "SPLIT-1001",
+      "orderId": "#ORD-10482",
+      "tableId": "Table T-12",
+      "totalAmount": 1840,
+      "splits": [
+        {
+          "guestIndex": 1,
+          "guestName": "Guest 1",
+          "amount": 460,
+          "method": "UPI",
+          "refNumber": "UPI-9821"
+        },
+        {
+          "guestIndex": 2,
+          "guestName": "Guest 2",
+          "amount": 460,
+          "method": "UPI",
+          "refNumber": "UPI-9822"
+        },
+        {
+          "guestIndex": 3,
+          "guestName": "Guest 3",
+          "amount": 460,
+          "method": "Card",
+          "refNumber": "EDC-8812"
+        },
+        {
+          "guestIndex": 4,
+          "guestName": "Guest 4",
+          "amount": 460,
+          "method": "Cash",
+          "refNumber": "CSH-01"
+        }
+      ],
+      "tipAmount": 100,
+      "settledAt": "2026-09-26T16:03:25.011Z",
+      "status": "completed"
+    }
+  ],
+  "tipPoolDistributions": [
+    {
+      "id": "TIP-881",
+      "date": "2026-09-15",
+      "shift": "Dinner Shift",
+      "totalTipsCollected": 3840,
+      "staffCount": 5,
+      "sharePerStaff": 768,
+      "distributedBy": "General Manager",
+      "distributedAt": "2026-09-26T16:03:25.011Z",
+      "recipients": [
+        {
+          "staffId": "EMP-004",
+          "name": "Chef Harish Rawat",
+          "amount": 768
+        },
+        {
+          "staffId": "EMP-012",
+          "name": "Sunil Rathod",
+          "amount": 768
+        },
+        {
+          "staffId": "EMP-018",
+          "name": "Meera Kumari",
+          "amount": 768
+        },
+        {
+          "staffId": "EMP-022",
+          "name": "Rajesh Paswan",
+          "amount": 768
+        },
+        {
+          "staffId": "EMP-001",
+          "name": "Operations Lead",
+          "amount": 768
+        }
+      ]
+    }
+  ],
+  "reservationDeposits": [
+    {
+      "id": "DEP-401",
+      "reservationId": "RES-401",
+      "guestName": "Dr. Alok Verma",
+      "amount": 2000,
+      "paymentMethod": "UPI",
+      "status": "secured",
+      "transactionRef": "DEP-TXN-882194",
+      "date": "2026-09-16",
+      "createdAt": "2026-09-26T16:03:25.011Z"
+    },
+    {
+      "id": "DEP-402",
+      "reservationId": "RES-402",
+      "guestName": "Sunita Rao",
+      "amount": 1000,
+      "paymentMethod": "Card",
+      "status": "adjusted_in_bill",
+      "transactionRef": "DEP-TXN-882195",
+      "date": "2026-09-16",
+      "createdAt": "2026-09-26T16:03:25.011Z"
+    }
+  ],
+  "tableSessions": [
+    {
+      "id": "SESS-101",
+      "tableId": "T12",
+      "tableName": "Table T-12",
+      "section": "main",
+      "pax": 4,
+      "server": "Sunil R.",
+      "customerName": "Ananya Verma",
+      "seatedAt": "2026-09-26T15:21:25.011Z",
+      "releasedAt": null,
+      "durationMinutes": 42,
+      "totalBill": 1840,
+      "status": "active"
+    },
+    {
+      "id": "SESS-102",
+      "tableId": "T04",
+      "tableName": "Table T-04",
+      "section": "main",
+      "pax": 2,
+      "server": "Floor Staff",
+      "customerName": "Vikram Malhotra",
+      "seatedAt": "2026-09-26T15:45:25.011Z",
+      "releasedAt": null,
+      "durationMinutes": 18,
+      "totalBill": 1260,
+      "status": "active"
+    },
+    {
+      "id": "SESS-100",
+      "tableId": "T08",
+      "tableName": "Table T-08",
+      "section": "main",
+      "pax": 5,
+      "server": "Sunil R.",
+      "customerName": "Rahul Kapoor",
+      "seatedAt": "2026-09-26T14:33:25.011Z",
+      "releasedAt": "2026-09-26T15:53:25.011Z",
+      "durationMinutes": 80,
+      "totalBill": 2450,
+      "status": "completed"
+    }
+  ],
+  "marketingCampaigns": [
+    {
+      "id": "CMP-801",
+      "title": "Weekend Saffron Biryani Feast",
+      "channel": "WhatsApp & SMS",
+      "targetTier": "Platinum & Gold VIP",
+      "targetAudienceCount": 342,
+      "template": "Namaste {{guest_name}}! ✨ Exclusive VIP invite for this weekend at SpiceRoute Kitchen. Enjoy a complimentary Chef Tasting Platter with your table booking. Use code SPICE10 for 10% off. Reserve now!",
+      "status": "SENT",
+      "dispatchedAt": "2026-09-26T15:03:25.011Z",
+      "deliveredCount": 338,
+      "readCount": 295,
+      "conversions": 24
+    }
+  ],
+  "tillSessions": [
+    {
+      "id": "TILL-901",
+      "date": "2026-09-16",
+      "shift": "Dinner Shift 02",
+      "cashierName": "Meera Kumari",
+      "openingFloat": 5000,
+      "cashSalesCollected": 23450,
+      "cashPayouts": 0,
+      "expectedCash": 28450,
+      "actualCountedCash": 28450,
+      "discrepancy": 0,
+      "status": "open",
+      "openedAt": "2026-09-26T11:03:25.011Z",
+      "closedAt": null
+    }
+  ],
+  "kdsSlaLogs": [
+    {
+      "id": "SLA-101",
+      "ticketId": "#KOT-846",
+      "orderId": "#ORD-10480",
+      "station": "Pantry",
+      "targetMinutes": 15,
+      "actualMinutes": 6,
+      "onTime": true,
+      "bumpedAt": "2026-09-26T16:01:25.011Z"
+    },
+    {
+      "id": "SLA-102",
+      "ticketId": "#KOT-844",
+      "orderId": "#ORD-10477",
+      "station": "Curry",
+      "targetMinutes": 15,
+      "actualMinutes": 13,
+      "onTime": true,
+      "bumpedAt": "2026-09-26T15:53:25.011Z"
     }
   ]
 }

@@ -29,6 +29,9 @@ import { checkoutRouter } from './routes/checkout';
 import { insforgeRouter } from './routes/insforge';
 import { n8nRouter } from './routes/n8n';
 import { simulationRouter } from './routes/simulation';
+import { deliveryRouter } from './routes/delivery';
+import { couponsRouter } from './routes/coupons';
+import { searchRouter } from './routes/search';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -51,6 +54,9 @@ app.use('/api/checkout', checkoutRouter);
 app.use('/api/insforge', insforgeRouter);
 app.use('/api/n8n', n8nRouter);
 app.use('/api/simulation', simulationRouter);
+app.use('/api/delivery', deliveryRouter);
+app.use('/api/coupons', couponsRouter);
+app.use('/api/search', searchRouter);
 
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
