@@ -10,6 +10,35 @@ menuRouter.get('/', (_req: Request, res: Response) => {
   res.json({ success: true, count: menu.length, data: menu });
 });
 
+// GET recipe BOM & dynamic COGS cost for dish
+menuRouter.get('/:id/recipe', (req: Request, res: Response) => {
+  const recipeInfo = db.getRecipeForDish(req.params.id);
+  if (!recipeInfo) {
+    return res.status(404).json({ success: false, error: 'Dish not found or has no recipe configuration' });
+  }
+  res.json({ success: true, data: recipeInfo });
+});
+
+// PUT update dish recipe BOM & recalculate margins
+menuRouter.put('/:id/recipe', (req: Request, res: Response) => {
+  const { recipeIngredients } = req.body;
+  if (!Array.isArray(recipeIngredients)) {
+    return res.status(400).json({ success: false, error: 'recipeIngredients must be an array' });
+  }
+
+  const updatedDish = db.updateDishRecipe(req.params.id, recipeIngredients);
+  if (!updatedDish) {
+    return res.status(404).json({ success: false, error: 'Dish not found' });
+  }
+
+  wsHub.broadcast('MENU_RECIPE_UPDATED', updatedDish);
+  res.json({
+    success: true,
+    message: `Recipe for ${updatedDish.name} updated! New cost: ₹${updatedDish.cost} (${updatedDish.marginPct}% margin)`,
+    data: updatedDish,
+  });
+});
+
 // PATCH toggle 86 / stock status
 menuRouter.patch('/:id/toggle-stock', (req: Request, res: Response) => {
   const item = db.toggleMenuItemStock(req.params.id);
@@ -30,3 +59,4 @@ menuRouter.post('/', (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+

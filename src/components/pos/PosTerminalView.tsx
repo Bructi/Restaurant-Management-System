@@ -146,20 +146,7 @@ export const PosTerminalView: React.FC = () => {
   const [selectedTable, setSelectedTable] = useState<string>('Table T-12');
   const [isChangingTable, setIsChangingTable] = useState<boolean>(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>('SPICE10');
-
-  useEffect(() => {
-    api.getMenu().then((res) => {
-      if (res.success && res.data && res.data.length > 0) {
-        setMenuItems(res.data);
-      }
-    }).catch(() => {});
-
-    api.getTables().then((res) => {
-      if (res.success && res.data && res.data.length > 0) {
-        setTablesList(res.data);
-      }
-    }).catch(() => {});
-  }, []);
+  const [discountAmount, setDiscountAmount] = useState<number>(0);
 
   // Cart state initialized with default ticket items from design
   const [cart, setCart] = useState<CartItem[]>([
@@ -200,6 +187,38 @@ export const PosTerminalView: React.FC = () => {
       modifiers: 'Modifiers: With Ice & Lemon',
     },
   ]);
+
+  useEffect(() => {
+    api.getMenu().then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        setMenuItems(res.data);
+      }
+    }).catch(() => {});
+
+    api.getTables().then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        setTablesList(res.data);
+      }
+    }).catch(() => {});
+  }, []);
+
+  // Validate coupon whenever cart changes or coupon is toggled
+  useEffect(() => {
+    if (appliedCoupon && cart.length > 0) {
+      const currentSub = cart.reduce((acc, item) => acc + item.basePrice * item.quantity, 0);
+      api.validateCoupon(appliedCoupon, currentSub)
+        .then((res) => {
+          if (res.success && res.data) {
+            setDiscountAmount(res.data.discountAmount);
+          }
+        })
+        .catch(() => {
+          setDiscountAmount(Math.round(currentSub * 0.1));
+        });
+    } else {
+      setDiscountAmount(0);
+    }
+  }, [appliedCoupon, cart]);
 
   const showToast = (text: string) => {
     setToastMessage(text);
@@ -251,8 +270,8 @@ export const PosTerminalView: React.FC = () => {
 
   // Calculations
   const subtotal = cart.reduce((acc, item) => acc + item.basePrice * item.quantity, 0);
-  const discount = appliedCoupon ? Math.round(subtotal * 0.1) : 0; // 10% Coupon
-  const netSubtotal = subtotal - discount;
+  const discount = appliedCoupon ? discountAmount : 0;
+  const netSubtotal = Math.max(0, subtotal - discount);
   const cgst = Number((netSubtotal * 0.025).toFixed(2));
   const sgst = Number((netSubtotal * 0.025).toFixed(2));
   const serviceCharge = Number((netSubtotal * 0.05).toFixed(2));
@@ -286,7 +305,7 @@ export const PosTerminalView: React.FC = () => {
             </span>
             <span className="font-headline-md text-headline-md font-bold">POS Station 04</span>
             <span className="text-on-surface-variant font-label-sm text-label-sm">
-              · Cashier: Aniket S.
+              · Cashier: Floor Station
             </span>
           </div>
           <div className="h-5 w-px bg-surface-variant hidden sm:block" />
@@ -811,7 +830,7 @@ export const PosTerminalView: React.FC = () => {
                     phone: '+91 98201 00000',
                     itemsSummary: cart.map((c) => `${c.quantity}x ${c.name}`).join(', '),
                     itemsCount: cart.reduce((acc, c) => acc + c.quantity, 0),
-                    staff: 'Aniket S.',
+                    staff: 'POS Lead Station',
                     total: totalAmount,
                     subtotal,
                     taxes: cgst + sgst,
@@ -850,7 +869,7 @@ export const PosTerminalView: React.FC = () => {
                     orderId: `#ORD-${Math.floor(10000 + Math.random() * 90000)}`,
                     table: selectedTable,
                     tableType: orderType === 'dine-in' ? 'Dine-In' : 'Takeaway',
-                    staff: 'Aniket S. (Station 04)',
+                    staff: 'POS Lead (Station 04)',
                     items: cart.map((c) => ({
                       name: c.name,
                       qty: c.quantity,

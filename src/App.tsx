@@ -227,7 +227,7 @@ function AppContent() {
         />
 
         {/* Dynamic Route Container */}
-        <main className="w-full pt-16 bg-surface-container-lowest px-space-md sm:px-space-lg min-h-screen">
+        <main className="w-full pt-16 bg-surface-container-low px-space-md sm:px-space-lg min-h-screen">
           {renderActiveScreen()}
         </main>
       </div>

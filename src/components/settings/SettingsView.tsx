@@ -466,16 +466,34 @@ export const SettingsView: React.FC = () => {
 
                 <div className="flex items-center justify-end gap-2 pt-1 border-t border-surface-container-high/30">
                   <button
-                    onClick={() => toast.success(`Test thermal feed page printed on ${dev.name}`, 'Test Print')}
+                    onClick={async () => {
+                      try {
+                        const res = await api.testPrintPeripheral(dev.id, `Test Page for ${dev.name}`);
+                        toast.success(`Print Job ${res.jobId} sent to spooler on ${dev.name}!`, 'Test Print Success');
+                      } catch (err: any) {
+                        toast.error(err.message || 'Print failed', 'Print Error');
+                      }
+                    }}
                     className="px-3 py-1 rounded bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-on-surface"
                   >
                     Test Print
                   </button>
                   <button
-                    onClick={() => toast.info(`Configuring socket parameters for ${dev.name}`, 'Device Config')}
+                    onClick={async () => {
+                      const newStatus = dev.status === 'online' ? 'low_paper' : dev.status === 'low_paper' ? 'offline' : 'online';
+                      try {
+                        await api.updatePeripheral(dev.id, { status: newStatus });
+                        toast.info(`Updated status of ${dev.name} to ${newStatus.toUpperCase()}`, 'Status Changed');
+                        api.getSettings().then((r) => {
+                          if (r.data?.peripherals) setDevices(r.data.peripherals);
+                        });
+                      } catch (err: any) {
+                        toast.error(err.message || 'Error updating device', 'Failed');
+                      }
+                    }}
                     className="px-3 py-1 rounded bg-primary-container text-on-primary-container text-xs font-bold"
                   >
-                    Configure
+                    Toggle Status
                   </button>
                 </div>
               </div>

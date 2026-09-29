@@ -19,7 +19,7 @@ interface StaffMember {
 const MOCK_STAFF: StaffMember[] = [
   {
     id: 'EMP-001',
-    name: 'Aniket Sharma',
+    name: 'Operations Manager',
     role: 'General Manager',
     department: 'Management',
     clockInTime: '17:30 IST',
@@ -189,11 +189,27 @@ export const StaffManagementView: React.FC = () => {
               <span>Shift Schedule</span>
             </button>
             <button
-              onClick={() => toast.success('Tip Pool: ₹3,840 calculated & distributed among 12 floor staff.', 'Tip Pool')}
+              onClick={async () => {
+                try {
+                  const summary = await api.getTipPoolSummary();
+                  if (summary.success && summary.data) {
+                    const confirmDist = window.confirm(
+                      `Tip Pool Calculation Summary:\n\nTotal Service Charge Tips Accrued: ₹${summary.data.totalTipsCollected}\nActive Floor Staff: ${summary.data.activeStaffCount}\nCalculated Share Per Staff: ₹${summary.data.sharePerStaff}\n\nDo you want to distribute ₹${summary.data.sharePerStaff} to each active staff member now?`
+                    );
+                    if (confirmDist) {
+                      const res = await api.distributeTipPool({ distributedBy: 'General Manager' });
+                      toast.success(res.message || `Distributed tips among staff!`, 'Tip Pool Distributed');
+                      fetchStaff();
+                    }
+                  }
+                } catch (err: any) {
+                  toast.error(err.message || 'Error calculating tip pool', 'Tip Pool Error');
+                }
+              }}
               className="flex items-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors font-label-md text-label-md shadow-sm border border-surface-container-high/40 font-semibold"
             >
               <span className="material-symbols-outlined text-[18px] text-secondary">payments</span>
-              <span>Tip Pool Calc</span>
+              <span>Tip Pool Calc &amp; Distribute</span>
             </button>
             <button
               onClick={() => setIsAddStaffOpen(true)}
@@ -364,20 +380,37 @@ export const StaffManagementView: React.FC = () => {
                       >
                         PIN
                       </button>
-                      <button
-                        onClick={async () => {
-                          try {
-                            await api.clockInStaff(staff.id);
-                            toast.success(`${staff.name} clocked in successfully!`, 'Clock-In');
-                            fetchStaff();
-                          } catch (err: any) {
-                            toast.error(err.message || 'Error clocking in', 'Failed');
-                          }
-                        }}
-                        className="px-2.5 py-1 rounded bg-primary-container text-on-primary-container text-xs font-bold hover:brightness-110"
-                      >
-                        Clock-In
-                      </button>
+                      {staff.status === 'active' ? (
+                        <button
+                          onClick={async () => {
+                            try {
+                              await api.clockOutStaff(staff.id);
+                              toast.info(`${staff.name} clocked out`, 'Clock-Out');
+                              fetchStaff();
+                            } catch (err: any) {
+                              toast.error(err.message || 'Error clocking out', 'Failed');
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface text-xs font-bold"
+                        >
+                          Clock-Out
+                        </button>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            try {
+                              await api.clockInStaff(staff.id);
+                              toast.success(`${staff.name} clocked in successfully!`, 'Clock-In');
+                              fetchStaff();
+                            } catch (err: any) {
+                              toast.error(err.message || 'Error clocking in', 'Failed');
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded bg-primary-container text-on-primary-container text-xs font-bold hover:brightness-110"
+                        >
+                          Clock-In
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

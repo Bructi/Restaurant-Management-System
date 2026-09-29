@@ -73,7 +73,7 @@ export const CheckoutTerminalView: React.FC = () => {
                 </span>
               </div>
               <span className="font-body-sm text-body-sm text-on-surface-variant">
-                Station #01 • Cashier: Maya Kulkarni • Supervisor: Aniket Sharma (GM)
+                Station #01 • Cashier: Maya Kulkarni • Supervisor: General Manager (L4)
               </span>
             </div>
           </div>
@@ -358,23 +358,46 @@ export const CheckoutTerminalView: React.FC = () => {
             <button
               onClick={async () => {
                 try {
-                  const res = await api.settleCheckout({
-                    orderId: currentOrder.id,
-                    tableId: currentOrder.table,
-                    paymentMethod,
-                    amountPaid: totalPayable,
-                  });
-                  setSettledReceipt(res);
-                  toast.success(`Payment of ₹${totalPayable} settled successfully! Receipt ${res.receiptNumber || 'RCP-LIVE'} generated.`, 'Bill Settled');
-                  fetchOrders();
-                } catch {
-                  toast.success(`Payment of ₹${totalPayable} settled! ${currentOrder.table} is released.`, 'Bill Closed');
+                  if (splitMode === 'pax') {
+                    // Real backend multi-tender split settlement
+                    const splitAmt = Number((totalPayable / paxCount).toFixed(2));
+                    const splitPayload = {
+                      orderId: currentOrder.id,
+                      tableId: currentOrder.table,
+                      splits: Array.from({ length: paxCount }).map((_, i) => ({
+                        guestIndex: i + 1,
+                        guestName: `Guest ${i + 1}`,
+                        amount: i === paxCount - 1 ? totalPayable - (splitAmt * (paxCount - 1)) : splitAmt,
+                        method: paymentMethod.toUpperCase(),
+                      })),
+                      tipAmount: 0,
+                    };
+                    const res = await api.settleSplitCheckout(splitPayload);
+                    setSettledReceipt(res);
+                    toast.success(`Split bill of ₹${totalPayable} settled across ${paxCount} guests! Receipt ${res.receiptNumber} generated.`, 'Split Bill Settled');
+                    fetchOrders();
+                  } else {
+                    // Single tender settlement
+                    const res = await api.settleCheckout({
+                      orderId: currentOrder.id,
+                      tableId: currentOrder.table,
+                      paymentMethod: paymentMethod.toUpperCase(),
+                      amountPaid: totalPayable,
+                      customerName: currentOrder.customer,
+                      customerPhone: currentOrder.phone,
+                    });
+                    setSettledReceipt(res);
+                    toast.success(`Payment of ₹${totalPayable} settled successfully! Receipt ${res.receiptNumber || 'RCP-LIVE'} generated.`, 'Bill Settled');
+                    fetchOrders();
+                  }
+                } catch (err: any) {
+                  toast.error(err.message || 'Settlement failed', 'Error');
                 }
               }}
               className="w-full py-3.5 rounded-xl bg-secondary text-on-secondary font-headline-md font-black shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-[22px]">done_all</span>
-              <span>Confirm &amp; Close Bill</span>
+              <span>{splitMode === 'pax' ? `Confirm & Settle ${paxCount}-Way Split` : 'Confirm & Close Bill'}</span>
             </button>
             <button
               onClick={() => {
@@ -396,7 +419,7 @@ export const CheckoutTerminalView: React.FC = () => {
                   sgst,
                   serviceCharge,
                   total: totalPayable,
-                  paymentMethod,
+                  paymentMethod: splitMode === 'pax' ? `${paxCount}-Way Split (${paymentMethod.toUpperCase()})` : paymentMethod.toUpperCase(),
                 });
                 toast.info(`Opened 80mm receipt preview for ${currentOrder.table}`, 'Thermal Preview');
               }}

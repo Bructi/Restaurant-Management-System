@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TopBannerProps {
   onQuickOrder: () => void;
@@ -11,7 +12,10 @@ export const TopBanner: React.FC<TopBannerProps> = ({
   onDailySummary,
   onRefresh,
 }) => {
+  const { user } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const greetingName = user?.name ? user.name.split(' ')[0] : 'Operations Lead';
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -27,7 +31,7 @@ export const TopBanner: React.FC<TopBannerProps> = ({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-space-sm">
           <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight font-bold">
-            Good evening, Aniket
+            Good evening, {greetingName}
           </h1>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary/15 text-secondary font-label-sm text-label-sm font-bold">
             <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping" />

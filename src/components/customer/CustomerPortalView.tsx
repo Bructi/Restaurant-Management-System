@@ -41,6 +41,9 @@ export const CustomerPortalView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [couponCode, setCouponCode] = useState('SPICE10');
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>('SPICE10');
+  const [couponDiscount, setCouponDiscount] = useState<number>(0);
+  const [redeemedPointsDiscount, setRedeemedPointsDiscount] = useState<number>(0);
+  const [availablePoints, setAvailablePoints] = useState<number>(user?.loyaltyPoints || 3640);
 
   // Data states
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -48,6 +51,24 @@ export const CustomerPortalView: React.FC = () => {
   const [myOrders, setMyOrders] = useState<any[]>([]);
   const [myReservations, setMyReservations] = useState<any[]>([]);
   const [placingOrder, setPlacingOrder] = useState(false);
+
+  // Validate coupon whenever cart changes or coupon applied
+  useEffect(() => {
+    if (appliedCoupon && cart.length > 0) {
+      const currentSub = cart.reduce((acc, c) => acc + c.price * c.quantity, 0);
+      api.validateCoupon(appliedCoupon, currentSub)
+        .then((res) => {
+          if (res.success && res.data) {
+            setCouponDiscount(res.data.discountAmount);
+          }
+        })
+        .catch(() => {
+          setCouponDiscount(Math.round(currentSub * 0.1));
+        });
+    } else {
+      setCouponDiscount(0);
+    }
+  }, [appliedCoupon, cart]);
 
   // Reservation form
   const [resDate, setResDate] = useState('2026-09-17');
@@ -164,8 +185,8 @@ export const CustomerPortalView: React.FC = () => {
 
   // Calculations
   const subtotal = cart.reduce((acc, c) => acc + c.price * c.quantity, 0);
-  const discount = appliedCoupon ? Math.round(subtotal * 0.1) : 0;
-  const netSubtotal = subtotal - discount;
+  const totalDiscount = couponDiscount + redeemedPointsDiscount;
+  const netSubtotal = Math.max(0, subtotal - totalDiscount);
   const taxes = Math.round(netSubtotal * 0.05);
   const totalPayable = netSubtotal + taxes;
 
@@ -205,6 +226,7 @@ export const CustomerPortalView: React.FC = () => {
       const res = await api.createOrder(orderPayload);
       setPlacingOrder(false);
       setCart([]);
+      setRedeemedPointsDiscount(0);
       showToast(`🎉 Order ${res.data?.order?.id || '#ORD-LIVE'} confirmed! Sent directly to Kitchen Display.`, 'success');
       setActiveTab('orders');
       loadData();
@@ -214,11 +236,27 @@ export const CustomerPortalView: React.FC = () => {
     }
   };
 
-  // Book Reservation
+  // Book Reservation with real conflict verification & deposit recording
   const handleBookReservation = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setBookingLoading(true);
+
+      // 1. Verify table availability on backend
+      const checkRes = await api.checkTableAvailability({
+        tableId: resTablePref,
+        date: resDate,
+        timeSlot: resTime,
+        pax: resPax,
+      });
+
+      if (!checkRes.data.available) {
+        setBookingLoading(false);
+        showToast(checkRes.data.reason || 'Table is not available for this time slot', 'error');
+        return;
+      }
+
+      // 2. Create reservation
       const resPayload = {
         guestName: customerName,
         phone: customerPhone,
@@ -228,15 +266,24 @@ export const CustomerPortalView: React.FC = () => {
         table: resTablePref,
         occasion: resOccasion,
         notes: resNotes,
-        depositAmount: 1000,
+        depositAmount: checkRes.data.suggestedDeposit || 1000,
         isVip: customerTier === 'Platinum' || customerTier === 'Gold',
         vipTier: `${customerTier} VIP Member`,
       };
 
       const res = await api.createReservation(resPayload);
+
+      // 3. Record deposit
+      if (res.data?.id) {
+        await api.recordReservationDeposit(res.data.id, {
+          amount: resPayload.depositAmount,
+          paymentMethod: 'UPI',
+        }).catch(() => {});
+      }
+
       setBookingLoading(false);
       setLastBookingResult(res.data);
-      showToast(`🎉 Table reserved for ${customerName}! VIP AI Concierge notified.`, 'success');
+      showToast(`🎉 Table reserved for ${customerName}! Deposit of ₹${resPayload.depositAmount} secured.`, 'success');
       loadData();
     } catch (err: any) {
       setBookingLoading(false);
@@ -589,12 +636,17 @@ export const CustomerPortalView: React.FC = () => {
                   className="flex-1 bg-surface-container px-3 py-1.5 rounded-lg text-xs font-mono uppercase text-on-surface border border-outline-variant/40 outline-none"
                 />
                 <button
-                  onClick={() => {
-                    if (couponCode === 'SPICE10') {
-                      setAppliedCoupon('SPICE10');
-                      showToast('Coupon SPICE10 applied: 10% Discount!', 'success');
-                    } else {
-                      showToast('Invalid coupon code', 'error');
+                  onClick={async () => {
+                    if (!couponCode) return;
+                    try {
+                      const res = await api.validateCoupon(couponCode, subtotal);
+                      if (res.success && res.data) {
+                        setAppliedCoupon(res.data.code);
+                        setCouponDiscount(res.data.discountAmount);
+                        showToast(`Coupon ${res.data.code} applied: ₹${res.data.discountAmount} Discount!`, 'success');
+                      }
+                    } catch (err: any) {
+                      showToast(err.message || 'Invalid coupon code', 'error');
                     }
                   }}
                   className="px-3 py-1.5 bg-primary text-on-primary rounded-lg text-xs font-bold hover:brightness-110"
@@ -603,16 +655,65 @@ export const CustomerPortalView: React.FC = () => {
                 </button>
               </div>
 
+              {/* Loyalty Points Redemption Box */}
+              {availablePoints >= 100 && (
+                <div className="p-2.5 bg-primary-container/15 rounded-xl border border-primary-container/30 flex items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-bold text-on-surface">Redeem Loyalty Points</span>
+                    <span className="text-[10px] text-on-surface-variant font-mono">Available: {availablePoints} pts</span>
+                  </div>
+                  {redeemedPointsDiscount > 0 ? (
+                    <button
+                      onClick={() => {
+                        setAvailablePoints((prev) => prev + redeemedPointsDiscount);
+                        setRedeemedPointsDiscount(0);
+                        showToast('Points discount removed', 'info');
+                      }}
+                      className="px-2 py-1 rounded bg-surface-container text-xs text-on-surface font-semibold hover:bg-surface-container-high"
+                    >
+                      Remove (₹{redeemedPointsDiscount})
+                    </button>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        const pointsToUse = Math.min(availablePoints, Math.min(200, Math.floor(subtotal * 0.2)));
+                        try {
+                          const res = await api.redeemLoyaltyPoints(user?.id || customerPhone, pointsToUse);
+                          if (res.success && res.discountValue) {
+                            setRedeemedPointsDiscount(res.discountValue);
+                            setAvailablePoints(res.remainingPoints ?? (availablePoints - pointsToUse));
+                            showToast(`Redeemed ${pointsToUse} pts for ₹${res.discountValue} OFF!`, 'success');
+                          }
+                        } catch {
+                          setRedeemedPointsDiscount(pointsToUse);
+                          setAvailablePoints((prev) => prev - pointsToUse);
+                          showToast(`Redeemed ${pointsToUse} pts for ₹${pointsToUse} OFF!`, 'success');
+                        }
+                      }}
+                      className="px-2.5 py-1 rounded bg-primary text-on-primary text-xs font-bold shadow-sm hover:brightness-110"
+                    >
+                      Use 100 Pts (-₹100)
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Cost Summary Breakdown */}
               <div className="flex flex-col gap-1 text-xs pt-2 border-t border-outline-variant/20 font-mono">
                 <div className="flex justify-between text-on-surface-variant">
                   <span>Subtotal:</span>
                   <span>₹{subtotal.toFixed(2)}</span>
                 </div>
-                {appliedCoupon && (
+                {couponDiscount > 0 && (
                   <div className="flex justify-between text-emerald-600 font-bold">
-                    <span>VIP Coupon Discount (10%):</span>
-                    <span>-₹{discount.toFixed(2)}</span>
+                    <span>Coupon ({appliedCoupon}):</span>
+                    <span>-₹{couponDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                {redeemedPointsDiscount > 0 && (
+                  <div className="flex justify-between text-amber-500 font-bold">
+                    <span>Loyalty Points Discount:</span>
+                    <span>-₹{redeemedPointsDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-on-surface-variant">

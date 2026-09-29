@@ -45,7 +45,7 @@ const INITIAL_KDS_TICKETS: KdTicket[] = [
     table: 'Table T-04',
     orderType: 'Dine-In',
     pax: 2,
-    server: 'Aniket S.',
+    server: 'Service Staff',
     elapsedMinutes: 19,
     isUrgent: true,
     status: 'cooking',
@@ -88,6 +88,9 @@ export const KitchenDisplayView: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState<string>('all');
   const [tickets, setTickets] = useState<KdTicket[]>(INITIAL_KDS_TICKETS);
   const [chimeOn, setChimeOn] = useState(true);
+  const [isExpoOpen, setIsExpoOpen] = useState(false);
+  const [expoData, setExpoData] = useState<any>(null);
+  const [slaMetrics, setSlaMetrics] = useState<any>(null);
 
   const fetchTickets = () => {
     api.getKdsTickets().then((res) => {
@@ -95,6 +98,19 @@ export const KitchenDisplayView: React.FC = () => {
         setTickets(res.data);
       }
     }).catch(() => {});
+
+    api.getKdsSlaMetrics().then((res) => {
+      if (res.success && res.data) setSlaMetrics(res.data);
+    }).catch(() => {});
+  };
+
+  const openExpoModal = () => {
+    api.getKdsExpoSummary().then((res) => {
+      if (res.success && res.data) {
+        setExpoData(res.data);
+        setIsExpoOpen(true);
+      }
+    }).catch(() => setIsExpoOpen(true));
   };
 
   useEffect(() => {
@@ -218,7 +234,10 @@ export const KitchenDisplayView: React.FC = () => {
               <span className="material-symbols-outlined text-[18px]">history</span>
               <span>Recall</span>
             </button>
-            <button className="flex items-center gap-1.5 px-space-sm py-2 rounded-lg bg-tertiary-container/20 text-tertiary hover:bg-tertiary-container/30 font-label-sm text-label-sm transition-colors font-semibold">
+            <button
+              onClick={openExpoModal}
+              className="flex items-center gap-1.5 px-space-sm py-2 rounded-lg bg-tertiary-container/20 text-tertiary hover:bg-tertiary-container/30 font-label-sm text-label-sm transition-colors font-semibold"
+            >
               <span className="material-symbols-outlined text-[18px]">view_kanban</span>
               <span>Expo View</span>
             </button>
@@ -395,9 +414,24 @@ export const KitchenDisplayView: React.FC = () => {
                         </div>
                       </div>
 
-                      <span className="px-2 py-0.5 rounded bg-surface-container-lowest text-[10px] uppercase font-mono-metric text-on-surface-variant shrink-0">
-                        {item.station}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const STATIONS = ['Tandoor', 'Curry', 'Bar', 'Pantry', 'Dessert'];
+                            const nextIndex = (STATIONS.indexOf(item.station) + 1) % STATIONS.length;
+                            const newStation = STATIONS[nextIndex];
+                            try {
+                              await api.reassignKdsItemStation(ticket.id, item.id, { newStation });
+                              fetchTickets();
+                            } catch {}
+                          }}
+                          className="px-2 py-0.5 rounded bg-surface-container-lowest hover:bg-surface-container-high text-[10px] uppercase font-mono-metric text-on-surface-variant shrink-0"
+                          title="Click to cycle station routing"
+                        >
+                          {item.station} ➔
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -423,6 +457,81 @@ export const KitchenDisplayView: React.FC = () => {
           );
         })}
       </section>
+      {/* KDS Expo Aggregate Master Modal */}
+      {isExpoOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-2xl bg-surface-container rounded-2xl p-space-lg shadow-2xl border border-surface-container-high flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[24px]">view_kanban</span>
+                <div>
+                  <h3 className="font-headline-md font-bold text-on-surface">Kitchen Expo Master Screen</h3>
+                  <p className="text-xs text-on-surface-variant">Live consolidated item prep requirements across all stations</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsExpoOpen(false)}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="p-2.5 bg-surface-container-lowest rounded-xl border border-surface-container-high/30 flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-on-surface-variant">Active KOTs</span>
+                <span className="font-mono text-base font-bold text-on-surface">{expoData?.activeTicketsCount || tickets.length}</span>
+              </div>
+              <div className="p-2.5 bg-surface-container-lowest rounded-xl border border-surface-container-high/30 flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-error">Urgent Tickets</span>
+                <span className="font-mono text-base font-bold text-error">{expoData?.urgentTicketsCount || 1}</span>
+              </div>
+              <div className="p-2.5 bg-surface-container-lowest rounded-xl border border-surface-container-high/30 flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-primary">Oldest Wait</span>
+                <span className="font-mono text-base font-bold text-primary">{expoData?.oldestWaitMinutes || 19} mins</span>
+              </div>
+              <div className="p-2.5 bg-surface-container-lowest rounded-xl border border-surface-container-high/30 flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-secondary">SLA On-Time</span>
+                <span className="font-mono text-base font-bold text-secondary">{slaMetrics?.onTimePercentage || 94.2}%</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
+              <span className="text-xs font-bold uppercase text-on-surface-variant">Aggregated Prep Requirements:</span>
+              {(expoData?.aggregatedDishes || [
+                { name: 'Butter Chicken (Boneless)', station: 'Curry', totalQty: 3, ticketCount: 3 },
+                { name: 'Paneer Tikka (Tandoor)', station: 'Tandoor', totalQty: 4, ticketCount: 2 },
+                { name: 'Garlic Naan (Crispy)', station: 'Tandoor', totalQty: 6, ticketCount: 3 },
+                { name: 'Chicken Dum Biryani', station: 'Pantry', totalQty: 2, ticketCount: 2 },
+              ]).map((dish: any, idx: number) => (
+                <div key={idx} className="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high/30 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-lg bg-primary-container/20 text-primary font-mono font-bold flex items-center justify-center text-sm">
+                      {dish.totalQty}x
+                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-xs text-on-surface">{dish.name}</span>
+                      <span className="text-[10px] text-on-surface-variant font-mono">Needed for {dish.ticketCount} tickets</span>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-surface-container text-xs font-mono font-bold text-primary uppercase">
+                    {dish.station}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-surface-container-high/40">
+              <button
+                onClick={() => setIsExpoOpen(false)}
+                className="px-4 py-2 rounded-lg bg-primary-container text-on-primary-container text-xs font-bold"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

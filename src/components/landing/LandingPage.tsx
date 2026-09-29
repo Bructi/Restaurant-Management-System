@@ -226,7 +226,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </p>
             </div>
             <div className="flex items-center text-xs font-bold text-emerald-600 gap-1 pt-2 border-t border-outline-variant/20">
-              <span>Enter as Guest (Ananya)</span>
+              <span>Enter as Guest Dining</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </div>
           </div>
@@ -256,7 +256,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </p>
             </div>
             <div className="flex items-center text-xs font-bold text-secondary gap-1 pt-2 border-t border-outline-variant/20">
-              <span>Enter as Staff (Sunil)</span>
+              <span>Enter as Floor Staff</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </div>
           </div>
@@ -286,7 +286,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </p>
             </div>
             <div className="flex items-center text-xs font-bold text-primary gap-1 pt-2 border-t border-outline-variant/20">
-              <span>Enter as Admin (Aniket)</span>
+              <span>Enter as Administrator</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </div>
           </div>

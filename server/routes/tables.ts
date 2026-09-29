@@ -20,18 +20,34 @@ tablesRouter.patch('/:id', (req: Request, res: Response) => {
   res.json({ success: true, data: table });
 });
 
-// POST seat guests
+// GET all table seating sessions
+tablesRouter.get('/sessions', (_req: Request, res: Response) => {
+  const analytics = db.getTableAnalytics();
+  res.json({ success: true, data: analytics });
+});
+
+// GET table turnaround analytics & section breakdown
+tablesRouter.get('/analytics', (_req: Request, res: Response) => {
+  const analytics = db.getTableAnalytics();
+  res.json({ success: true, data: analytics });
+});
+
+// POST seat guests & start table session
 tablesRouter.post('/:id/seat', (req: Request, res: Response) => {
   const { guestsCount, customerName, server } = req.body;
   const table = db.updateTable(req.params.id, {
     status: 'occupied',
     guestsCount: guestsCount || 2,
     customerName: customerName || 'Walk-in Guests',
-    server: server || 'Sunil R.',
+    server: server || 'Floor Staff',
     timeSeated: 'Just Seated',
   });
+
+  const session = db.startTableSession(req.params.id, guestsCount || 2, server || 'Floor Staff', customerName || 'Walk-in Guests');
+
   wsHub.broadcast('TABLE_UPDATED', table);
-  res.json({ success: true, message: `Table ${req.params.id} seated`, data: table });
+  wsHub.broadcast('TABLE_SESSION_STARTED', session);
+  res.json({ success: true, message: `Table ${req.params.id} seated`, data: { table, session } });
 });
 
 // POST add new table
@@ -73,6 +89,9 @@ tablesRouter.post('/merge', (req: Request, res: Response) => {
 
 // POST mark cleaned and available
 tablesRouter.post('/:id/release', (req: Request, res: Response) => {
+  const currentTable = db.getTableById(req.params.id);
+  const totalBill = currentTable?.amount || 0;
+
   const table = db.updateTable(req.params.id, {
     status: 'available',
     guestsCount: undefined,
@@ -82,6 +101,10 @@ tablesRouter.post('/:id/release', (req: Request, res: Response) => {
     timeSeated: undefined,
     orderInfo: 'Available',
   });
+
+  const session = db.endTableSession(req.params.id, totalBill);
+
   wsHub.broadcast('TABLE_UPDATED', table);
-  res.json({ success: true, message: `Table ${req.params.id} marked clean and available`, data: table });
+  if (session) wsHub.broadcast('TABLE_SESSION_ENDED', session);
+  res.json({ success: true, message: `Table ${req.params.id} marked clean and available`, data: { table, session } });
 });

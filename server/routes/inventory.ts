@@ -17,6 +17,39 @@ inventoryRouter.get('/purchase-orders', (_req: Request, res: Response) => {
   res.json({ success: true, count: pos.length, data: pos });
 });
 
+// POST receive and ingest a purchase order into inventory
+inventoryRouter.post('/purchase-orders/:poNumber/receive', (req: Request, res: Response) => {
+  const { notes } = req.body;
+  const result = db.receivePurchaseOrder(req.params.poNumber, notes);
+  if (!result) {
+    return res.status(404).json({ success: false, error: 'Purchase order not found' });
+  }
+
+  wsHub.broadcast('PURCHASE_ORDER_RECEIVED', result);
+  wsHub.broadcast('STOCK_UPDATED', db.getInventory());
+  res.json({
+    success: true,
+    message: `Purchase Order ${req.params.poNumber} marked as RECEIVED and ${result.ingestedItems.length} ingredient items added to stock!`,
+    data: result,
+  });
+});
+
+// POST cancel a purchase order
+inventoryRouter.post('/purchase-orders/:poNumber/cancel', (req: Request, res: Response) => {
+  const { reason } = req.body;
+  const result = db.cancelPurchaseOrder(req.params.poNumber, reason);
+  if (!result) {
+    return res.status(404).json({ success: false, error: 'Purchase order not found' });
+  }
+
+  wsHub.broadcast('PURCHASE_ORDER_CANCELLED', result);
+  res.json({
+    success: true,
+    message: `Purchase Order ${req.params.poNumber} cancelled`,
+    data: result,
+  });
+});
+
 // POST trigger autonomous n8n supply replenishment
 inventoryRouter.post('/auto-supply', async (req: Request, res: Response) => {
   try {
@@ -62,6 +95,21 @@ inventoryRouter.post('/receive', (req: Request, res: Response) => {
 // POST record kitchen wastage
 inventoryRouter.post('/wastage', (req: Request, res: Response) => {
   const { item, qty, reason, cost } = req.body;
-  const waste = db.logWastage(item, qty, reason, cost);
+  const waste = db.logWastage(item, qty, reason, Number(cost) || 0);
+  wsHub.broadcast('WASTE_LOGGED', waste);
   res.status(201).json({ success: true, message: 'Wastage logged', data: waste });
 });
+
+// GET all wastage logs
+inventoryRouter.get('/waste-logs', (req: Request, res: Response) => {
+  const category = req.query.category as string;
+  const logs = db.getWasteLogs(category);
+  res.json({ success: true, count: logs.length, data: logs });
+});
+
+// GET waste cost summary & scrap analytics
+inventoryRouter.get('/waste-summary', (_req: Request, res: Response) => {
+  const summary = db.getWasteSummary();
+  res.json({ success: true, data: summary });
+});
+

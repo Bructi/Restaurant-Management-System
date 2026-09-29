@@ -77,7 +77,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({ isOpen, onClos
       phone: '+91 98200 00000',
       itemsSummary: items.map((i) => `${i.qty}x ${i.name}`).join(', '),
       itemsCount: items.reduce((acc, i) => acc + i.qty, 0),
-      staff: 'Aniket S. (Express)',
+      staff: 'Express Dispatch Station',
       total,
       subtotal,
       taxes,

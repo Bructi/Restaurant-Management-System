@@ -31,6 +31,34 @@ staffRouter.patch('/:id/pin', (req: Request, res: Response) => {
   res.json({ success: true, message: `PIN updated for ${staff.name}`, data: staff });
 });
 
+// GET tip pool calculation & distribution summary
+staffRouter.get('/tip-pool', (_req: Request, res: Response) => {
+  const summary = db.getTipPoolSummary();
+  res.json({ success: true, data: summary });
+});
+
+// POST distribute tip pool among active floor staff
+staffRouter.post('/tip-pool/distribute', (req: Request, res: Response) => {
+  const { distributedBy } = req.body;
+  const record = db.distributeTipPool(distributedBy || 'General Manager');
+  wsHub.broadcast('TIP_POOL_DISTRIBUTED', record);
+  res.json({
+    success: true,
+    message: `Distributed ₹${record.totalTipsCollected} among ${record.staffCount} staff members (₹${record.sharePerStaff} each)`,
+    data: record,
+  });
+});
+
+// POST clock-out staff
+staffRouter.post('/:id/clock-out', (req: Request, res: Response) => {
+  const staff = db.clockOutStaff(req.params.id);
+  if (!staff) {
+    return res.status(404).json({ success: false, error: 'Staff member not found' });
+  }
+  wsHub.broadcast('STAFF_CLOCK_OUT', staff);
+  res.json({ success: true, message: `Clocked out at ${staff.clockOutTime}`, data: staff });
+});
+
 // POST clock-in
 staffRouter.post('/:id/clock-in', (req: Request, res: Response) => {
   const staff = db.clockInStaff(req.params.id);
@@ -40,3 +68,4 @@ staffRouter.post('/:id/clock-in', (req: Request, res: Response) => {
   wsHub.broadcast('STAFF_CLOCK_IN', staff);
   res.json({ success: true, message: `Clocked in successfully at ${staff.clockInTime}`, data: staff });
 });
+

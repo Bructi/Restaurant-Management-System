@@ -86,6 +86,10 @@ export const CustomerCrmView: React.FC = () => {
   const [tierFilter, setTierFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddGuestOpen, setIsAddGuestOpen] = useState(false);
+  const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
+  const [campaignTitle, setCampaignTitle] = useState('Weekend Saffron Biryani Special');
+  const [campaignTier, setCampaignTier] = useState('Platinum & Gold');
+  const [campaignTemplate, setCampaignTemplate] = useState('Namaste {{guest_name}}! ✨ Exclusive VIP invite for this weekend at SpiceRoute Kitchen. Enjoy a complimentary Chef Tasting Platter with your table booking. Use code SPICE10 for 10% off. Reserve now!');
   const [newGuestName, setNewGuestName] = useState('');
   const [newGuestPhone, setNewGuestPhone] = useState('');
   const [newGuestTier, setNewGuestTier] = useState<'Standard' | 'Silver' | 'Gold' | 'Platinum'>('Standard');
@@ -173,7 +177,7 @@ export const CustomerCrmView: React.FC = () => {
               <span>Export Guest List</span>
             </button>
             <button
-              onClick={() => toast.info('Opening WhatsApp Broadcast Campaign Builder...', 'Campaign Hub')}
+              onClick={() => setIsCampaignModalOpen(true)}
               className="flex items-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md transition-colors shadow-sm border border-surface-container-high/40 font-semibold"
             >
               <span className="material-symbols-outlined text-[18px] text-secondary">campaign</span>
@@ -373,6 +377,27 @@ export const CustomerCrmView: React.FC = () => {
                   <td className="py-3.5 px-4 text-right">
                     <div className="inline-flex items-center gap-1">
                       <button
+                        onClick={async () => {
+                          const ptsStr = prompt(`Enter loyalty points to reward ${cust.name}:`, '100');
+                          if (ptsStr) {
+                            const pts = parseInt(ptsStr, 10);
+                            if (pts > 0) {
+                              try {
+                                await api.creditLoyaltyPoints(cust.id, { points: pts, reason: 'Manual VIP recognition bonus' });
+                                toast.success(`Credited ${pts} points to ${cust.name}!`, 'Loyalty Rewarded');
+                                fetchCustomers();
+                              } catch (err: any) {
+                                toast.error(err.message || 'Error crediting points', 'Failed');
+                              }
+                            }
+                          }
+                        }}
+                        className="px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 text-xs font-bold"
+                        title="Credit Loyalty Points"
+                      >
+                        +Pts
+                      </button>
+                      <button
                         onClick={() => toast.info(`Sending WhatsApp loyalty perk to ${cust.name}...`, 'WhatsApp Perk')}
                         className="p-1.5 rounded bg-surface-container hover:bg-surface-container-high text-secondary"
                         title="Send WhatsApp Promo"
@@ -380,7 +405,7 @@ export const CustomerCrmView: React.FC = () => {
                         <span className="material-symbols-outlined text-[16px]">chat</span>
                       </button>
                       <button
-                        onClick={() => toast.info(`Viewing full order history for ${cust.name}`, 'Guest Profile')}
+                        onClick={() => toast.info(`Viewing full order history for ${cust.name} (Visits: ${cust.visits}, Spend: ₹${cust.totalSpend})`, 'Guest Profile')}
                         className="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold"
                       >
                         Profile
@@ -495,6 +520,96 @@ export const CustomerCrmView: React.FC = () => {
                 className="px-4 py-2 rounded-lg bg-primary-container text-on-primary-container text-sm font-bold shadow-md hover:brightness-110"
               >
                 Save Guest
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Broadcast Marketing Campaign Modal */}
+      {isCampaignModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-lg bg-surface-container rounded-2xl p-space-lg shadow-2xl border border-surface-container-high flex flex-col gap-4">
+            <div className="flex items-center justify-between border-b border-surface-container-high/40 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-secondary text-[24px]">campaign</span>
+                <h3 className="font-headline-md font-bold text-on-surface">Broadcast WhatsApp/SMS Campaign</h3>
+              </div>
+              <button
+                onClick={() => setIsCampaignModalOpen(false)}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3 font-body-sm">
+              <div>
+                <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                  Campaign Title
+                </label>
+                <input
+                  type="text"
+                  value={campaignTitle}
+                  onChange={(e) => setCampaignTitle(e.target.value)}
+                  className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                  Target Audience Tier
+                </label>
+                <select
+                  value={campaignTier}
+                  onChange={(e) => setCampaignTier(e.target.value)}
+                  className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none"
+                >
+                  <option value="All">All Directory Guests (2,840)</option>
+                  <option value="Platinum & Gold">Platinum &amp; Gold VIP Diners (342)</option>
+                  <option value="Platinum">Platinum VIP Elite Only (128)</option>
+                  <option value="Gold">Gold Members Only (214)</option>
+                  <option value="Silver">Silver Members (680)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase text-on-surface-variant block mb-1">
+                  WhatsApp Message Template
+                </label>
+                <textarea
+                  rows={4}
+                  value={campaignTemplate}
+                  onChange={(e) => setCampaignTemplate(e.target.value)}
+                  className="w-full bg-surface-container-lowest p-2.5 rounded-lg text-on-surface border border-surface-container-high/40 outline-none text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-surface-container-high/40">
+              <button
+                onClick={() => setIsCampaignModalOpen(false)}
+                className="px-4 py-2 rounded-lg bg-surface-container text-on-surface text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await api.broadcastCampaign({
+                      title: campaignTitle,
+                      targetTier: campaignTier,
+                      template: campaignTemplate,
+                    });
+                    toast.success(res.message || 'Campaign dispatched!', 'Campaign Sent');
+                    setIsCampaignModalOpen(false);
+                  } catch (err: any) {
+                    toast.error(err.message || 'Error dispatching campaign', 'Failed');
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-secondary text-on-secondary text-sm font-bold shadow-md hover:brightness-110 flex items-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[18px]">send</span>
+                <span>Dispatch Broadcast</span>
               </button>
             </div>
           </div>

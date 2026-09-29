@@ -61,6 +61,48 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
+// POST void an item from active order with inventory refund
+ordersRouter.post('/:id/void-item', (req: Request, res: Response) => {
+  const { itemId, reason } = req.body;
+  if (!itemId) {
+    return res.status(400).json({ success: false, error: 'itemId is required' });
+  }
+
+  const result = db.voidOrderItem(req.params.id, itemId, reason);
+  if (!result) {
+    return res.status(404).json({ success: false, error: 'Order or item not found' });
+  }
+
+  wsHub.broadcast('ORDER_UPDATED', result.order);
+  wsHub.broadcast('ANALYTICS_UPDATED', db.getAnalytics());
+  res.json({
+    success: true,
+    message: `Item voided from ${req.params.id} and raw recipe ingredients refunded to inventory!`,
+    data: result,
+  });
+});
+
+// POST add new items to existing active order
+ordersRouter.post('/:id/add-items', (req: Request, res: Response) => {
+  const { items } = req.body;
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ success: false, error: 'items array is required' });
+  }
+
+  const updatedOrder = db.addItemsToOrder(req.params.id, items);
+  if (!updatedOrder) {
+    return res.status(404).json({ success: false, error: 'Order not found' });
+  }
+
+  wsHub.broadcast('ORDER_UPDATED', updatedOrder);
+  wsHub.broadcast('ANALYTICS_UPDATED', db.getAnalytics());
+  res.json({
+    success: true,
+    message: `Added ${items.length} items to order ${req.params.id}`,
+    data: updatedOrder,
+  });
+});
+
 // PATCH order status (e.g. Paid, Ready, Completed)
 ordersRouter.patch('/:id', (req: Request, res: Response) => {
   const updated = db.updateOrderStatus(req.params.id, req.body);

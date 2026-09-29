@@ -1,18 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import L from 'leaflet';
+import { api } from '../../services/api';
+import { subscribeRealtime } from '../../hooks/useRealtimeSync';
 
 export interface DeliveryDriverLocation {
   id: string;
-  orderId: string;
-  driverName: string;
-  driverPhone: string;
-  customerName: string;
-  destinationName: string;
+  orderId?: string;
+  activeOrderId?: string;
+  driverName?: string;
+  name?: string;
+  driverPhone?: string;
+  phone?: string;
+  customerName?: string;
+  destinationName?: string;
+  destination?: string;
   lat: number;
   lng: number;
-  status: 'picking_up' | 'on_the_way' | 'delivered';
+  status: 'picking_up' | 'on_the_way' | 'delivered' | 'idle';
   etaMinutes: number;
-  itemsSummary: string;
+  itemsSummary?: string;
+  vehicle?: string;
 }
 
 const RESTAURANT_HUB = {
@@ -20,48 +27,6 @@ const RESTAURANT_HUB = {
   lat: 12.9716,
   lng: 77.5946,
 };
-
-const SAMPLE_DELIVERIES: DeliveryDriverLocation[] = [
-  {
-    id: 'DRV-101',
-    orderId: '#ORD-10477',
-    driverName: 'Ramesh Kumar (Shadowfax)',
-    driverPhone: '+91 98450 11992',
-    customerName: 'Amit Joshi',
-    destinationName: 'Koramangala 4th Block',
-    lat: 12.9352,
-    lng: 77.6245,
-    status: 'on_the_way',
-    etaMinutes: 8,
-    itemsSummary: '1x Butter Chicken, 2x Naan',
-  },
-  {
-    id: 'DRV-102',
-    orderId: '#ORD-10476',
-    driverName: 'Suresh Gowda (Dunzo)',
-    driverPhone: '+91 98220 44511',
-    customerName: 'Sneha Roy',
-    destinationName: 'Indiranagar 100ft Road',
-    lat: 12.9784,
-    lng: 77.6408,
-    status: 'on_the_way',
-    etaMinutes: 12,
-    itemsSummary: '2x Chicken Dum Biryani, 1x Raita',
-  },
-  {
-    id: 'DRV-103',
-    orderId: '#ORD-10474',
-    driverName: 'Vikas Patil (Zomato Express)',
-    driverPhone: '+91 98110 33420',
-    customerName: 'Rohan Deshmukh',
-    destinationName: 'Lavelle Road Residency',
-    lat: 12.9698,
-    lng: 77.5998,
-    status: 'picking_up',
-    etaMinutes: 4,
-    itemsSummary: '1x Paneer Tikka, 1x Dal Makhani',
-  },
-];
 
 interface LiveDeliveryMapProps {
   height?: string;
@@ -79,8 +44,55 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
+  const routesRef = useRef<{ [key: string]: L.Polyline }>({});
   const [activeView, setActiveView] = useState<'fleet' | 'zones'>('fleet');
-  const [selectedDriver, setSelectedDriver] = useState<DeliveryDriverLocation>(SAMPLE_DELIVERIES[0]);
+  const [drivers, setDrivers] = useState<DeliveryDriverLocation[]>([]);
+  const [selectedDriver, setSelectedDriver] = useState<DeliveryDriverLocation | null>(null);
+
+  const fetchDrivers = useCallback(() => {
+    api.getDeliveryDrivers()
+      .then((res) => {
+        if (res.success && res.data && res.data.length > 0) {
+          setDrivers(res.data);
+          if (!selectedDriver) {
+            setSelectedDriver(res.data[0]);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [selectedDriver]);
+
+  useEffect(() => {
+    fetchDrivers();
+
+    const unsub = subscribeRealtime((event) => {
+      if (event.type === 'DRIVER_LOCATION_UPDATED' || event.type === 'DELIVERY_ASSIGNED') {
+        fetchDrivers();
+      }
+    });
+
+    return () => unsub();
+  }, [fetchDrivers]);
+
+  // Simulate driver GPS step
+  const handleSimulateStep = async (driverId: string) => {
+    const d = drivers.find((drv) => drv.id === driverId);
+    if (!d) return;
+
+    // Small random walk closer to hub or destination
+    const deltaLat = (Math.random() - 0.5) * 0.004;
+    const deltaLng = (Math.random() - 0.5) * 0.004;
+    const newLat = d.lat + deltaLat;
+    const newLng = d.lng + deltaLng;
+    const nextEta = Math.max(1, d.etaMinutes - 1);
+
+    await api.updateDriverLocation(driverId, {
+      lat: newLat,
+      lng: newLng,
+      etaMinutes: nextEta,
+      status: nextEta <= 1 ? 'delivered' : 'on_the_way',
+    }).catch(() => {});
+  };
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -106,9 +118,11 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
 
     const map = mapInstanceRef.current;
 
-    // Clear previous markers
+    // Clear previous markers and routes
     Object.values(markersRef.current).forEach((m) => m.remove());
     markersRef.current = {};
+    Object.values(routesRef.current).forEach((r) => r.remove());
+    routesRef.current = {};
 
     // 1. Restaurant Hub Marker (Gold/Primary)
     const restaurantIcon = L.divIcon({
@@ -167,13 +181,18 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
       }).addTo(map);
     }
 
-    // 3. Driver & Destination Markers
-    SAMPLE_DELIVERIES.forEach((driver) => {
+    // 3. Driver & Destination Markers from real backend data
+    drivers.forEach((driver) => {
+      const orderTag = driver.activeOrderId || driver.orderId || '#ORD-DELIVERY';
+      const drvName = driver.name || driver.driverName || 'Fleet Driver';
+      const dest = driver.destination || driver.destinationName || 'Bangalore City';
+      const cust = driver.customerName || 'Customer';
+
       const driverIcon = L.divIcon({
         className: 'custom-driver-marker',
         html: `
           <div style="
-            background: #3b82f6;
+            background: ${driver.status === 'delivered' ? '#10b981' : '#3b82f6'};
             color: #fff;
             width: 32px;
             height: 32px;
@@ -186,7 +205,7 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
             font-size: 14px;
             animation: pulse 2s infinite;
           ">
-            🛵
+            ${driver.status === 'delivered' ? '✓' : '🛵'}
           </div>
         `,
         iconSize: [32, 32],
@@ -198,15 +217,15 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
         .bindPopup(`
           <div style="color: #111; font-family: sans-serif; padding: 4px; min-width: 180px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <strong style="color: #2563eb; font-size: 13px;">${driver.orderId}</strong>
+              <strong style="color: #2563eb; font-size: 13px;">${orderTag}</strong>
               <span style="background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">
                 ETA ${driver.etaMinutes}m
               </span>
             </div>
-            <div style="font-size: 12px; font-weight: bold;">${driver.customerName}</div>
-            <div style="font-size: 11px; color: #555;">📍 ${driver.destinationName}</div>
-            <div style="font-size: 11px; color: #666; margin-top: 4px;">📞 ${driver.driverName}</div>
-            <div style="font-size: 10px; color: #888; font-family: monospace; margin-top: 2px;">${driver.itemsSummary}</div>
+            <div style="font-size: 12px; font-weight: bold;">${cust}</div>
+            <div style="font-size: 11px; color: #555;">📍 ${dest}</div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">📞 ${drvName} (${driver.phone || driver.driverPhone || ''})</div>
+            ${driver.vehicle ? `<div style="font-size: 10px; color: #888; font-family: monospace;">🏍 ${driver.vehicle}</div>` : ''}
           </div>
         `);
 
@@ -218,40 +237,38 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
       markersRef.current[driver.id] = driverMarker;
 
       // Draw Route Polyline from Hub to Driver
-      L.polyline(
+      const poly = L.polyline(
         [
           [RESTAURANT_HUB.lat, RESTAURANT_HUB.lng],
           [driver.lat, driver.lng],
         ],
         {
-          color: '#3b82f6',
+          color: driver.status === 'delivered' ? '#10b981' : '#3b82f6',
           weight: 3,
           opacity: 0.7,
           dashArray: '6, 8',
         }
       ).addTo(map);
+
+      routesRef.current[driver.id] = poly;
     });
 
     // Invalidate size to ensure proper rendering inside containers
     setTimeout(() => {
       map.invalidateSize();
     }, 200);
-
-    return () => {
-      // Keep map alive or cleanup
-    };
-  }, [showRadiusZones, onSelectDriver]);
+  }, [drivers, showRadiusZones, onSelectDriver]);
 
   useEffect(() => {
     if (selectedOrderId && markersRef.current) {
-      const match = SAMPLE_DELIVERIES.find((d) => d.orderId === selectedOrderId);
+      const match = drivers.find((d) => (d.activeOrderId || d.orderId) === selectedOrderId);
       if (match && mapInstanceRef.current) {
         setSelectedDriver(match);
         mapInstanceRef.current.setView([match.lat, match.lng], 14, { animate: true });
         markersRef.current[match.id]?.openPopup();
       }
     }
-  }, [selectedOrderId]);
+  }, [selectedOrderId, drivers]);
 
   return (
     <div className="flex flex-col bg-surface-container-low rounded-2xl border border-outline-variant/30 shadow-md overflow-hidden animate-fadeIn">
@@ -261,11 +278,22 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
           <span className="material-symbols-outlined text-primary text-[22px]">map</span>
           <div>
             <h3 className="font-bold text-sm text-on-surface">Live Delivery Fleet &amp; Geo-Radar Map</h3>
-            <p className="text-[11px] text-on-surface-variant">Real-time OpenStreetMap tracking powered by Leaflet</p>
+            <p className="text-[11px] text-on-surface-variant">Real-time GPS coordinates backed by backend Express &amp; WebSocket gateway</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {selectedDriver && (
+            <button
+              onClick={() => handleSimulateStep(selectedDriver.id)}
+              className="px-2.5 py-1 rounded-md bg-primary-container text-on-primary-container text-xs font-bold shadow-sm hover:brightness-110 flex items-center gap-1"
+              title="Simulate driver movement & update GPS on backend"
+            >
+              <span className="material-symbols-outlined text-[14px]">sports_motorsports</span>
+              <span>Pulse Driver GPS</span>
+            </button>
+          )}
+
           <div className="flex items-center gap-1 bg-surface-container-high p-0.5 rounded-lg text-xs font-bold border border-outline-variant/40">
             <button
               onClick={() => setActiveView('fleet')}
@@ -273,7 +301,7 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
                 activeView === 'fleet' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              🛵 Active Drivers ({SAMPLE_DELIVERIES.length})
+              🛵 Active Drivers ({drivers.length})
             </button>
             <button
               onClick={() => setActiveView('zones')}
@@ -297,19 +325,30 @@ export const LiveDeliveryMap: React.FC<LiveDeliveryMapProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span className="font-mono text-xs font-bold text-primary">{selectedDriver.orderId}</span>
+                <span className="font-mono text-xs font-bold text-primary">
+                  {selectedDriver.activeOrderId || selectedDriver.orderId || '#ORD-DELIVERY'}
+                </span>
               </div>
-              <span className="px-2 py-0.5 rounded-md bg-secondary/15 text-secondary text-[10px] font-bold">
-                ⚡ ETA: {selectedDriver.etaMinutes} mins
+              <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                selectedDriver.status === 'delivered' ? 'bg-emerald-500/20 text-emerald-600' : 'bg-secondary/15 text-secondary'
+              }`}>
+                ⚡ ETA: {selectedDriver.etaMinutes} mins ({selectedDriver.status.toUpperCase()})
               </span>
             </div>
 
             <div className="flex flex-col text-xs">
-              <span className="font-bold text-on-surface">{selectedDriver.customerName}</span>
-              <span className="text-[11px] text-on-surface-variant font-mono">📍 {selectedDriver.destinationName}</span>
-              <span className="text-[11px] text-on-surface-variant mt-1">
-                Driver: <strong>{selectedDriver.driverName}</strong> ({selectedDriver.driverPhone})
+              <span className="font-bold text-on-surface">{selectedDriver.customerName || 'Direct Customer Order'}</span>
+              <span className="text-[11px] text-on-surface-variant font-mono">
+                📍 {selectedDriver.destination || selectedDriver.destinationName || 'Koramangala, Bengaluru'}
               </span>
+              <span className="text-[11px] text-on-surface-variant mt-1">
+                Driver: <strong>{selectedDriver.name || selectedDriver.driverName}</strong> ({selectedDriver.phone || selectedDriver.driverPhone})
+              </span>
+              {selectedDriver.vehicle && (
+                <span className="text-[10px] text-on-surface-variant font-mono">
+                  Vehicle: {selectedDriver.vehicle}
+                </span>
+              )}
             </div>
           </div>
         )}
